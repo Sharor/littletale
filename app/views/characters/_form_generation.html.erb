@@ -1,0 +1,95 @@
+<%
+  # Helper function to generate <option> tags dynamically (mimicking the JS helper)
+  def select_options(options_array, default_text)
+    options_array.map do |option|
+      value = option.downcase.gsub(/\s+/, '_')
+      "<option value=\"#{value}\">#{option}</option>"
+    end.unshift("<option value=\"\" disabled selected>#{default_text}</option>").join.html_safe
+  end
+%>
+
+<%# Character Content Body: This block renders the Detailed Form by default %>
+<div id="char-<%= char_id %>-body">
+    <div class="space-y-4" data-mode-content="form">
+        <label class="block text-sm font-medium">Character Name (Required)</label>
+        <input type="text" 
+                name="character[<%= char_id %>][name]" 
+                id="char-<%= char_id %>-name" 
+                placeholder="Name (e.g., Elara)" 
+                class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 character-name-input">
+        <p id="char-<%= char_id %>-error-name" class="text-red-400 text-xs mt-1 hidden"></p>
+
+        <%# GENDER FIELD %>
+        <div class="text-center pt-2">
+            <label class="block text-sm font-medium">Gender (Required)</label>
+            <select name="character[<%= char_id %>][gender]"
+                    class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
+                <%= select_options(Character::GENDERS, 'Select Gender') %>
+            </select>
+        </div>
+        
+        <%# ETHNICITY & HAIR COLOR GRID %>
+        <div class="grid grid-cols-2 gap-4 pt-2">
+            <div class="text-center">
+                <label class="block text-sm font-medium">Ethnicity</label>
+                <select name="character[<%= char_id %>][ethnicity]"
+                        class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
+                    <%= select_options(Character::ETHNICITIES , 'Select Ethnicity') %>
+                </select>
+            </div>
+            <div class="text-center">
+                <label class="block text-sm font-medium">Hair Color</label>
+                <select name="character[<%= char_id %>][hair_color]"
+                        class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
+                    <%= select_options(Character::HAIRCOLORS, 'Select Hair Color') %>
+                </select>
+            </div>
+        </div>
+
+        <%# HAIR STYLE & EYE COLOR GRID %>
+        <div class="grid grid-cols-2 gap-4 pt-2">
+            <div class="text-center"> 
+                <label class="block text-sm font-medium">Hair Style</label>
+                <select name="character[<%= char_id %>][hair_style]"
+                        class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
+                    <%= select_options(Character::HAIRSTYLES , 'Select Hairstyle') %>
+                </select>
+            </div>
+            <div class="text-center">
+                <label class="block text-sm font-medium">Eye Color</label>
+                <select name="character[<%= char_id %>][eye_color]"
+                        class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
+                    <%= select_options(Character::EYECOLORS, 'Select Eye Color') %>
+                </select>
+            </div>
+        </div>
+        
+        <%# APPEARANCE / TRAITS TEXTAREA %>
+        <label class="block text-sm font-medium pt-2">Appearance / Traits (Detailed Description)</label>
+        <textarea name="character[<%= char_id %>][description]" 
+                    placeholder="Describe their unique appearance, personality traits, and primary motivation." 
+                    rows="3" 
+                    class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500"></textarea>
+
+        <%# ROLES CHECKBOX GRID %>
+        <label class="block text-sm font-medium pt-2">Roles / Distinctive Traits (Select all that apply)</label>
+        <div class="character_attributes p-1 -m-1">
+            <div class="grid grid-cols-2 gap-4">
+                <% Character::ROLES.each do |role| %>
+                    <% sanitized_role = role.downcase.gsub(/[^a-z0-9]+/i, '_') %>
+                    <label for="char-<%= char_id %>-role-<%= sanitized_role %>" class="cursor-pointer">
+                        <input type="checkbox" 
+                                name="character[<%= char_id %>][roles][]" 
+                                value="<%= role %>" 
+                                id="char-<%= char_id %>-role-<%= sanitized_role %>" 
+                                class="peer hidden">
+                        <div class="rounded-xl border border-white/20 p-4 text-center transition-all duration-200 hover:bg-white/5 
+                                    peer-checked:bg-cyan-900 peer-checked:ring-2 peer-checked:ring-cyan-500 peer-checked:border-cyan-500">
+                            <%= role %>
+                        </div>
+                    </label>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</div>

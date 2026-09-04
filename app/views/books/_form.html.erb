@@ -1,0 +1,37 @@
+<%= form_with(model: book, class: "grid grid-cols-1 h-full w-full") do |form| %>
+  <% if book.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(book.errors.count, "error") %> prohibited this book from being saved:</h2>
+
+      <ul>
+        <% book.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if book.name.present? %>
+    <div class="flex flex-col w-full h-full items-center <%= @tutorial %>">
+      <%= form.label :plot, class: "mb-2 text-lg font-semibold text-center" %>
+
+      <%= form.text_field :plot, class: "h-2/3 px-4 w-full border border-gray-300 rounded shadow-sm" %>
+    </div>
+    
+    <div class="w-full flex justify-center mt-4 ">
+      <%= form.submit t('activerecord.attributes.book.update'), class: "fantasy-button px-6 py-2 text-black submit" %>
+    </div>
+
+  <% else %>
+    <%= form.label :name %>
+    <%= form.text_field :name, class: "#{@tutorial}" %>
+
+    <div>
+      <%= form.button t('activerecord.attributes.book.create'), type: "submit", class: "m-4 fantasy-button text-black content-center w-full submit" %>
+    </div>
+  <% end %>
+
+  <div>
+     <%= form.hidden_field :user_id, value: current_user.id %>
+  </div>
+<% end %>

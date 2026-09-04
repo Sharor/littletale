@@ -1,0 +1,8 @@
+<div class="app-wrapper flex flex-col lg:flex-row text-white">
+  <%= render "layouts/sidebar" %>
+
+  <main class="flex-1 p-6">
+    <%= turbo_stream_from @book %>
+    <%= render @book %>
+  </main>
+</div>w

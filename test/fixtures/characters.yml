@@ -1,0 +1,42 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+hernandes:
+  name: Mr. Hernandes
+  age: 38
+  hair_color: Black
+  hair_style: Ponytail
+  eye_color: Green
+  role: Caretaker
+  ethnicity: Latino
+  gender: Man
+  user: one
+  books: one
+
+
+#legacy double check
+
+two:
+  name: MyString
+  age: 1
+  hair_color: MyString
+  hair_style: MyString
+  eye_color: MyString
+  user: one
+
+aske_cowboy:
+  name: "Aske"
+  age: 6
+  hair_color: "brown"
+  hair_style: "fluffy pageboy"
+  eye_color: "brown"
+  gender: "boy"
+  user: one
+
+olivia_cowboy:
+  name: "Olivia"
+  age: 5
+  hair_color: "blond"
+  hair_style: "Ponytail"
+  eye_color: "green"
+  gender: "girl"
+  user: one

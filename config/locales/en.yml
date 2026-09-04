@@ -1,0 +1,110 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t "hello"
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t("hello") %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   "true": "foo"
+#
+# To learn more, please read the Rails Internationalization guide
+# available at https://guides.rubyonrails.org/i18n.html.
+
+en:
+  tutorial: 
+    next: Next
+    back: Back
+    done: Done
+    welcome: Welcome! Let's get you started with making your first book.
+    create_book: Enter a name for your book, it'll be the title.
+    create_book_finish: When you're happy with it, continue to add characters to your book!
+    create_character: Any good story needs heroes and villains! Create the first character of your story...
+    reuse_character: ...or reuse one from an old story (which you cannot do yet of course)!
+    character_generation: When created, they'll appear here - and after a moment, will be drawn for you to see.<br/><br/> You can also remake them if you're not happy with the current image. 
+    ready: Finally, when you are happy with the characters you want to be in the book, you click here and give a description of the book's plot! <br/><br/>Then we'll have a book written and illustrated for you in no time!
+    character_creation: Creating a character is simple. You decide a name, and how they look. 
+    character_looks: Things like their age, gender, hair, eyes...
+    character_attributes: ... and some traits that help give them a more precise overall look. 
+    character_ready: When you're content with the character's setup, we'll illustrate it for you! If you don't like them, you can re-draw them.
+    character_select: It's easier to select existing characters to add, than make them again! <br><br>Simply click on all the ones you want to add and they will be highlighted.<br><br> Should you wish to remove them, simply click them again and save.
+    character_select_ready: Then click here and they'll be added, or removed in the overview.
+    book_plot: Now all that is left to do, is tell what you want the story to be and we work our magic!
+    book_ready: Click here when you are ready for us to write and illustrate your book, and the fairies and elves will get right on it. <br><br>The wizard might be nice and speed up the process if he's in the mood. 
+  helpers:
+    submit: 
+      chatgpt: 
+        create: 'Create your story!'
+      character: 
+        create: 'Create'
+        update: 'Remake'
+        new: 'New'
+        existing: 'Existing'
+        add: 'Make book with these characters'
+    label: 
+      story:
+        name: 'This story was called..'
+      chatgpt: 
+        prompt: What should the story be about? All your characters will be included in the story!
+        audience: What's the age of the person the story is for? 
+    placeholder: 
+      story:
+        name: 'Write the name of your story'
+  getting_started: 
+    drama: Any good story needs heroes and villains! 
+    create: Create the first character of your story, or reuse one from an old story. 
+    cover: 
+      title: Even if you should not judge a book by its cover, it makes the book interesting! 
+      explanation: Explain what you want the book cover image to look like, and select the characters you want in it
+      continue: Continue without an image
+  book: 
+    pick_image: 'Pick an image'
+  illustration: 
+    loading: "Making your character!"
+    error: "Something went wrong."
+    regenerate: "Please remake your character."
+    click: "Click here, edit, then remake."
+  
+  views: 
+    character: 
+      index: 'All your characters'
+  activerecord:
+    attributes:
+      book: 
+        user_prompt: 'Outline the story'
+        create: 'Continue'
+        update: 'Make book!'
+      character: 
+        role: 'Character traits'
+        index: 
+        placeholder: 
+          name: 'Choose a name for your character'
+          age: 'Age'
+          role: 'Fx "Heroic", "Father", "Villain"'
+        upload_guidance: 'Upload an image of what you want your character to look like! This can be a real person, an animal, or another image of your choosing. For the best result, upload only ONE character at a time (ie avoid family photos, multiple people or animals in the same photo).'
+        upload_disclaimer: 'Illegal, sexual or misappropriate images will fail to produce a result, and will not be tolerated. Please do not upload any of this on purpose, as repeated offense will result in your account being closed.'
+      tutorial:
+        terms: Terms of Use
+        eula: End User License Agreement
+        tutorial: Tutorial
+        continue: Continue
+        accept: Accept
+        decline: Decline

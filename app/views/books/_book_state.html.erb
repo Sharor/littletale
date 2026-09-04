@@ -1,0 +1,10 @@
+<div id="<%= dom_id(book, :state) %>">
+  <% if book.generation_status == "in_progress" %>
+    <h1 class="text-3xl font-bold text-center"><%= book.name %></h1>
+    <%= render "books/castle", book: book %>
+  <% elsif book.generation_status == "completed" && book.pages.all?{|p| p.illustration&.original_image&.url&.present?} %>
+    <div class="animate-magical-reveal text-lg text-gray-200">
+      <%= render "books/render_book", book: book %>
+    </div>
+  <% end %>
+</div>

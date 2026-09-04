@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1
+ARG RUBY_VERSION=3.2.2
+FROM ruby:$RUBY_VERSION-slim
+
+WORKDIR /rails
+
+# Install system deps
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      curl build-essential libpq-dev git libvips-dev postgresql-client imagemagick libmagickwand-dev && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install JS runtime for Rails (esbuild, yarn)
+ARG NODE_VERSION=22.15.1
+ARG YARN_VERSION=1.22.5
+ENV PATH=/usr/local/node/bin:$PATH
+RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
+    /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
+    npm install -g yarn@$YARN_VERSION && \
+    rm -rf /tmp/node-build-master
+
+# Install gems (cached by Docker layer)
+COPY Gemfile Gemfile.lock ./
+RUN gem install bundler -v '~> 2.6'
+RUN bundle install --jobs 4 --retry 3
+
+# Install node deps
+COPY package.json yarn.lock ./
+RUN yarn install --immutable
+
+# Copy source code last (to not bust gem cache each time)
+COPY . .
+
+EXPOSE 3000
+CMD ["bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]

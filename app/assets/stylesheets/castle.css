@@ -1,0 +1,32 @@
+.castle-part {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Base Foundation */
+.lvl-1 .foundation, .lvl-2 .foundation, .lvl-3 .foundation, 
+.lvl-4 .foundation, .lvl-5 .foundation, .lvl-6 .foundation { opacity: 1; transform: translateY(0); }
+
+/* Walls */
+.lvl-2 .wall, .lvl-3 .wall, .lvl-4 .wall, .lvl-5 .wall, .lvl-6 .wall { opacity: 1; transform: translateY(0); }
+
+/* Towers */
+.lvl-3 .tower, .lvl-4 .tower, .lvl-5 .tower, .lvl-6 .tower { opacity: 1; transform: translateY(0); }
+
+/* Roofs */
+.lvl-4 .roof, .lvl-5 .roof, .lvl-6 .roof { opacity: 1; transform: translateY(0); }
+
+/* Level 5: Flag only */
+.lvl-5 .flag, .lvl-6 .flag { opacity: 1; transform: translateY(0); }
+
+/* Level 6: The Magic Glow & Floating Effect */
+.lvl-6 svg {
+  filter: drop-shadow(0 0 20px rgba(250, 204, 21, 0.6));
+  animation: castle-float 4s ease-in-out infinite;
+}
+
+@keyframes castle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}

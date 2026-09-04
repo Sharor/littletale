@@ -1,0 +1,209 @@
+<div class="app-wrapper flex flex-col lg:flex-row text-white">
+    
+    <%= render "layouts/sidebar" %>
+
+    <div class="flex-grow flex items-start lg:items-center justify-center min-h-[80vh] w-full">
+        <div id="character-creation-container" class="w-full max-w-4xl frosted-glass rounded-2xl shadow-2xl p-6 md:p-10 my-8">
+
+            <h1 class="text-4xl font-extrabold text-white mb-6 border-b border-white/20 pb-3">
+                New Character Creation
+            </h1>
+
+            <%# Assumes @character is an instance of Character and 'characters_path' is the create route %>
+            <%= form_with(model: @character, url: characters_path, local: true, html: { class: 'space-y-6', multipart: true }) do |form| %>
+                
+                <%# 1. Name Input (Always visible) %>
+                <div class="space-y-4">
+                    <label class="block text-sm font-medium text-gray-300" for="character_name">Character Name (Required)</label>
+                    <%= form.text_field :name, 
+                        placeholder: "Name (e.g., Elara)", 
+                        class: "w-full p-2 rounded-md bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500" %>
+                </div>
+                
+                <%# 2. Roles Selection (Always visible) %>
+                <div class="space-y-4 border-t border-white/10 pt-4">
+                    <h3 class="text-lg font-medium text-gray-300">Character Role(s) / Distinctive Traits (Optional)</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <% character_options[:roles].each do |role| %>
+                            <% role_id = "character_roles_#{role.to_s.gsub(/[^a-z0-9_]+/i, '_')}" %>
+                            
+                            <div class="relative">
+                                <label for="<%= role_id %>" class="cursor-pointer">
+                                    <%= form.check_box :roles, 
+                                        { include_hidden: false, id: role_id, class: "hidden peer role-checkbox-form" }, 
+                                        role, 
+                                        nil  
+                                    %> 
+                                    <div class="rounded-xl border border-white/20 p-4 text-center transition-all duration-200 text-sm font-semibold
+                                                hover:bg-white/5 
+                                                peer-checked:bg-cyan-900 peer-checked:ring-2 peer-checked:ring-cyan-500 peer-checked:border-cyan-500">
+                                        <%= format_option_for_display(role) %>
+                                    </div>
+                                </label>
+                            </div>
+                        <% end %>
+                    </div>
+                    <p class="text-sm text-gray-400">Select all that apply.</p>
+                </div>
+
+                <%# 3. Mode TABS %>
+                <div class="border-b border-white/20 mb-6">
+                    <nav class="flex space-x-2" aria-label="Tabs">
+                        <button type="button" 
+                                id="tab-photo" 
+                                onclick="toggleMode('photo')" 
+                                class="mode-tab px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-150 bg-cyan-700 text-white hover:bg-cyan-600">
+                            Photo Upload
+                        </button>
+                        <button type="button" 
+                                id="tab-form" 
+                                onclick="toggleMode('form')" 
+                                class="mode-tab px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-150 text-gray-400 hover:text-white hover:bg-gray-700">
+                            Descriptive Form
+                        </button>
+                    </nav>
+                </div>
+
+                <%# 4. Mode CONTENT CONTAINERS %>
+
+                <%# Photo Upload Mode (Default - Active) %>
+                <div id="content-photo" class="mode-content space-y-6">
+                    <h2 class="text-xl font-semibold text-white">Upload Character Photo</h2>
+                    <p class="text-gray-300 text-sm">Upload an image for generation.</p>
+                    
+                    <div class="flex items-center space-x-4">
+                        <label class="block cursor-pointer px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200">
+                            Choose Photo
+                            <%# ADDED onchange HANDLER %>
+                            <%= form.file_field :photo_upload, accept: "image/*", class: "hidden", id: "character_photo_upload", onchange: "handlePhotoPreview(this.files[0])" %>
+                        </label>
+                        <span id="file-name-display" class="text-sm text-gray-400">No file chosen.</span>
+                    </div>
+
+                    <%# Photo Preview Area %>
+                    <div id="photo-preview-container" class="mt-6">
+                        <div id="character-photo-preview-image" class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center">
+                            <p class="text-gray-500">Your photo preview will appear here.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <%# Descriptive Form Mode (Hidden by default) %>
+                <div id="content-form" class="mode-content space-y-6 hidden">
+                    <h2 class="text-xl font-semibold text-white">Character Appearance</h2>
+                    <p class="text-gray-300 text-sm">Provide details for character generation.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <%# Uses helper methods: character_options and format_option_for_display %>
+                        <% { gender: 'Gender', ethnicity: 'Ethnicity / Appearance', hair_style: 'Hair Style', hair_color: 'Hair Color', eye_color: 'Eye Color' }.each do |field, label| %>
+                            <div class="space-y-1">
+                                <label class="block text-sm font-medium text-gray-300"><%= label %></label>
+                                <%= form.select field, 
+                                    options_for_select([['-- Select --', '']] + character_options[field].map { |opt| [format_option_for_display(opt), opt] }),
+                                    {},
+                                    class: "w-full p-2 rounded-md bg-white text-gray-800 border border-white/10 placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500" %>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+
+                <%# 5. Form Submission Buttons %>
+                <div class="flex justify-between mt-10 pt-6 border-t border-white/10">
+                    <%= link_to 'Back', characters_path, class: "px-6 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200" %>
+                    <%= form.submit "Save", class: "px-6 py-3 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500 transition duration-200 cursor-pointer" %>
+                </div>
+
+            <% end %>
+
+            <%# 6. Vanilla JavaScript to handle the mode toggle and file name display/preview %>
+            <script type="text/javascript">
+                // Function to toggle between 'photo' and 'form' mode (kept from previous steps)
+                function toggleMode(mode) {
+                    const allContent = document.querySelectorAll('.mode-content');
+                    const allTabs = document.querySelectorAll('.mode-tab');
+
+                    allContent.forEach(content => content.classList.add('hidden'));
+                    allTabs.forEach(tab => {
+                        tab.classList.remove('bg-cyan-700', 'text-white');
+                        tab.classList.add('text-gray-400', 'hover:text-white', 'hover:bg-gray-700');
+                    });
+
+                    const selectedContent = document.getElementById(`content-${mode}`);
+                    if (selectedContent) {
+                        selectedContent.classList.remove('hidden');
+                    }
+
+                    const selectedTab = document.getElementById(`tab-${mode}`);
+                    if (selectedTab) {
+                        selectedTab.classList.remove('text-gray-400', 'hover:text-white', 'hover:bg-gray-700');
+                        selectedTab.classList.add('bg-cyan-700', 'text-white');
+                    }
+                }
+
+                // NEW FUNCTION: Handle file selection, display file name, and send file for preview
+                function handlePhotoPreview(file) {
+                    const fileNameDisplay = document.getElementById('file-name-display');
+                    const previewContainer = document.getElementById('photo-preview-container');
+
+                    if (!file) {
+                        fileNameDisplay.textContent = 'No file chosen.';
+                        // Reset preview area
+                        previewContainer.innerHTML = `
+                            <div id="character-photo-preview-image" class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center">
+                                <p class="text-gray-500">Your photo preview will appear here.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // 1. Update file name display
+                    fileNameDisplay.textContent = file.name;
+
+                    // 2. Prepare and send file via fetch
+                    const formData = new FormData();
+                    // 'photo' must match the params key used in your controller (params[:photo])
+                    formData.append('photo', file); 
+
+                    // Display loading state
+                    previewContainer.innerHTML = `
+                        <div class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center">
+                            <svg class="animate-spin h-8 w-8 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="ml-3 text-cyan-400">Generating preview...</p>
+                        </div>
+                    `;
+
+                    // Fetch request to your controller action
+                    fetch('/characters/photo_preview', {
+                        method: 'POST',
+                        body: formData,
+                        // Get CSRF token from meta tag for security
+                        headers: {
+                            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.text(); // The controller returns the HTML partial
+                    })
+                    .then(html => {
+                        // Replace the preview container content with the returned partial HTML
+                        previewContainer.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Photo Preview Error:', error);
+                        previewContainer.innerHTML = `
+                            <div class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-red-900/50 flex items-center justify-center">
+                                <p class="text-red-400">Failed to load preview: ${error.message}.</p>
+                            </div>
+                        `;
+                    });
+                }
+            </script>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+/* * The main container for the application content.
+ * It ensures the content is padded correctly relative to the viewport.
+ */
+.app-wrapper {
+    min-height: 100vh;
+    padding: 1.5rem; /* Equivalent to p-6 in Tailwind */
+}
+
+/* * Frosted Glass Effect for Sidebar, Book Cards, and Wizard Containers.
+ * This is the core aesthetic that makes the content float nicely over the gradient.
+ */
+.frosted-glass {
+    /* Subtle background color with transparency */
+    background-color: rgba(255, 255, 255, 0.08); 
+    /* The magic: applies a blur effect to anything behind the element */
+    backdrop-filter: blur(10px); 
+    /* Ensures the element is visually separated from the background */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* * Specific styling for book covers to give them a modern, framed look.
+ */
+.book-cover-frame {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3); /* Deeper shadow for 3D effect */
+    transition: transform 0.2s ease-in-out;
+}
+
+.book-cover-frame:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* * Style for the Wizard Step Indicator Icons
+ */
+.step-indicator {
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.step-indicator.active {
+    background-color: #0ea5e9; /* Cyan 500 */
+    border-color: #0ea5e9;
+    color: white;
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+}
+
+.step-indicator.completed {
+    background-color: #16a34a; /* Green 600 */
+    border-color: #16a34a;
+    color: white;
+}

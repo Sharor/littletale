@@ -1,0 +1,45 @@
+<%= turbo_frame_tag "character_select_modal" do %>
+  <div aria-labelledby="modal-title"
+    aria-modal="true" class="w-full overflow-y-auto fixed inset-0 z-50 bg-black/80" role="dialog">
+    <div class="parchment h-screen w-2/4 mx-auto flex  justify-center">
+      <div class=" max-w-3xl p-12 bg-transparent min-w-[600px] animate-fade-in-up">
+        <div class="grid grid-cols-3 ">
+          <h1 id="modal-title" class="col-start-2 font-extrabold text-2xl">Choose characters</h1>
+          
+          <%= link_to "\u{274C}", book_path(@book), class: ' mb-14' %>
+        </div>
+    
+    <%= turbo_stream_from "illustrations" %>
+    <%= form_with url: save_selected_characters_path(book_id: @book.id), method: :post, data: { turbo_frame: "character_select_modal" } do %>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-scroll h-180 <%= @tutorial %>">
+      <% @characters.each_with_index do |character, index| %>
+          <% is_selected = @book.characters.include?(character) %>
+        
+    
+          <label class="items-center cursor-pointer">
+            <%= check_box_tag "character_ids[]", character.id, is_selected,
+              id: "character_#{index}",
+              class: "peer hidden" %>
+            <div class="rounded-xl border p-4 text-center transition-all duration-200 peer-checked:bg-blue-100 peer-checked:ring-2 peer-checked:ring-blue-500">
+              <% if character.illustration.present? %>
+             <%= render partial: "illustrations/illustration", locals: { illustration: character.illustration } %>
+            <% else %>
+              <div class="w-full h-32 bg-gray-200 flex items-center justify-center rounded-md mb-2 pointer-events-none">
+                <%= character.name %>
+                <br>
+                No Image Yet
+              </div>
+            <% end %>
+            </div>
+          </label>
+      <% end %>
+      </div>
+
+      <div class="mt-6">
+        <%= submit_tag t('helpers.submit.character.add'), class: "m-4 fantasy-button text-black content-center w-full hover:shadow-2xl submit" %>
+      </div>
+    <% end %>
+        </div>
+      </div>
+    </div>
+<% end %>

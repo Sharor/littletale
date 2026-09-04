@@ -1,0 +1,27 @@
+<%= form_with(model: character, url: character.persisted? ? character_path(character, book_id: book&.id) : characters_path(book_id: book&.id),
+      local: true, html: { multipart: true }) do |form| %>
+  <%= form.label :name %>
+  <%= form.text_field :name %>
+  <br>
+  <div class="p-12">
+  <%= t('activerecord.attributes.character.upload_guidance') %>
+  <br/>
+  <p class="text-red-100" style="color:red"><%= t('activerecord.attributes.character.upload_disclaimer')%></p>
+
+  <div class="pt-10">
+  <%= form.label :photo %>
+  <div data-controller="image-upload">
+    <%= form.file_field :photo,
+      direct_upload: true,
+      data: { action: "change->image-upload#preview" } %>
+  </div>
+
+  <%= turbo_frame_tag "image_preview" do %>
+    <%= render partial: "characters/photo_preview", locals: { blob: character.photo.attached? ? character.photo : nil } %>
+  <% end %>
+  </div>
+
+  <%= form.hidden_field :photo, value: photo_blob.signed_id if photo_blob.present? %>
+
+  <%= form.submit %>
+<% end %>

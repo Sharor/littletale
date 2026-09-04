@@ -1,0 +1,51 @@
+<% if book.plot.present? %>
+  <% if book.finished_generation? %>
+    <!-- Render book w/pages and illustrations -->
+    <%= render book %>
+    <div class="mt-5 pb-13 bottom-0 content-center w-full px-60 inset-x-0">
+      <div class="grid grid-cols-2 text-center">
+        <%= button_to "Back", books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
+        <%= button_to "Delete", book, method: :delete, data: { turbo: false }, class: 'fantasy-button' %>
+      </div>
+    </div>
+  <% else %>
+  <div class="parchment h-screen text-center pt-15" >
+    <h1 class="font-extrabold text-3xl" >Writing your book!</h1>
+    <%= render partial: "books/loading", locals: { book: book } %>
+    <br />
+    <%= render partial: "books/loading_progress", locals: { book: book } %>
+    <%= button_to "Back", books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
+  </div>
+  <% end %>
+<% else %>
+  <div class="parchment text-center pt-10 pb-20 " >
+    <div class="grid grid-cols-3 text-center">
+      <%= button_to "Back", books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
+      
+    </div>
+    <div class="mt-10">
+      <h1 class="font-extrabold text-3xl" >
+        Preparing your new book 
+        <br>
+        <div class="text-red-700 ">
+        <%= book.name %>
+        </div>
+      </h1>
+    </div>
+    <div class=" w-full gap-2 px-60 mt-20">
+      <%= turbo_stream_from "book_#{book.id}_characters" %>
+      <%= turbo_stream_from "illustrations" %>
+
+      <%= turbo_frame_tag "character_select_modal" %>
+      <%= render partial: "books/characters", locals: { book: book } %>
+    </div>
+    <div class="mt-10 mb-20">
+      <%= turbo_frame_tag "book_modal" do %>
+        <%= button_to "Make book", edit_book_path(book), class: "fantasy-button tutorial_make_book", method: :get %> 
+      <% end %>
+    </div>  
+      
+
+    
+  </div>
+<% end %>

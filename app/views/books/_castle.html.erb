@@ -1,0 +1,29 @@
+<div id="castle_construction" class="lvl-<%= book.construction_level %> flex flex-col items-center py-10">
+  <svg viewBox="0 0 200 120" class="w-64 h-auto overflow-visible transition-all duration-1000">
+    <rect class="castle-part foundation" x="40" y="100" width="120" height="10" fill="#4B5563" />
+    
+    <rect class="castle-part wall" x="55" y="75" width="30" height="25" fill="#6B7280" />
+    <rect class="castle-part wall" x="115" y="75" width="30" height="25" fill="#6B7280" />
+    
+    <rect class="castle-part tower" x="85" y="50" width="30" height="50" fill="#9CA3AF" />
+    
+    <g class="castle-part roof">
+      <polygon points="50,75 90,75 70,55" fill="#EF4444" />
+      <polygon points="110,75 150,75 130,55" fill="#EF4444" />
+      <polygon points="80,50 120,50 100,25" fill="#B91C1C" />
+    </g>
+    
+    <path class="castle-part flag" d="M100 25 L100 10 L125 17 L100 25" fill="#FACC15" />
+  </svg>
+
+  <div class="mt-6 text-center">
+    <% progress = (book.pages.count.to_f / book.total_pages * 100).to_i %>
+    <div class="text-xs font-mono text-gray-500 uppercase tracking-widest">
+      <%= progress == 100 ? "✨ Book written, just a moment! ✨" : "Making your book: #{progress}%" %>
+    </div>
+    <div class="h-1 w-48 bg-gray-800 rounded-full mt-2 overflow-hidden">
+      <div class="h-full bg-yellow-500 transition-all duration-1000" 
+           style="width: <%= progress %>%"></div>
+    </div>
+  </div>
+</div>

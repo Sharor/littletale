@@ -1,0 +1,26 @@
+{
+    "pages": 5, 
+    "characters": [
+        {
+            "name": "Peter",
+            "age": 12, 
+            "gender": "Boy",
+            "eye_color": "Blue", 
+            "hair_color": "Blond", 
+            "hair_style": "Short",
+            "ethnicity": "White", 
+            "role": "Big brother"
+        },
+        {
+            "name": "Annabel",
+            "age": 10, 
+            "gender": "Girl",
+            "eye_color": "Blue", 
+            "hair_color": "Blond", 
+            "hair_style": "Braids",
+            "ethnicity": "Latino", 
+            "role": "Little sister"
+        }
+    ],
+    "plot": "Peter and Annabel are left to their own for a long time and end up learning how to survive on their parents farm alone without adults."
+}

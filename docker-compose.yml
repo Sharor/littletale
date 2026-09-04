@@ -1,0 +1,73 @@
+services:
+  db:
+    image: postgres:15
+    ports:
+    - "5434:5432"
+    environment:
+      POSTGRES_USER: invented_tales
+      POSTGRES_PASSWORD: local
+      POSTGRES_DB: little_stories_development
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  worker_db:
+    ports:
+    - "5433:5432"
+    image: postgres:15
+    environment:
+      POSTGRES_USER: worker
+      POSTGRES_PASSWORD: worker
+      POSTGRES_DB: worker_db
+    volumes:
+      - worker_db_data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bash -c "rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3000"
+    volumes:
+      - .:/rails:cached
+      - bundle_data:/usr/local/bundle
+      - ./tmp:/rails/tmp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - worker_db
+    env_file: 
+      .env
+    environment:
+      RAILS_ENV: development
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: ./bin/docker-worker-entrypoint.sh
+    volumes:
+      - .:/app
+      - bundle_data:/usr/local/bundle
+    depends_on:
+      - worker_db
+    environment:
+      RAILS_ENV: development
+
+  assets:
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bash -c "yarn build:css --watch & yarn build --watch"
+    volumes:
+      - .:/rails:cached
+      - bundle_data:/usr/local/bundle
+    depends_on:
+      - web
+    environment:
+      RAILS_ENV: development
+
+volumes:
+  db_data:
+  worker_db_data:
+  bundle_data:

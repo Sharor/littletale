@@ -1,0 +1,26 @@
+<turbo-frame id="book-cover-section">
+  <div class="container pt-10">
+    <div class="flip-book" id="storybook">
+      <div class="page page-cover page-cover-top" data-density="hard">
+        
+          <div class="flex flex-col h-full text-center"> 
+            <h1><%= book.name %><h1>
+            <% if book.pages.any? %>
+              <%= render "illustrations/illustration", illustration: book.pages.last.illustration %>
+            <% end %>
+            
+            <h1 class="flex-grow flex justify-center items-center">Click here to flip page</h2>
+        </div>
+      </div>
+      <% book.pages.order(:id).each_with_index do |page,index| %>
+        <%= render "page", book: book, index: index, page: page %>
+      <% end %>
+
+      <div class="page page-cover page-cover-bottom" data-density="hard">
+          <div class="page-content">
+              <h2>THE END</h2>
+          </div>
+      </div>
+    </div>
+  </div>
+</turbo-frame>

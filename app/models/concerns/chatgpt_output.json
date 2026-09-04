@@ -1,0 +1,25 @@
+[{
+    "story": "Peter woke up on his own, which was weird. He was used to being woken up by mom and dad, or his sister. He got out of bed and walked out in the yard looking for them, but could not find anyone.", 
+    "present": ["Peter"], 
+    "image": "Peter walking alone around the yard in the middle of his parents' farm"
+},
+{
+    "story": "Suddenly he heard crying behind the well, and went and found his sister Annabel. When he asked her what was wrong, she said she could not find mom and dad. They were alone.", 
+    "present": ["Peter", "Annabel"], 
+    "image": "The two kids at the well. A small girl is sitting and crying, and her big brother is consoling her."
+},
+{
+    "story": "After cheering up, Annabel told Peter she was hungry. Peter could feel his tummy rumbling as well. He figured they should make pancakes. They would need flour, eggs and sugar.", 
+    "present": ["Peter", "Annabel"], 
+    "image": "Peter talks about flour, eggs and sugar in a speech bubble. Annabel stands next to him and licks her lips."
+},
+{
+    "story": "Peter suggested that Annabel pick up the eggs from the chickens and sugar from the pantry, and he would pick wheat and grind it to flour.", 
+    "present": ["Peter", "Annabel"], 
+    "image": "Split image with one side being Peter in the wheat fields, and the other side being Annabel collecting eggs."
+},
+{
+    "story": "With all the ingredients present, Peter and Annabel cooked some fantastic pancakes. In the end, mom and dad arrived just in time to congratulate the kids on their achievemnets.", 
+    "present": ["Peter", "Annabel"], 
+    "image": "The two kids eating pancakes at the kitchen table. The mother and father arrives in the kitchen and smiles."
+}]

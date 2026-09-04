@@ -1,0 +1,16 @@
+{
+    "pages": 5, 
+    "characters": [
+        {
+            "name": "Sonja",
+            "age": 21, 
+            "gender": "Woman",
+            "eye_color": "Brown", 
+            "hair_color": "Brown", 
+            "hair_style": "Braids",
+            "ethnicity": "Latino", 
+            "role": "Actress"
+        }
+    ],
+    "plot": "Sonja steps into the adult world ready to make a name for herself as an accomplished actress. She ends up making a pivot to being a gardener."
+}

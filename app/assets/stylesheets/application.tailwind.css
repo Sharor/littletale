@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@import './main.css';
+@import './fontawesome-all.min.css';
+@import './books.css';
+@import './castle.css';
+@import './flip-book.css';
+
+
+.sleek-gradient {
+    /* Ensures the background covers the entire height of the viewport */
+    height: 100vh;
+    width: 100vw;
+    
+    /* Apply a subtle, wide linear gradient for the primary color sweep */
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    
+    /* Add a radial gradient to create a "hotspot" or depth effect near the center/top-left */
+    background-image: radial-gradient(
+        circle at 20% 80%, 
+        rgba(109, 40, 217, 0.25) 0%, /* Vibrant Purple with opacity */
+        transparent 70%
+    ), 
+    radial-gradient(
+        circle at 80% 20%, 
+        rgba(14, 165, 233, 0.25) 0%, /* Electric Blue with opacity */
+        transparent 70%
+    ),
+    linear-gradient(135deg, #1f2937 0%, #374151 100%); /* Repeat base linear gradient */
+
+    /* Prevents the gradient from scrolling with content */
+    background-attachment: fixed;
+    
+    /* Fallback and ensures full-screen coverage */
+    overflow: auto;
+    position: relative;
+}
+
+/* Ensure smooth scrolling and full coverage for all content */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+}
+
+
+/* Flip book area */
+/* app/assets/stylesheets/book.css */
+
+/* The wrapper needs a defined height or it will collapse */
+.book-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 80vh;
+}
+
+#storybook {
+    /* Initially hidden to prevent flash of unstyled content */
+    display: none; 
+    box-shadow: 0 12px 50px rgba(0,0,0,0.3);
+    background-color: #fdfaf7;
+}
+
+.page {
+    background-color: #fdfaf7;
+    color: #4a3728;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Realistic Page Gradients */
+.page-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+}
+
+/* Fold Shadow Effect */
+.page.--left {
+    border-right: 1px solid rgba(0,0,0,0.1);
+    background-image: linear-gradient(to right, rgba(255,255,255,0) 95%, rgba(0,0,0,0.1) 100%);
+}
+
+.page.--right {
+    border-left: 1px solid rgba(0,0,0,0.1);
+    background-image: linear-gradient(to left, rgba(255,255,255,0) 95%, rgba(0,0,0,0.1) 100%);
+}
+
+/* Covers */
+.page.page-cover {
+    background-color: #5c4033; /* Classic leather look */
+    color: #e3d0b5;
+    border: none;
+}
+
+.page-cover-top {
+    border-radius: 0 4px 4px 0;
+}
+
+.page-cover-bottom {
+    border-radius: 4px 0 0 4px;
+}
+
+/* Content Styling */
+.page-image {
+    flex-grow: 1;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: 15px 0;
+}

@@ -1,0 +1,14 @@
+development:
+  database: solid_queue
+  queues:
+    default: 5
+
+test:
+  database: solid_queue
+
+production:
+  adapter: solid_cable
+  connects_to:
+    database:
+      writing: solid_queue
+      reading: solid_queue
