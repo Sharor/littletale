@@ -75,18 +75,22 @@ test:
     <<: *default
     database: little_stories_test
     host: localhost
-    port: 5434
+    port: 5435
+    username: invented_tales
+    password: local
   queue:
     <<: *default
-    database: worker_db
+    database: test_worker_db
     host: localhost
-    port: 5433
-    migrations_paths: queue_migrate
-  cache:
-    <<: *default
-    database: worker_db
-    host: localhost
-    port: 5433
+    port: 5436
+    username: worker
+    password: worker
+    migrations_paths: db/queue_migrate
+ # cache:
+  #  <<: *default
+  #  database: worker_db
+  #  host: localhost
+  #  port: 5433
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is

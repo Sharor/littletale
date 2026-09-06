@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_25_134424) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_06_223000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,6 +63,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_25_134424) do
     t.datetime "updated_at", null: false
     t.integer "generation_status", default: 0
     t.integer "total_pages"
+    t.jsonb "generation_failure", default: {}, null: false
+    t.datetime "generation_failed_at"
+    t.integer "generation_attempt", default: 0, null: false
+    t.jsonb "generation_failure_history", default: [], null: false
     t.index ["user_id"], name: "index_books_on_user_id"
   end
 
@@ -121,6 +125,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_25_134424) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "character_id"
+    t.jsonb "generation_metadata", default: {}, null: false
     t.index ["character_id"], name: "index_illustrations_on_character_id"
     t.index ["page_id"], name: "index_illustrations_on_page_id"
   end
@@ -131,6 +136,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_25_134424) do
     t.bigint "book_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "generation_attempt", default: 0, null: false
+    t.index ["book_id", "generation_attempt"], name: "index_pages_on_book_id_and_generation_attempt"
     t.index ["book_id"], name: "index_pages_on_book_id"
   end
 

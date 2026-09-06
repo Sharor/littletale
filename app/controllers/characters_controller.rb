@@ -5,7 +5,7 @@ class CharactersController < ApplicationController
   skip_before_action :check_tutorial, only: [ :confirm_delete ]
   # GET /characters or /characters.json
   def index
-    @characters = Character.all
+    @characters = current_user.characters
   end
 
   # GET /characters/1 or /characters/1.json
@@ -98,7 +98,6 @@ class CharactersController < ApplicationController
               target_id = "character-#{char_id_from_frontend}"
               format.html { redirect_to characters_url, notice: "Making your character.." }
           else
-            p "hits"
               # 3. Handle validation errors
               target_id = "character-#{char_id_from_frontend}"
               format.html { render :new, status: :unprocessable_content }
@@ -126,7 +125,7 @@ class CharactersController < ApplicationController
 
   # Necessary because of label logic in view
   def confirm_delete
-    @character = Character.find(params[:id])
+    @character = current_user.characters.find(params[:id])
 
     # CRITICAL: Explicitly render the partial. Do NOT implicitly render a view or redirect.
     render partial: "delete_confirmation_modal", locals: { character: @character }
@@ -152,9 +151,9 @@ class CharactersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_character
-      @character = Character.find(params[:id])
+  # Use callbacks to share common setup or constraints between actions.
+  def set_character
+      @character = current_user.characters.find(params[:id])
     end
 
     def set_book

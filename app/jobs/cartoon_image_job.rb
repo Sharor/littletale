@@ -5,7 +5,6 @@ class CartoonImageJob < ApplicationJob
     character = Character.find(character_id)
 
     character.update!(generation_status: :in_progress)
-    p "Performing for #{character_id}"
     Illustration.where(character_id: character_id).first_or_initialize.cartoonify([ character ])
 
 
@@ -19,7 +18,6 @@ class CartoonImageJob < ApplicationJob
       locals: { character: character }
     )
 
-    p "Finished for #{character_id}"
     character.completed!
   end
 end

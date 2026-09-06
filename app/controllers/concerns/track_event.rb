@@ -3,6 +3,10 @@
 module TrackEvent
   extend ActiveSupport::Concern
 
+  included do
+    after_action :track_event
+  end
+
   def track_event
     Current.visitor.events.create(
       path: request.path,

@@ -3,7 +3,7 @@ class BooksController < ApplicationController
 
   # GET /books or /books.json
   def index
-    @books = Book.all.order(:id)
+    @books = current_user.books.order(:id)
     @book = Book.new  if current_user.books.none?
     @tutorial = "new_book_tutorial" unless current_user.books.any?
   end
@@ -75,7 +75,7 @@ class BooksController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_book
-      @book = Book.find(params[:id])
+      @book = current_user.books.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

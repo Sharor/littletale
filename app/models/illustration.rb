@@ -11,7 +11,10 @@ class Illustration < ApplicationRecord
     return if self.original_image.present?
 
     data = gpt_image_1_edit(characters)
+    return false if data.blank?
+
     extract_image_base64(data)
+    true
   end
 
   def extract_image_base64(data)
@@ -65,7 +68,9 @@ class Illustration < ApplicationRecord
         Rails.logger.error("STATUS: #{e.response[:status]}")
         Rails.logger.error("HEADERS: #{e.response[:headers]}")
         Rails.logger.error("BODY: #{e.response[:body]}")
-        raise e # Don't retry 400s; the payload is the problem
+        return record_moderation_failure!(e, characters) if moderation_blocked?(e)
+
+        raise e # Don't retry other 400s; the payload is the problem
 
     rescue StandardError => e
         retries += 1
@@ -173,5 +178,39 @@ class Illustration < ApplicationRecord
 
   def client
     OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
+  end
+
+  private
+
+  def moderation_blocked?(error)
+    error.response.dig(:body, "error", "code") == "moderation_blocked"
+  end
+
+  def record_moderation_failure!(error, characters)
+    api_error = error.response.dig(:body, "error") || {}
+    failure = {
+      "type" => "openai_image_moderation_blocked",
+      "message" => api_error["message"],
+      "code" => api_error["code"],
+      "moderation_stage" => api_error.dig("moderation_details", "moderation_stage"),
+      "categories" => api_error.dig("moderation_details", "categories"),
+      "request_id" => error.response.dig(:headers, "x-request-id"),
+      "recorded_at" => Time.current.iso8601
+    }
+    request = {
+      "endpoint" => "/v1/images/edits",
+      "model" => "gpt-image-1",
+      "size" => "1024x1024",
+      "prompt" => specifications,
+      "character_ids" => characters.map(&:id),
+      "reference_images" => characters.map do |character|
+        reference = character.illustration
+        { "character_id" => character.id, "illustration_id" => reference&.id, "image" => reference&.original_image&.identifier }
+      end
+    }
+
+    update!(prompt: request["prompt"], generation_metadata: { "request" => request, "failure" => failure })
+    page.book.record_generation_failure!(illustration: self, failure: failure, request: request)
+    nil
   end
 end

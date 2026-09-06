@@ -1,26 +1,16 @@
 class GenerateBookJob < ApplicationJob
   queue_as :default
 
-  def perform(book_id)
+  def perform(book_id, generation_attempt = nil)
     Rails.logger.info("Generating Chatgpt for Book: #{book_id}")
     book = Book.find(book_id)
+    generation_attempt ||= book.generation_attempt
+    return unless book.generation_attempt == generation_attempt
 
     book.update!(generation_status: :in_progress)
     initialize_AI(book)
     story = book.write_storyline
-    image_generation(story, book)
-
-    ensure_storage_cache_consistency(book)
-    if book.pages.all? { |p| p.illustration&.original_image&.present? }
-
-      book.broadcast_replace_to(
-        book,
-        target: ActionView::RecordIdentifier.dom_id(book, :state),
-        partial: "books/book_state",
-        locals: { book: book }
-      )
-    end
-    # book.touch # Trigger stream update to frontend
+    image_generation(story, book, generation_attempt)
   end
 
   def initialize_AI(book)
@@ -29,9 +19,9 @@ class GenerateBookJob < ApplicationJob
     chatgpt.save
   end
 
-  def image_generation(story, book)
+  def image_generation(story, book, generation_attempt = book.generation_attempt)
     story.each do |page_data|
-      GeneratePageJob.perform_later(book.id, page_data)
+      GeneratePageJob.perform_later(book.id, page_data, generation_attempt)
       # book.create_pages_from_answer(page) most likely deletable
     end
   end

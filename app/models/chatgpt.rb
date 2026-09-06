@@ -4,7 +4,7 @@ class Chatgpt < ApplicationRecord
   def generate
     return if answer.present?
 
-    client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
+    client = openai_client
 
     chat_completion = client.chat.completions.create(
       messages: chat_prompt_instruction(5), # page_count set here: page_count:5
@@ -39,9 +39,9 @@ class Chatgpt < ApplicationRecord
   end
   # private
   def setup_target_audience
-    self.audience = "10 year old child" && return if audience.blank? || !audience.is_a?(Integer)
+    return "10 year old child" if audience.blank? || !audience.is_a?(Integer)
 
-    self.audience = Integer(audience) >= 18 ? "#{audience} year old adult" : "#{audience} year old child"
+    Integer(audience) >= 18 ? "#{audience} year old adult" : "#{audience} year old child"
   end
 
   def prompt_creation(page_count)
@@ -78,7 +78,7 @@ class Chatgpt < ApplicationRecord
   def character_descriptions(people)
     description = ""
 
-    people.each do |person, i|
+    people.each_with_index do |person, i|
       # Single individual or last person in list
       description += if (people.length == 1) || (i == people.length - 1)
                        "a #{person.age} yo #{person.gender} named #{person.name} with #{person.hair_color} hair"
@@ -129,7 +129,7 @@ class Chatgpt < ApplicationRecord
   def generate_v2
       return if answer.present?
 
-      client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
+      client = openai_client
 
       # OpenAI lib:
       # chat_completion = client.chat.completions.create(
@@ -160,7 +160,7 @@ class Chatgpt < ApplicationRecord
   end
 
   def jsonify
-    { page_count: book.page_count, characters: book.characters, plot: book.plot }.to_json
+    { page_count: book.total_pages, characters: book.characters, plot: book.plot }.to_json
   end
 
   def prompt_structured
@@ -199,5 +199,9 @@ class Chatgpt < ApplicationRecord
 
   def example_output
     File.read("app/models/concerns/chatgpt_output_example.json").strip
+  end
+
+  def openai_client
+    OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
   end
 end

@@ -21,24 +21,46 @@ services:
     volumes:
       - worker_db_data:/var/lib/postgresql/data
 
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    command: bash -c "rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3000"
-    volumes:
-      - .:/rails:cached
-      - bundle_data:/usr/local/bundle
-      - ./tmp:/rails/tmp
+  test_db:
+    image: postgres:15
     ports:
-      - "3000:3000"
-    depends_on:
-      - db
-      - worker_db
-    env_file: 
-      .env
+      - "5435:5432"
     environment:
-      RAILS_ENV: development
+      POSTGRES_USER: invented_tales
+      POSTGRES_PASSWORD: local
+      POSTGRES_DB: little_stories_test
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
+
+  test_worker_db:
+    ports:
+      - "5436:5432"
+    image: postgres:15
+    environment:
+      POSTGRES_USER: worker
+      POSTGRES_PASSWORD: worker
+      POSTGRES_DB: test_worker_db
+    volumes:
+      - test_worker_db_data:/var/lib/postgresql/data
+
+#  web:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.dev
+    # command: bash -c "rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3000"
+    # volumes:
+    #   - .:/rails:cached
+    #   - bundle_data:/usr/local/bundle
+    #   - ./tmp:/rails/tmp
+    # ports:
+    #   - "3000:3000"
+    # depends_on:
+    #   - db
+    #   - worker_db
+    # env_file:
+    #   .env
+    # environment:
+    #   RAILS_ENV: development
 
   worker:
     build:
@@ -62,8 +84,6 @@ services:
     volumes:
       - .:/rails:cached
       - bundle_data:/usr/local/bundle
-    depends_on:
-      - web
     environment:
       RAILS_ENV: development
 
@@ -71,3 +91,5 @@ volumes:
   db_data:
   worker_db_data:
   bundle_data:
+  test_db_data:
+  test_worker_db_data:

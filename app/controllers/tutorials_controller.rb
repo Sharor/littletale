@@ -1,6 +1,6 @@
 class TutorialsController < ApplicationController
-  before_action :set_tutorial, only: %i[ eula terms tutorial  ]
-  skip_before_action :check_tutorial, only: %i[ eula terms tutorial  ]
+  before_action :set_tutorial, only: %i[ eula terms tutorial complete ]
+  skip_before_action :check_tutorial, only: %i[ eula terms tutorial ]
 
 
   def eula
@@ -12,6 +12,10 @@ class TutorialsController < ApplicationController
 
   def tutorial
     @tutorial.update(terms: true)
+  end
+
+  def complete
+    @tutorial.update!(tutorial_complete: true)
     redirect_to authenticated_root_url
   end
 

@@ -1,48 +1,54 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class TutorialsControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
-    @tutorial = tutorials(:one)
+    @user = users(:one)
+    sign_in @user
   end
 
-  test "should get index" do
-    get tutorials_url
+  test "eula renders the EULA and keeps the tutorial pending" do
+    get eula_url
+
+    tutorial = Tutorial.find_by!(user: @user)
     assert_response :success
+    assert_not tutorial.eula?
+    assert_not tutorial.terms?
+    assert_select "h1", I18n.t("activerecord.attributes.tutorial.eula")
+    assert_select "form[action='#{terms_path}']"
   end
 
-  test "should get new" do
-    get new_tutorial_url
+  test "terms accepts the EULA and renders the terms view" do
+    get terms_url
+
+    tutorial = Tutorial.find_by!(user: @user)
     assert_response :success
+    assert_predicate tutorial, :eula?
+    assert_not tutorial.terms?
+    assert_select "h1", I18n.t("activerecord.attributes.tutorial.terms")
+    assert_select "form[action='#{tutorial_path}']"
   end
 
-  test "should create tutorial" do
-    assert_difference("Tutorial.count") do
-      post tutorials_url, params: { tutorial: { eula: @tutorial.eula, terms: @tutorial.terms, tutorial_complete: @tutorial.tutorial_complete } }
-    end
+  test "tutorial accepts the terms and renders the completion step" do
+    get tutorial_url
 
-    assert_redirected_to tutorial_url(Tutorial.last)
-  end
-
-  test "should show tutorial" do
-    get tutorial_url(@tutorial)
+    tutorial = Tutorial.find_by!(user: @user)
     assert_response :success
+    assert_predicate tutorial, :terms?
+    assert_not tutorial.tutorial_complete?
+    assert_select "h1", I18n.t("activerecord.attributes.tutorial.tutorial")
+    assert_select "form[action='#{tutorial_complete_path}']"
   end
 
-  test "should get edit" do
-    get edit_tutorial_url(@tutorial)
-    assert_response :success
-  end
+  test "complete marks the tutorial complete and redirects to the app" do
+    Tutorial.find_by!(user: @user).update!(terms: true)
 
-  test "should update tutorial" do
-    patch tutorial_url(@tutorial), params: { tutorial: { eula: @tutorial.eula, terms: @tutorial.terms, tutorial_complete: @tutorial.tutorial_complete } }
-    assert_redirected_to tutorial_url(@tutorial)
-  end
+    post tutorial_complete_url
 
-  test "should destroy tutorial" do
-    assert_difference("Tutorial.count", -1) do
-      delete tutorial_url(@tutorial)
-    end
-
-    assert_redirected_to tutorials_url
+    assert_predicate Tutorial.find_by!(user: @user), :tutorial_complete?
+    assert_redirected_to authenticated_root_url
   end
 end

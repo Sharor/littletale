@@ -3,11 +3,16 @@ Rails.application.routes.draw do
     mount MissionControl::Jobs::Engine, at: "/jobs"
   end
   get "/console", to: "console#show"
+  namespace :admin do
+    resources :failed_books, only: :index
+    resources :books, only: [] do
+      post :rerun_generation, on: :member
+    end
+  end
   get "login", to: "home#login"
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   resources :books
-  resources :chatgpts
   resources :characters do
     get :confirm_delete, on: :member
     collection do
@@ -16,8 +21,6 @@ Rails.application.routes.draw do
       post :photo_preview
     end
   end
-  resources :illustrations
-  resources :pages
 
   get "terms", to: "tutorials#terms", as: :terms
   get "eula", to: "tutorials#eula", as: :eula

@@ -1,45 +1,30 @@
 require "application_system_test_case"
+require "warden/test/helpers"
 
 class TutorialsTest < ApplicationSystemTestCase
+  include Warden::Test::Helpers
+
   setup do
-    @tutorial = tutorials(:one)
+    Warden.test_mode!
+    login_as users(:one), scope: :user
   end
 
-  test "visiting the index" do
-    visit tutorials_url
-    assert_selector "h1", text: "Tutorials"
+  teardown do
+    Warden.test_reset!
   end
 
-  test "should create tutorial" do
-    visit tutorials_url
-    click_on "New tutorial"
+  test "a signed-in user can complete the tutorial flow" do
+    visit eula_url
+    assert_text I18n.t("activerecord.attributes.tutorial.eula")
 
-    check "Eula" if @tutorial.eula
-    check "Terms" if @tutorial.terms
-    check "Tutorial complete" if @tutorial.tutorial_complete
-    click_on "Create Tutorial"
+    click_on I18n.t("activerecord.attributes.tutorial.accept")
+    assert_text I18n.t("activerecord.attributes.tutorial.terms")
 
-    assert_text "Tutorial was successfully created"
-    click_on "Back"
-  end
+    click_on I18n.t("activerecord.attributes.tutorial.accept")
+    assert_text I18n.t("activerecord.attributes.tutorial.tutorial")
 
-  test "should update Tutorial" do
-    visit tutorial_url(@tutorial)
-    click_on "Edit this tutorial", match: :first
-
-    check "Eula" if @tutorial.eula
-    check "Terms" if @tutorial.terms
-    check "Tutorial complete" if @tutorial.tutorial_complete
-    click_on "Update Tutorial"
-
-    assert_text "Tutorial was successfully updated"
-    click_on "Back"
-  end
-
-  test "should destroy Tutorial" do
-    visit tutorial_url(@tutorial)
-    click_on "Destroy this tutorial", match: :first
-
-    assert_text "Tutorial was successfully destroyed"
+    click_on I18n.t("activerecord.attributes.tutorial.continue")
+    assert_current_path authenticated_root_path
+    assert_predicate Tutorial.find_by!(user: users(:one)), :tutorial_complete?
   end
 end

@@ -1,5 +1,5 @@
 class Book < ApplicationRecord
-  enum :generation_status, { pending: 0, in_progress: 1, completed: 2 }
+  enum :generation_status, { pending: 0, in_progress: 1, completed: 2, failed: 3 }
   belongs_to :user
 
   has_one :chatgpt
@@ -44,7 +44,7 @@ class Book < ApplicationRecord
   def construction_level
     return 0 if total_pages.to_i.zero?
 
-    percent = (pages.count.to_f / total_pages * 100).round
+    percent = (current_pages.count.to_f / total_pages * 100).round
     case percent
     when 0..19   then 1 # Foundation
     when 20..39  then 2 # Walls
@@ -63,18 +63,102 @@ class Book < ApplicationRecord
     JSON.parse(chatgpt.answer)
   end
 
-  def create_pages_from_answer(json)
-    page = pages.create!(text: json["story"])
+  def current_pages
+    pages.where(generation_attempt: generation_attempt)
+  end
+
+  def create_pages_from_answer(json, attempt: generation_attempt)
+    page = pages.create!(text: json["story"], generation_attempt: attempt)
     page.illustration = Illustration.create!(original_description: json["image"])
     # You need to finish this by doing a comparison of page["present"] and characters in Book. TODO maybe?
     page.illustration.generate_image_v1(characters)
+    page
+  end
+
+  def record_generation_failure!(illustration:, failure:, request:)
+    return unless illustration.page.generation_attempt == generation_attempt
+
+    context = failure.merge(
+      "book_id" => id,
+      "page_id" => illustration.page_id,
+      "illustration_id" => illustration.id,
+      "generation_attempt" => generation_attempt,
+      "request" => request,
+      "book_context" => generation_context
+    )
+
+    update!(
+      generation_status: :failed,
+      generation_failed_at: Time.current,
+      generation_failure: context,
+      generation_failure_history: generation_failure_history + [ context ]
+    )
+    broadcast_generation_state
+  end
+
+  def refresh_generation_status!(attempt: generation_attempt)
+    return unless attempt == generation_attempt
+    return if failed?
+    return unless current_pages.count >= total_pages
+    return unless current_pages.all? { |page| page.illustration&.original_image&.present? }
+
+    completed!
+    broadcast_generation_state
+  end
+
+  def prepare_for_regeneration!
+    with_lock do
+      history = generation_failure_history
+      history += [ generation_failure ] if generation_failure.present? && !history.include?(generation_failure)
+
+      update!(
+        generation_attempt: generation_attempt + 1,
+        generation_status: :pending,
+        generation_failure: {},
+        generation_failed_at: nil,
+        generation_failure_history: history
+      )
+      generation_attempt
+    end
   end
 
   def finished_generation?
-    pages.any? { |page| page&.illustration&.original_image&.present? }
+    current_pages.any? { |page| page&.illustration&.original_image&.present? }
   end
 
   def progress?
-    pages.select { |page| page&.illustration&.original_image&.present? }.count
+    current_pages.select { |page| page&.illustration&.original_image&.present? }.count
+  end
+
+  private
+
+  def generation_context
+    {
+      "name" => name,
+      "plot" => plot,
+      "total_pages" => total_pages,
+      "characters" => characters.map do |character|
+        illustration = character.illustration
+        {
+          "id" => character.id,
+          "name" => character.name,
+          "age" => character.age,
+          "gender" => character.gender,
+          "illustration_id" => illustration&.id,
+          "reference_image" => illustration&.original_image&.identifier
+        }
+      end,
+      "chatgpt_id" => chatgpt&.id,
+      "story_response" => chatgpt&.answer
+    }
+  end
+
+  def broadcast_generation_state
+    broadcast_replace_to(
+      self,
+      target: ActionView::RecordIdentifier.dom_id(self, :state),
+      partial: "books/book_state",
+      locals: { book: self }
+    )
   end
 end

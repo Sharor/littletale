@@ -8,14 +8,14 @@
         <h1><%= book.name %></h1>
       </div>
       
-      <% if book.pages.any? && book.pages.last.illustration.original_image.present? %>
+      <% if book.current_pages.any? && book.current_pages.last.illustration.original_image.present? %>
         <div class="w-2/3 mt-4 border border-amber-900/30 p-1">
-            <%= image_tag book.pages.last.illustration.original_image.url, class: "w-full object-contain" %>
+            <%= image_tag book.current_pages.last.illustration.original_image.url, class: "w-full object-contain" %>
         </div>
       <% end %>
     </div>
   </div>
-    <% book.pages.order(:id).each_with_index do |page,index| %>
+    <% book.current_pages.order(:id).each_with_index do |page,index| %>
       <%= render "page", book: book, index: index, page: page %>
     <% end %>
 
