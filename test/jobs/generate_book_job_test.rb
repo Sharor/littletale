@@ -10,6 +10,7 @@ class GenerateBookJobTest < ActiveJob::TestCase
     book = Minitest::Mock.new
     book.expect :generation_attempt, 0
     book.expect :generation_attempt, 0
+    book.expect :ensure_character_images_ready!, true
     book.expect :update!, true, [], generation_status: :in_progress
     book.expect :write_storyline, story
     job = GenerateBookJob.new

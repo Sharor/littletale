@@ -1,4 +1,5 @@
 class CharactersController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_character, only: %i[ show edit update destroy ]
   before_action :set_book, only: %i[ new create show edit update select save_selected ]
 
@@ -21,17 +22,7 @@ class CharactersController < ApplicationController
   # GET /characters/1/edit
   def edit
     respond_to do |format|
-      format.turbo_stream do
-        locals = { character: @character }
-        locals[:book] = @book if @book
-
-
-        render turbo_stream: turbo_stream.replace(
-          "character_modal",
-          partial: "characters/modal",
-          locals: locals
-        )
-      end
+      format.turbo_stream { redirect_to edit_character_url(@character, format: :html), status: :see_other }
       format.html
     end
   end
@@ -48,6 +39,9 @@ class CharactersController < ApplicationController
   def save_selected
     character_ids = params[:character_ids] || []
     characters = Character.where(id: character_ids, user: current_user)
+    unless characters.size == Array(character_ids).reject(&:blank?).map(&:to_s).uniq.size && characters.all?(&:image_ready_for_book?)
+      return render plain: "Choose only your own ready character images.", status: :unprocessable_content
+    end
     current_user.tutorial.update(tutorial_complete: true)
 
     @book.character_ids = characters.map(&:id)
@@ -62,7 +56,7 @@ class CharactersController < ApplicationController
           ),
           turbo_stream.replace(
             "character_select_modal",
-            render_to_string(partial: "characters/empty_character_modal", locals: { hidden: true })) ]
+            helpers.turbo_frame_tag("character_select_modal")) ]
       end
       format.html { redirect_to @book, notice: "#{characters.count} character(s) added to the book!" }
     end
@@ -89,14 +83,14 @@ class CharactersController < ApplicationController
       @character.user = current_user
       # @character.book = @book if @book
 
-      @character.photo.attach(photo_file) if photo_file.present?
+      @character.photo.attach(photo_file) if photo_file.present? && @character.creation_mode != "form"
 
       respond_to do |format|
           if @character.save
               # 1. Kick off the asynchronous job, passing the frontend ID for the later broadcast
               @character.setup_illustration(char_id_from_frontend)
               target_id = "character-#{char_id_from_frontend}"
-              format.html { redirect_to characters_url, notice: "Making your character.." }
+              format.html { redirect_to characters_url, notice: "Checking your character image…" }
           else
               # 3. Handle validation errors
               target_id = "character-#{char_id_from_frontend}"
@@ -108,14 +102,15 @@ class CharactersController < ApplicationController
   # PATCH/PUT /characters/1 or /characters/1.json
   def update
     respond_to do |format|
-      if @character.update(character_params)
+      attributes = character_params
+      photo_file = attributes.delete(:photo_upload)
+      @character.assign_attributes(attributes)
+      @character.photo = nil if @character.creation_mode == "form"
+      @character.photo.attach(photo_file) if photo_file.present? && @character.creation_mode != "form"
+      if @character.save
         @character.setup_illustration
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.replace("book_characters", partial: "books/characters", locals: { book: @book }),
-            turbo_stream.replace("character_modal", partial: "characters/empty_character_modal", locals: { hidden: true }) ] # Hide Modal
-        end
-        format.html { redirect_to book_url(@book), notice: "Character was successfully updated." }
+        format.turbo_stream { redirect_to(@book ? book_url(@book) : characters_url, status: :see_other) }
+        format.html { redirect_to(@book ? book_url(@book) : characters_url, notice: "Character was successfully updated.") }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @character.errors, status: :unprocessable_entity }
@@ -133,7 +128,7 @@ class CharactersController < ApplicationController
 
   # DELETE /characters/1 or /characters/1.json
   def destroy
-    @character = Character.find(params[:id])
+    @character = current_user.characters.find(params[:id])
     @character.destroy
 
     # Respond with Turbo Stream
@@ -158,7 +153,7 @@ class CharactersController < ApplicationController
 
     def set_book
       param = params[:book_id] || params.dig(:character, :book_id)
-      @book = Book.find(param) if param.present?
+      @book = current_user.books.find(param) if param.present?
       @path = params[:path]
     end
 

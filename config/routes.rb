@@ -4,6 +4,13 @@ Rails.application.routes.draw do
   end
   get "/console", to: "console#show"
   namespace :admin do
+    resources :character_image_assessments, only: %i[index show] do
+      member do
+        get :photo
+        post :approve
+        post :reject
+      end
+    end
     resources :failed_books, only: :index
     resources :books, only: [] do
       post :rerun_generation, on: :member

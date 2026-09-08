@@ -5,6 +5,9 @@
     <% if current_user&.admin? %>
       <%= button_to "Rerun generation", rerun_generation_admin_book_path(book), method: :post, class: "mt-4 rounded bg-amber-700 px-3 py-2 text-sm" %>
     <% end %>
+  <% elsif book.failed? && book.generation_failure["type"] == "character_image_not_ready" %>
+    <p role="status" class="p-4 text-amber-100"><%= book.generation_failure["message"] %></p>
+    <%= link_to "Review character images", characters_path, class: "underline" %>
   <% elsif book.generation_status == "completed" && book.current_pages.all?{|p| p.illustration&.original_image&.url&.present?} %>
     <div class="animate-magical-reveal text-lg text-gray-200">
       <%= render "books/render_book", book: book %>

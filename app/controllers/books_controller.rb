@@ -1,5 +1,7 @@
 class BooksController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_book, only: %i[ show edit update destroy ]
+  before_action :validate_selected_characters, only: %i[ new create update ]
 
   # GET /books or /books.json
   def index
@@ -16,7 +18,7 @@ class BooksController < ApplicationController
 
   # GET /books/new
   def new
-    characters = Character.where(id: params[:character_ids])
+    characters = current_user.characters.where(id: params[:character_ids])
     @book = Book.new(characters: characters, user: current_user)
     @tutorial = "name_book_tutorial" unless current_user.books.any?
   end
@@ -73,6 +75,21 @@ class BooksController < ApplicationController
   end
 
   private
+    def validate_selected_characters
+      ids = params[:character_ids] || params.dig(:book, :character_ids)
+      selected = if ids
+        normalized = Array(ids).reject(&:blank?).map(&:to_s).uniq
+        records = current_user.characters.where(id: normalized).to_a
+        return render plain: "Choose only your own ready character images.", status: :unprocessable_content if records.size != normalized.size
+        records
+      else
+        @book ? @book.characters : []
+      end
+      unless selected.all?(&:image_ready_for_book?)
+        render plain: "One or more character images are not ready. Choose ready characters or wait for review and generation.", status: :unprocessable_content
+      end
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_book
       @book = current_user.books.find(params[:id])

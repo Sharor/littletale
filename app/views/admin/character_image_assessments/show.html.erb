@@ -1,0 +1,116 @@
+<main class="max-w-6xl mx-auto space-y-6 text-white">
+  <div>
+    <p class="mb-2 text-sm text-gray-300"><%= link_to "Back to character image reviews", admin_character_image_assessments_path, class: "underline hover:text-white" %></p>
+    <h1 class="text-3xl font-bold">Character image assessment #<%= @assessment.id %></h1>
+    <p class="mt-2 text-gray-300">Owner: <%= @assessment.user.email %> (ID <%= @assessment.user_id %>) · Status: <%= @assessment.status.humanize %></p>
+  </div>
+
+  <% if notice %>
+    <p role="status" class="rounded border border-green-300/40 bg-green-950/40 p-3"><%= notice %></p>
+  <% end %>
+  <% if alert %>
+    <p role="alert" class="rounded border border-red-300/40 bg-red-950/40 p-3"><%= alert %></p>
+  <% end %>
+
+  <section aria-labelledby="submitted-input-heading" class="rounded-lg border border-white/20 bg-black/20 p-5">
+    <h2 id="submitted-input-heading" class="text-xl font-semibold">Submitted input</h2>
+    <% if @assessment.photo.attached? %>
+      <%= image_tag photo_admin_character_image_assessment_path(@assessment),
+        alt: "Source photo submitted for assessment #{@assessment.id}",
+        class: "mt-4 max-h-96 max-w-full rounded object-contain" %>
+    <% else %>
+      <p class="mt-3 text-gray-300">Description request; no source photo was submitted.</p>
+    <% end %>
+    <h3 class="mt-5 font-semibold">Exact generation prompt</h3>
+    <pre class="mt-2 overflow-x-auto whitespace-pre-wrap rounded bg-black/30 p-3 text-sm"><%= @assessment.prompt %></pre>
+    <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+      <div><dt class="text-sm text-gray-300">Generation model</dt><dd><%= @assessment.generation_model %></dd></div>
+      <div><dt class="text-sm text-gray-300">Policy version</dt><dd><%= @assessment.policy_version %></dd></div>
+      <div><dt class="text-sm text-gray-300">Internal reason</dt><dd><%= @assessment.internal_reason.presence || "None" %></dd></div>
+      <div><dt class="text-sm text-gray-300">Public reason</dt><dd><%= @assessment.public_reason.presence || "None" %></dd></div>
+    </dl>
+    <h3 class="mt-5 font-semibold">Screening metadata</h3>
+    <pre class="mt-2 overflow-x-auto whitespace-pre-wrap rounded bg-black/30 p-3 text-sm"><%= JSON.pretty_generate(@assessment.metadata || {}) %></pre>
+  </section>
+
+  <% if @assessment.status == "needs_review" %>
+    <section aria-labelledby="decision-heading" class="rounded-lg border border-amber-300/30 bg-black/20 p-5">
+      <h2 id="decision-heading" class="text-xl font-semibold">Resolve review</h2>
+      <div class="mt-4 grid gap-6 md:grid-cols-2">
+        <%= form_with url: approve_admin_character_image_assessment_path(@assessment), method: :post, scope: :decision, class: "space-y-3" do |form| %>
+          <h3 class="font-semibold">Approve</h3>
+          <div>
+            <%= form.label :internal_reason, "Internal note", class: "block text-sm text-gray-200" %>
+            <%= form.text_area :internal_reason, rows: 3, class: "mt-1 w-full rounded border border-white/20 bg-gray-900 p-2 text-white" %>
+          </div>
+          <%= form.submit "Approve image", class: "rounded bg-green-700 px-4 py-2 font-semibold text-white hover:bg-green-600" %>
+        <% end %>
+
+        <%= form_with url: reject_admin_character_image_assessment_path(@assessment), method: :post, scope: :decision, class: "space-y-3" do |form| %>
+          <h3 class="font-semibold">Reject</h3>
+          <div>
+            <%= form.label :public_reason, "Public reason", class: "block text-sm text-gray-200" %>
+            <%= form.text_area :public_reason, value: params.dig(:decision, :public_reason), rows: 3, required: true,
+              class: "mt-1 w-full rounded border border-white/20 bg-gray-900 p-2 text-white" %>
+          </div>
+          <div>
+            <%= form.label :internal_reason, "Internal note", class: "block text-sm text-gray-200" %>
+            <%= form.text_area :internal_reason, value: params.dig(:decision, :internal_reason), rows: 3,
+              class: "mt-1 w-full rounded border border-white/20 bg-gray-900 p-2 text-white" %>
+          </div>
+          <%= form.submit "Reject image", class: "rounded bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-600" %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <section aria-labelledby="requests-heading" class="rounded-lg border border-white/20 bg-black/20 p-5">
+    <h2 id="requests-heading" class="text-xl font-semibold">Requests and generation outcomes</h2>
+    <% if @requests.any? %>
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full border-collapse text-left text-sm">
+          <thead><tr class="border-b border-white/20"><th class="p-2">Request</th><th class="p-2">Character</th><th class="p-2">Screening outcome</th><th class="p-2">Generation</th><th class="p-2">Failure evidence</th></tr></thead>
+          <tbody>
+            <% @requests.each do |request| %>
+              <tr class="border-b border-white/10 align-top">
+                <td class="p-2">#<%= request.id %></td>
+                <td class="p-2"><%= request.character&.name || "Deleted character ##{request.original_character_id}" %></td>
+                <td class="p-2"><%= request.screening_status.humanize %><% if request.public_reason.present? %><br><span class="text-gray-300"><%= request.public_reason %></span><% end %></td>
+                <td class="p-2"><%= request.generation_attempt&.status || "Not reserved" %></td>
+                <td class="p-2"><pre class="whitespace-pre-wrap"><%= JSON.pretty_generate(request.generation_attempt&.failure_metadata || {}) %></pre></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="mt-3">No requests reference this assessment.</p>
+    <% end %>
+  </section>
+
+  <section aria-labelledby="history-heading" class="rounded-lg border border-white/20 bg-black/20 p-5">
+    <h2 id="history-heading" class="text-xl font-semibold">Decision history</h2>
+    <% if @decisions.any? %>
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full border-collapse text-left text-sm">
+          <thead><tr class="border-b border-white/20"><th class="p-2">Time</th><th class="p-2">Request</th><th class="p-2">Outcome</th><th class="p-2">Source</th><th class="p-2">Reviewer</th><th class="p-2">Internal reason</th><th class="p-2">Public reason</th></tr></thead>
+          <tbody>
+            <% @decisions.each do |decision| %>
+              <tr class="border-b border-white/10 align-top">
+                <td class="p-2"><%= decision.created_at %></td>
+                <td class="p-2"><%= decision.request_id ? "##{decision.request_id}" : "Shared assessment" %></td>
+                <td class="p-2"><%= decision.outcome %></td>
+                <td class="p-2"><%= decision.source %></td>
+                <td class="p-2"><%= decision.reviewer&.email || "—" %></td>
+                <td class="p-2"><%= decision.internal_reason.presence || "—" %></td>
+                <td class="p-2"><%= decision.public_reason.presence || "—" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="mt-3">No decisions have been recorded.</p>
+    <% end %>
+  </section>
+</main>

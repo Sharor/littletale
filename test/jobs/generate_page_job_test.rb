@@ -12,6 +12,7 @@ class GeneratePageJobTest < ActiveJob::TestCase
     book = Minitest::Mock.new
     book.expect :generation_attempt, 0
     book.expect :generation_attempt, 0
+    book.expect :ensure_character_images_ready!, true
     book.expect :create_pages_from_answer, true, [ page_data ], attempt: 0
     book.expect :refresh_generation_status!, true, [], attempt: 0
 

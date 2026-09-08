@@ -3,6 +3,7 @@
 
   <main class="flex-1 p-6">
     <%= turbo_stream_from @book %>
+    <%= turbo_stream_from current_user, :characters %>
     <%= render @book %>
   </main>
 </div>w

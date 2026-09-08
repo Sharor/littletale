@@ -2,33 +2,15 @@ require "test_helper"
 require "minitest/mock"
 
 class GenerateImageJobTest < ActiveJob::TestCase
-  self.fixture_table_names = []
-
-  test "marks the character as complete after generating its illustration" do
-    character_id = 42
-    description = "A friendly wizard with a blue hat"
-
-    character = Minitest::Mock.new
-    character.expect :in_progress!, true
-    character.expect :completed!, true
-
-    illustration = Minitest::Mock.new
-    illustration.expect :generate_single_character, true, [ description ]
-
-    relation = Minitest::Mock.new
-    relation.expect :first_or_initialize, illustration
-
-    Character.stub :find, ->(id) { assert_equal character_id, id; character } do
-      Illustration.stub :where, ->(scope) {
-        assert_equal({ character_id: character_id }, scope)
-        relation
-      } do
-        GenerateImageJob.perform_now(character_id, description)
+  test "legacy description jobs screen current inputs instead of generating an old prompt" do
+    character = characters(:hernandes)
+    Illustration.stub :where, ->(*) { flunk "legacy jobs must not bypass screening" } do
+      assert_no_difference "ActionLog.count" do
+        assert_enqueued_with(job: ScreenCharacterImageJob) do
+          GenerateImageJob.perform_now(character.id, "Old queued prompt")
+        end
       end
     end
-
-    character.verify
-    illustration.verify
-    relation.verify
+    assert_not_includes character.reload.current_image_request.assessment.prompt, "Old queued prompt"
   end
 end

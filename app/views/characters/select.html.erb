@@ -9,7 +9,7 @@
           <%= link_to "\u{274C}", book_path(@book), class: ' mb-14' %>
         </div>
     
-    <%= turbo_stream_from "illustrations" %>
+    <%= turbo_stream_from current_user, :characters %>
     <%= form_with url: save_selected_characters_path(book_id: @book.id), method: :post, data: { turbo_frame: "character_select_modal" } do %>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-scroll h-180 <%= @tutorial %>">
       <% @characters.each_with_index do |character, index| %>
@@ -21,15 +21,8 @@
               id: "character_#{index}",
               class: "peer hidden" %>
             <div class="rounded-xl border p-4 text-center transition-all duration-200 peer-checked:bg-blue-100 peer-checked:ring-2 peer-checked:ring-blue-500">
-              <% if character.illustration.present? %>
-             <%= render partial: "illustrations/illustration", locals: { illustration: character.illustration } %>
-            <% else %>
-              <div class="w-full h-32 bg-gray-200 flex items-center justify-center rounded-md mb-2 pointer-events-none">
-                <%= character.name %>
-                <br>
-                No Image Yet
-              </div>
-            <% end %>
+              <p><%= character.name %></p>
+              <%= render "illustrations/illustration", character: character %>
             </div>
           </label>
       <% end %>

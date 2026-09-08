@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_06_223000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_08_170100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,6 +77,75 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_06_223000) do
     t.index ["character_id", "book_id"], name: "index_books_characters_on_character_id_and_book_id"
   end
 
+  create_table "character_image_assessments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "fingerprint", null: false
+    t.text "prompt", null: false
+    t.string "generation_model", null: false
+    t.string "policy_version", null: false
+    t.string "status", default: "checking", null: false
+    t.text "internal_reason"
+    t.text "public_reason"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "claim_token"
+    t.datetime "claimed_at"
+    t.integer "check_attempts", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status", "created_at"], name: "index_character_image_assessments_on_status_and_created_at"
+    t.index ["user_id", "fingerprint"], name: "unique_owner_image_assessment", unique: true
+    t.index ["user_id"], name: "index_character_image_assessments_on_user_id"
+  end
+
+  create_table "character_image_decisions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "assessment_id", null: false
+    t.bigint "request_id"
+    t.bigint "reviewer_id"
+    t.string "outcome", null: false
+    t.string "source", null: false
+    t.text "internal_reason"
+    t.text "public_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assessment_id"], name: "index_character_image_decisions_on_assessment_id"
+    t.index ["request_id"], name: "index_character_image_decisions_on_request_id"
+    t.index ["reviewer_id"], name: "index_character_image_decisions_on_reviewer_id"
+    t.index ["user_id", "outcome", "created_at"], name: "image_decisions_reporting"
+    t.index ["user_id"], name: "index_character_image_decisions_on_user_id"
+  end
+
+  create_table "character_image_generation_attempts", force: :cascade do |t|
+    t.bigint "request_id", null: false
+    t.bigint "action_log_id", null: false
+    t.string "status", default: "reserved", null: false
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.string "provider_request_id"
+    t.jsonb "failure_metadata", default: {}, null: false
+    t.bigint "illustration_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action_log_id"], name: "index_character_image_generation_attempts_on_action_log_id", unique: true
+    t.index ["illustration_id"], name: "index_character_image_generation_attempts_on_illustration_id"
+    t.index ["request_id"], name: "index_character_image_generation_attempts_on_request_id", unique: true
+  end
+
+  create_table "character_image_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "character_id"
+    t.bigint "original_character_id", null: false
+    t.bigint "assessment_id", null: false
+    t.boolean "provider_rejected", default: false, null: false
+    t.text "rejection_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assessment_id"], name: "index_character_image_requests_on_assessment_id"
+    t.index ["character_id"], name: "index_character_image_requests_on_character_id"
+    t.index ["original_character_id", "assessment_id"], name: "unique_character_image_request", unique: true
+    t.index ["user_id"], name: "index_character_image_requests_on_user_id"
+  end
+
   create_table "characters", force: :cascade do |t|
     t.string "name"
     t.integer "age"
@@ -90,6 +159,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_06_223000) do
     t.string "ethnicity"
     t.text "roles", default: [], array: true
     t.integer "generation_status", default: 0
+    t.bigint "current_image_request_id"
+    t.index ["current_image_request_id"], name: "index_characters_on_current_image_request_id"
     t.index ["user_id"], name: "index_characters_on_user_id"
   end
 
@@ -325,6 +396,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_06_223000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "books", "users", on_delete: :cascade
+  add_foreign_key "character_image_assessments", "users"
+  add_foreign_key "character_image_decisions", "character_image_assessments", column: "assessment_id"
+  add_foreign_key "character_image_decisions", "character_image_requests", column: "request_id"
+  add_foreign_key "character_image_decisions", "users"
+  add_foreign_key "character_image_decisions", "users", column: "reviewer_id"
+  add_foreign_key "character_image_generation_attempts", "action_logs"
+  add_foreign_key "character_image_generation_attempts", "character_image_requests", column: "request_id"
+  add_foreign_key "character_image_generation_attempts", "illustrations", on_delete: :nullify
+  add_foreign_key "character_image_requests", "character_image_assessments", column: "assessment_id"
+  add_foreign_key "character_image_requests", "characters", on_delete: :nullify
+  add_foreign_key "character_image_requests", "users"
+  add_foreign_key "characters", "character_image_requests", column: "current_image_request_id"
   add_foreign_key "characters", "users", on_delete: :cascade
   add_foreign_key "chatgpts", "books", on_delete: :cascade
   add_foreign_key "events", "visitors", on_delete: :cascade

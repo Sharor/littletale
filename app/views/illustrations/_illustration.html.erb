@@ -1,17 +1,27 @@
-<%# app/views/characters/_illustration.html.erb %>
-<div id="illustration_section_<%= character.id %>">
-  <% if character.completed? && character.illustration.present? %>
-    <%= image_tag character.illustration.original_image.url, 
-                  class: "w-full h-full object-contain block fade-in" %>
+<div id="illustration_section_<%= character.id %>" role="status" aria-live="polite">
+  <% request = character.current_image_request %>
+  <% state = request&.screening_status %>
+  <% if state == "rejected" %>
+    <div class="rounded-lg bg-red-950 p-4 text-sm text-red-100">
+      <p>Your character image was rejected: <%= request.public_reason %></p>
+      <%= link_to "Edit or replace image", edit_character_path(character), class: "underline", data: { turbo_frame: "_top" }, onclick: "event.stopPropagation();" %>
+    </div>
+  <% elsif state == "needs_review" %>
+    <p class="rounded-lg bg-amber-950 p-4 text-sm text-amber-100">Your character image is waiting for an administrator to review it.</p>
+  <% elsif state == "checking" %>
+    <p class="p-4 text-sm text-cyan-300">Checking your character image…</p>
+  <% elsif request&.generation_attempt&.status == "outcome_unknown" %>
+    <p class="p-4 text-sm text-amber-100">Generation could not be confirmed. We stopped to avoid another charge.</p>
+  <% elsif character.failed? %>
+    <p class="p-4 text-sm text-red-200">Your character image could not be completed. An administrator can inspect the failure.</p>
+  <% elsif character.completed? && character.illustration&.original_image&.present? %>
+    <%= image_tag character.illustration.original_image.url, alt: character.name,
+      class: "w-full h-full object-contain block fade-in" %>
   <% elsif character.in_progress? %>
-    <div class="w-full h-full aspect-[3/3] bg-gray-800 flex flex-col items-center justify-center space-y-3 ">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
-      <p class="text-cyan-500 text-xs font-medium animate-pulse ">Generating...</p>
-    </div>
-
+    <p class="p-4 text-sm text-cyan-300">Generating your character…</p>
+  <% elsif state == "approved" && request.generation_attempt.nil? %>
+    <p class="p-4 text-sm text-amber-100">Your image is approved, but your generation allowance has been reached.</p>
   <% else %>
-    <div class="w-full h-full aspect-[3/3] bg-gray-700 flex items-center justify-center">
-      <p class="text-gray-400 text-xs">Waiting to start...</p>
-    </div>
+    <p class="p-4 text-sm text-gray-400">Waiting to start…</p>
   <% end %>
 </div>

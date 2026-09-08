@@ -1,0 +1,58 @@
+<main class="max-w-6xl mx-auto text-white">
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="mb-2 text-sm text-gray-300"><%= link_to "Rails console", console_path, class: "underline hover:text-white" %></p>
+      <h1 class="text-3xl font-bold">Character image reviews</h1>
+    </div>
+
+    <%= form_with url: admin_character_image_assessments_path, method: :get, class: "flex flex-wrap items-end gap-3" do |form| %>
+      <div>
+        <%= form.label :status, "Status", class: "block text-sm font-medium text-gray-200" %>
+        <%= form.select :status,
+          options_for_select([ [ "Needs review", "needs_review" ], [ "Rejected", "rejected" ], [ "Approved", "approved" ] ], @status),
+          {}, class: "mt-1 rounded border border-white/20 bg-gray-900 px-3 py-2 text-white" %>
+      </div>
+      <div>
+        <%= form.label :user_id, "Owner ID", class: "block text-sm font-medium text-gray-200" %>
+        <%= form.number_field :user_id, value: @user_id, min: 1,
+          class: "mt-1 w-32 rounded border border-white/20 bg-gray-900 px-3 py-2 text-white" %>
+      </div>
+      <%= form.submit "Filter", class: "rounded bg-cyan-700 px-4 py-2 font-semibold text-white hover:bg-cyan-600" %>
+    <% end %>
+  </div>
+
+  <nav aria-label="Review status" class="mb-6 flex flex-wrap gap-3 text-sm">
+    <% [ [ "Needs review", "needs_review" ], [ "Rejected", "rejected" ], [ "Approved", "approved" ] ].each do |label, status| %>
+      <%= link_to label,
+        admin_character_image_assessments_path(status: status, user_id: @user_id),
+        class: "rounded border border-white/20 px-3 py-2 #{'bg-white/20' if @status == status}" %>
+    <% end %>
+  </nav>
+
+  <% if @assessments.any? %>
+    <div class="space-y-4">
+      <% @assessments.each do |assessment| %>
+        <% provider_rejected = assessment.requests.any?(&:provider_rejected?) %>
+        <article data-assessment-id="<%= assessment.id %>" class="rounded-lg border border-white/20 bg-black/20 p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 class="text-xl font-semibold">
+                <%= link_to "Assessment ##{assessment.id}", admin_character_image_assessment_path(assessment), class: "underline hover:text-cyan-200" %>
+              </h2>
+              <p class="mt-1 text-sm text-gray-300">Owner: <%= assessment.user.email %> (ID <%= assessment.user_id %>)</p>
+            </div>
+            <p class="rounded bg-white/10 px-3 py-1 text-sm"><%= provider_rejected ? "Provider rejected" : assessment.status.humanize %></p>
+          </div>
+          <p class="mt-3 line-clamp-2"><%= assessment.prompt %></p>
+          <p class="mt-2 text-sm text-gray-300">
+            <%= assessment.photo.attached? ? "Photo request" : "Description request" %>
+            · <%= assessment.generation_model %>
+            · <%= assessment.created_at %>
+          </p>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <p>No character image assessments match these filters.</p>
+  <% end %>
+</main>

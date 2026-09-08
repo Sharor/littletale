@@ -6,6 +6,7 @@ class GenerateBookJob < ApplicationJob
     book = Book.find(book_id)
     generation_attempt ||= book.generation_attempt
     return unless book.generation_attempt == generation_attempt
+    return unless book.ensure_character_images_ready!
 
     book.update!(generation_status: :in_progress)
     initialize_AI(book)

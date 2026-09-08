@@ -6,6 +6,9 @@ class User < ApplicationRecord
   has_many :events, through: :visits
   has_many :action_logs
   has_many :characters
+  has_many :character_image_assessments
+  has_many :character_image_requests
+  has_many :character_image_decisions
   has_one :tutorial
 
 

@@ -9,6 +9,10 @@ as a decision is persisted. Rejections include a public reason; pending review
 never exposes its reason to the owner. Administrators can inspect both review
 cases and rejections. Preserve user-linked decision history for future reporting.
 
+Needs review blocks only the affected request, never the owner's account. Other
+eligible characters and books may generate normally. A book using the affected
+character must wait or have that character removed.
+
 Wardrobe changes during book creation are a separate feature. Future wardrobe
 variants should belong to a book and reference the original character, without
 overwriting its source photo or identity. This feature does not infer that
@@ -70,12 +74,28 @@ the moderation response identifier, returned model, supported input categories,
 flags, and scores for admin inspection. Do not put credentials, base64 images,
 or signed download URLs in diagnostic metadata.
 
-Fingerprint the photo content checksum, exact effective prompt, image-generation
-model/options, and policy version. Deduplicate within a character and owner using
-a database unique index. The character points to its current request. Unchanged
-requests reuse their existing decision and successful illustration; they do not
-create a new paid attempt or another decision event. Changed generation inputs
-create a new request; display-only edits do not generate a new image.
+Introduce a reusable screening assessment keyed by owner, actual photo content
+checksum, exact effective prompt, image-generation model/options, and policy
+version, with a database unique index. Reuploading identical image bytes, even
+under another filename or for another character owned by the same user, looks up
+this assessment before calling moderation. Reuse approved, needs-review, and
+rejected results; join an in-flight check instead of starting another. Identical
+assessments have one admin review case. Never share assessments across owners.
+
+Character requests reference this assessment but retain separate generation
+attempts and current-request pointers. An unchanged request for the same character
+reuses its successful illustration without another paid attempt or decision event.
+A different character reuses screening evidence but remains subject to normal
+generation accounting. Changed prompts, model/options, or policy versions require
+a fresh assessment even if the image is identical. Display-only edits do not
+generate a new image. This release detects byte-identical uploads; resized or
+re-encoded copies are distinct inputs.
+
+Link decision events to the shared assessment as well as the originating request
+and owner. Requests reusing an assessment reference its history rather than
+recording another automatic decision. Preserve assessment evidence independently
+of the originating character's lifetime. Provider generation outcomes remain
+request-specific and do not rewrite the screening outcome for other characters.
 
 ### Decision events
 
@@ -151,6 +171,9 @@ Rejection requires a public explanation and may include a separate internal
 note. Persist reviewer identity. Resolve under a lock: conflicting reviewers and
 repeated submissions cannot produce two decisions or two generation attempts.
 Stale requests remain inspectable but cannot regenerate a changed character.
+Resolve a shared assessment once and update all linked current requests waiting
+on that assessment. Each request still requires its own atomic generation claim
+and quota check; repeated notifications cannot launch duplicate generation.
 Rejected requests remain inspectable; replacing the input creates a new request.
 Admin approval never overrides an image provider's refusal of the same request.
 
@@ -215,6 +238,9 @@ compatibility handling routes old character jobs through screening.
    prompt, malformed response, unsupported category, and timeout cases.
 3. Integrate screening with creation and edits. Prove unapproved requests produce
    zero image API calls and zero generation usage logs.
+   Test concurrent repeat uploads across the same owner's characters for checking,
+   approved, review, and rejected assessments. Test filename changes, changed
+   prompts/policies, and separate owners to verify correct assessment reuse.
 4. Implement atomic reservation and worker claims. Test duplicate enqueues,
    simultaneous quota use, changed input during screening/generation, worker
    redelivery, provider refusal, and unknown outcomes.
@@ -223,6 +249,8 @@ compatibility handling routes old character jobs through screening.
    in every owner-visible response.
 6. Gate book selection and worker execution. Test cross-user IDs, pending/rejected
    requests, approved-but-unfinished images, and legacy completed characters.
+   Prove one held request does not block another character or unrelated book
+   belonging to the same owner.
 7. Apply migrations from WSL to development and test databases, restart running
    Rails processes after schema changes, and document worker rollout/recovery.
 8. Run focused tests for each change and the full `bin/rails test` before handoff.

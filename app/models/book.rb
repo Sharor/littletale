@@ -57,6 +57,21 @@ class Book < ApplicationRecord
 
   # Generation logic
 
+  def characters_ready_for_generation?
+    characters.all? { |character| character.user_id == user_id && character.image_ready_for_book? }
+  end
+
+  def ensure_character_images_ready!
+    return true if characters_ready_for_generation?
+
+    update_columns(generation_status: self.class.generation_statuses.fetch("failed"),
+      generation_failed_at: Time.current,
+      generation_failure: { "type" => "character_image_not_ready",
+        "message" => "One or more selected character images are not ready. Choose ready characters before starting this book." })
+    broadcast_generation_state
+    false
+  end
+
   def write_storyline
     Rails.logger.error("Chatpgt id:#{chatgpt.id} had no answer for book.rb.") && return if chatgpt.answer.blank?
 

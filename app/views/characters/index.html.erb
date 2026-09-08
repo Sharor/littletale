@@ -1,4 +1,4 @@
-<%= turbo_stream_from "characters" %>
+<%= turbo_stream_from current_user, :characters %>
 
 
 <div class="app-wrapper flex flex-col lg:flex-row text-white">
@@ -69,7 +69,7 @@
                 </svg>
               <% end %>
             </div>
-            <%= turbo_stream_from "character_#{character.id}_updates" %>
+
             <%# CHARACTER IMAGE %>
             <div class="rounded-lg overflow-hidden  mt-4 ">
               <div id="illustration_character_<%= character.id %>">

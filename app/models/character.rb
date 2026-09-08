@@ -1,10 +1,12 @@
 class Character < ApplicationRecord
-    enum :generation_status, { pending: 0, in_progress: 1, completed: 2 }
+    enum :generation_status, { pending: 0, in_progress: 1, completed: 2, failed: 3 }
     # Relations
     belongs_to :user
     has_and_belongs_to_many :books
     has_one :illustration
-    has_many :action_logs, as: :trackable, dependent: :destroy
+    has_many :action_logs, as: :trackable
+    belongs_to :current_image_request, class_name: "CharacterImageRequest", optional: true
+    has_many :character_image_requests, dependent: :nullify
     has_one_attached :photo
     # Updates
     after_update_commit :broadcast_status_change, if: :saved_change_to_generation_status?
@@ -62,26 +64,27 @@ class Character < ApplicationRecord
     end
 
     def setup_illustration(char_id_from_frontend = nil)
-        if can_perform_action?("setup_illustration")
-            if self.photo.attached?
-                CartoonImageJob.perform_later(self.id, char_id_from_frontend)
-            else
-                GenerateImageJob.perform_later(self.id, generation_description())
-            end
-            record_action!("setup_illustration")
-        else
-            Rails.logger.info "Do better error when hitting trial limit."
-        end
+        CharacterImageRequest.submit!(self)
+    end
+
+    def broadcast_image_status
+        broadcast_replace_to(user, :characters,
+          target: "illustration_section_#{id}", partial: "illustrations/illustration",
+          locals: { character: self })
+    end
+
+    def image_ready_for_book?
+        return false unless completed? && illustration&.original_image&.present?
+        return true unless current_image_request
+
+        current_image_request.current? && current_image_request.screening_status == "approved" &&
+          current_image_request.generation_attempt&.status == "completed" &&
+          current_image_request.generation_attempt.illustration_id == illustration.id
     end
 
     private
 
     def broadcast_status_change
-        broadcast_replace_to(
-        "characters", # This must match the stream name in your index view
-        target: ActionView::RecordIdentifier.dom_id(self, :illustration),
-        partial: "illustrations/illustration",
-        locals: { character: self }
-        )
+        broadcast_image_status
     end
 end
