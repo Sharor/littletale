@@ -4,6 +4,7 @@ class ScreenCharacterImageJob < ApplicationJob
   def perform(assessment_id)
     assessment = CharacterImageAssessment.find_by(id: assessment_id)
     return unless assessment
+    return assessment.approve_without_screening! unless assessment.photo.attached?
     token = SecureRandom.uuid
     claimed = false
     assessment.with_lock do
@@ -28,7 +29,7 @@ class ScreenCharacterImageJob < ApplicationJob
     if retry_check
       self.class.set(wait: assessment.check_attempts.minutes).perform_later(assessment.id)
     else
-      assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "Screening unavailable (#{error.class.name})", expected_claim: token)
+      assessment.screening_unavailable!(reason: "Screening unavailable (#{error.class.name})", expected_claim: token)
     end
   end
 end

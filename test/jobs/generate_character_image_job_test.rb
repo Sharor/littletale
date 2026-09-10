@@ -122,6 +122,22 @@ class GenerateCharacterImageJobTest < ActiveJob::TestCase
     assert @attempt.action_log.persisted?
   end
 
+  test "provider bad requests retain diagnostic metadata and are not uncertain outcomes" do
+    error = Faraday::BadRequestError.new("Bad request", status: 400,
+      headers: { "x-request-id" => "req_invalid_model" },
+      body: { "error" => { "code" => "invalid_value", "param" => "model", "message" => "private detail" } }.to_json)
+    CharacterImageGeneration.stub :call, ->(_) { raise error } do
+      2.times { GenerateCharacterImageJob.perform_now(@attempt.id) }
+    end
+    assert_equal "failed", @attempt.reload.status
+    assert_equal "invalid_value", @attempt.failure_metadata["code"]
+    assert_equal "model", @attempt.failure_metadata["param"]
+    assert_equal 400, @attempt.failure_metadata["http_status"]
+    assert_equal "req_invalid_model", @attempt.failure_metadata["request_id"]
+    assert_not_includes @attempt.failure_metadata.to_json, "private detail"
+    assert_equal "approved", @request.reload.screening_status
+  end
+
   private
 
   def image_result

@@ -2,11 +2,11 @@ require "test_helper"
 require "minitest/mock"
 
 class GenerateImageJobTest < ActiveJob::TestCase
-  test "legacy description jobs screen current inputs instead of generating an old prompt" do
+  test "legacy description jobs bypass screening and generate from current inputs" do
     character = characters(:hernandes)
-    Illustration.stub :where, ->(*) { flunk "legacy jobs must not bypass screening" } do
-      assert_no_difference "ActionLog.count" do
-        assert_enqueued_with(job: ScreenCharacterImageJob) do
+    Illustration.stub :where, ->(*) { flunk "legacy jobs must use tracked generation" } do
+      assert_difference "ActionLog.count", 1 do
+        assert_enqueued_with(job: GenerateCharacterImageJob) do
           GenerateImageJob.perform_now(character.id, "Old queued prompt")
         end
       end

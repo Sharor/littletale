@@ -8,6 +8,18 @@
           <h2 class="text-xl font-semibold"><%= book.name %></h2>
           <p class="text-sm text-gray-300">Owner: <%= book.user.email %> · Failed: <%= book.generation_failed_at %></p>
           <p class="mt-3"><%= book.generation_failure["message"] %></p>
+          <% book.current_pages.order(:id).each_with_index do |page, index| %>
+            <% if page.illustration && page.illustration.original_image.blank? %>
+              <div class="mt-4">
+                <p>Page <%= index + 1 %> · Illustration unavailable</p>
+                <%= render "books/illustration_controls", page: page, admin: current_user %>
+                <details class="mt-2">
+                  <summary>Illustration attempt history</summary>
+                  <pre class="overflow-x-auto text-xs"><%= JSON.pretty_generate(PageIllustrationGeneration.attempts(page.illustration)) %></pre>
+                </details>
+              </div>
+            <% end %>
+          <% end %>
           <pre class="mt-4 overflow-x-auto text-xs text-gray-300"><%= JSON.pretty_generate(book.generation_failure) %></pre>
         </article>
       <% end %>

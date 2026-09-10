@@ -54,7 +54,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "shows administrators a rerun control while a book is generating" do
+  test "shows generating books without a whole-book rerun control for administrators" do
     admin = users(:three)
     admin.update!(email: User::ADMINS.first)
     Tutorial.create!(user: admin, eula: true, terms: true, tutorial_complete: true)
@@ -64,7 +64,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     get book_url(book)
 
     assert_response :success
-    assert_select "form[action='#{rerun_generation_admin_book_path(book)}'][method='post']"
-    assert_select "button", "Rerun generation"
+    assert_select "#castle_construction"
+    assert_select "form[action='#{rerun_generation_admin_book_path(book)}']", count: 0
   end
 end

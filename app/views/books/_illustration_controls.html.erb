@@ -1,0 +1,15 @@
+<%= turbo_frame_tag dom_id(page, :illustration_controls) do %>
+  <% if admin&.admin? && page.illustration && page.illustration.original_image.blank? %>
+    <% illustration = page.illustration %>
+    <% if PageIllustrationGeneration.available?(illustration, admin: admin) %>
+      <%= button_to "Regenerate illustration", regenerate_admin_page_illustration_path(illustration),
+        method: :post, data: { turbo_frame: "_top" },
+        class: "rounded bg-amber-700 px-3 py-2 text-sm text-white" %>
+      <p class="text-sm"><%= PageIllustrationGeneration.attempts(illustration).length %> attempts used</p>
+    <% elsif %w[queued running].include?(PageIllustrationGeneration.state(illustration)["status"]) %>
+      <p role="status">Illustration retry in progress.</p>
+    <% else %>
+      <p>This page is no longer current.</p>
+    <% end %>
+  <% end %>
+<% end %>

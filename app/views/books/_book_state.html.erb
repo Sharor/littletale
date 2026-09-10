@@ -1,13 +1,29 @@
 <div id="<%= dom_id(book, :state) %>">
   <% if book.generation_status == "in_progress" %>
     <h1 class="text-3xl font-bold text-center"><%= book.name %></h1>
-    <%= render "books/castle", book: book %>
-    <% if current_user&.admin? %>
-      <%= button_to "Rerun generation", rerun_generation_admin_book_path(book), method: :post, class: "mt-4 rounded bg-amber-700 px-3 py-2 text-sm" %>
+    <% wardrobe = book.current_wardrobe_plan %>
+    <% if wardrobe && !wardrobe.ready? %>
+      <p role="status" class="text-center mt-4">Preparing the story and character outfits…</p>
     <% end %>
+    <%= render "books/castle", book: book %>
   <% elsif book.failed? && book.generation_failure["type"] == "character_image_not_ready" %>
     <p role="status" class="p-4 text-amber-100"><%= book.generation_failure["message"] %></p>
     <%= link_to "Review character images", characters_path, class: "underline" %>
+  <% elsif book.failed? && book.generation_failure["type"].to_s.start_with?("wardrobe_") %>
+    <p role="status" class="p-4 text-amber-100"><%= book.generation_failure["message"] %></p>
+  <% elsif book.failed? %>
+    <p role="status" class="p-4 text-amber-100">
+      This book is incomplete. Generation stopped before all illustrations were ready.
+      <% if book.generation_failure["type"] == "openai_image_moderation_blocked" %>
+        The image provider declined an illustration request.
+      <% end %>
+      <% if book.current_pages.any? %>
+        You can read the available story below. Missing illustrations are marked.
+      <% end %>
+    </p>
+    <% if book.current_pages.any? %>
+      <%= render "books/render_book", book: book %>
+    <% end %>
   <% elsif book.generation_status == "completed" && book.current_pages.all?{|p| p.illustration&.original_image&.url&.present?} %>
     <div class="animate-magical-reveal text-lg text-gray-200">
       <%= render "books/render_book", book: book %>

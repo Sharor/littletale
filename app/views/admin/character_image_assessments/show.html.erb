@@ -33,6 +33,9 @@
     <pre class="mt-2 overflow-x-auto whitespace-pre-wrap rounded bg-black/30 p-3 text-sm"><%= JSON.pretty_generate(@assessment.metadata || {}) %></pre>
   </section>
 
+  <% if @assessment.status == "unavailable" %>
+    <%= button_to "Retry screening", retry_screening_admin_character_image_assessment_path(@assessment), method: :post, class: "rounded bg-cyan-700 p-3 text-white" %>
+  <% end %>
   <% if @assessment.status == "needs_review" %>
     <section aria-labelledby="decision-heading" class="rounded-lg border border-amber-300/30 bg-black/20 p-5">
       <h2 id="decision-heading" class="text-xl font-semibold">Resolve review</h2>

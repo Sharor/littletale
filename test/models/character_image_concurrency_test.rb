@@ -27,7 +27,7 @@ class CharacterImageConcurrencyTest < ActiveSupport::TestCase
     assert_equal 1, results.uniq.size
     assert_equal 1, @user.character_image_assessments.count
     assert_equal 1, @user.character_image_requests.count
-    assert_equal 0, @user.action_logs.count
+    assert_equal 1, @user.action_logs.count
   end
 
   test "concurrent generation reservations cannot exceed the remaining user allowance" do

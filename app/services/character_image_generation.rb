@@ -36,7 +36,7 @@ class CharacterImageGeneration
 
   def call
     response = photo_attached? ? edit_photo : generate_from_prompt
-    bytes = photo_attached? ? decode_image(response) : download_image(response)
+    bytes = response.dig("data", 0, "b64_json") ? decode_image(response) : download_image(response)
 
     {
       io: StringIO.new(bytes.b).tap(&:binmode),
@@ -76,13 +76,19 @@ class CharacterImageGeneration
   end
 
   def generate_from_prompt
-    client.images.generate(parameters: {
+    parameters = {
       prompt: assessment.prompt,
       model: assessment.generation_model,
       size: IMAGE_SIZE,
-      quality: "standard",
+      quality: assessment.generation_model.start_with?("gpt-image-") ? "auto" : "standard",
       n: 1
-    })
+    }
+    if assessment.is_a?(CharacterImageAssessment)
+      assessment.update!(metadata: assessment.metadata.merge("generation_request" => {
+        "endpoint" => "/v1/images/generations", "parameters" => parameters
+      }))
+    end
+    client.images.generate(parameters: parameters)
   end
 
   def decode_image(response)

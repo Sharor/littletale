@@ -11,6 +11,10 @@ CarrierWave.configure do |config|
     config.fog_directory  = ENV["MINIO_BUCKET"]|| "dummy"
     config.fog_public     = false
     config.storage        = :fog
+  elsif Rails.env.test?
+    config.storage = :file
+    config.enable_processing = false
+    config.root = -> { Rails.root.join("tmp/carrierwave/#{Process.pid}") }
   else
     config.storage = :file
     config.enable_processing = Rails.env.development?

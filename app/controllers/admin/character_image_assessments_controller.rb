@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Admin::CharacterImageAssessmentsController < ApplicationController
-  FILTER_STATUSES = %w[needs_review rejected approved].freeze
+  FILTER_STATUSES = %w[needs_review rejected approved unavailable].freeze
 
   skip_before_action :check_tutorial
   before_action :require_admin
@@ -29,6 +29,11 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
       type: safe_image ? @assessment.photo.content_type : "application/octet-stream",
       disposition: safe_image ? "inline" : "attachment",
       filename: @assessment.photo.filename.to_s
+  end
+
+  def retry_screening
+    @assessment.retry_screening!
+    redirect_to admin_character_image_assessment_path(@assessment), notice: "Screening retry requested."
   end
 
   def approve

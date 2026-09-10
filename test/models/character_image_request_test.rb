@@ -7,6 +7,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
   end
 
   test "submission checks inputs before spending an image attempt" do
+    attach_photo(@character, "source.png")
     assert_no_difference "ActionLog.count" do
       request = CharacterImageRequest.submit!(@character)
       assert_equal "checking", request.screening_status
@@ -45,6 +46,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
   end
 
   test "review is shared and its reason remains private" do
+    attach_photo(@character, "source.png")
     first = CharacterImageRequest.submit!(@character)
     first.assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "private evidence")
     assert_equal "needs_review", first.reload.screening_status
@@ -56,6 +58,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
   end
 
   test "admin resolution preserves review history and reserves just one attempt" do
+    attach_photo(@character, "source.png")
     request = CharacterImageRequest.submit!(@character)
     request.assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "private")
     admin = users(:three)
@@ -67,6 +70,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
   end
 
   test "only admins resolve review and rejection requires a public reason" do
+    attach_photo(@character, "source.png")
     request = CharacterImageRequest.submit!(@character)
     request.assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "private")
     assert_raises(ArgumentError) do
@@ -78,6 +82,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
   end
 
   test "held request does not block the same owner's other generation" do
+    attach_photo(@character, "source.png")
     held = CharacterImageRequest.submit!(@character)
     held.assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "private")
     other = @character.dup
@@ -112,6 +117,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
   end
 
   test "an expired screening worker cannot overwrite a newer claim" do
+    attach_photo(@character, "source.png")
     request = CharacterImageRequest.submit!(@character)
     request.assessment.update!(claim_token: "new-worker")
     changed = request.assessment.resolve!(outcome: "approved", source: "automatic", internal_reason: "stale", expected_claim: "old-worker")
@@ -121,6 +127,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
   end
 
   test "admin resolution preserves the original moderation evidence" do
+    attach_photo(@character, "source.png")
     request = CharacterImageRequest.submit!(@character)
     request.assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "flagged", metadata: { "id" => "mod_original", "scores" => { "violence" => 0.8 } })
     admin = users(:three)
@@ -130,9 +137,34 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
     assert_equal 0.8, request.assessment.metadata.dig("scores", "violence")
   end
 
+  test "photo uploads do not emit frozen string deprecation warnings" do
+    previous = Warning[:deprecated]
+    Warning[:deprecated] = true
+
+    _, stderr = capture_io { attach_photo(@character, "upload.png") }
+
+    assert @character.photo.attached?
+    assert_no_match(/literal string will be frozen/, stderr)
+  ensure
+    Warning[:deprecated] = previous
+  end
+
+  test "description prompt preserves categories and specifies an age appropriate fictional portrait" do
+    @character.update!(age: 22, gender: "Girl", ethnicity: "White", hair_color: "Brown",
+      hair_style: "Long", eye_color: "Brown", roles: [ "Hero", "Freckles" ])
+    prompt = CharacterImageRequest.submit!(@character).assessment.prompt
+    assert_includes prompt, "Character details:\n"
+    details = JSON.parse(prompt.split("Character details:\n", 2).last)
+    assert_equal({ "age" => 22, "gender" => "Girl", "ethnicity" => "White", "hair_color" => "Brown",
+      "hair_style" => "Long", "eye_color" => "Brown", "roles" => [ "Hero", "Freckles" ] }, details)
+    assert_includes prompt, "fictional"
+    assert_includes prompt, "fully clothed"
+    assert_includes prompt, "numeric age"
+  end
+
   private
 
   def attach_photo(character, name)
-    character.photo.attach(io: StringIO.new("identical image bytes"), filename: name, content_type: "image/png")
+    character.photo.attach(io: StringIO.new("identical image bytes".b), filename: name, content_type: "image/png")
   end
 end

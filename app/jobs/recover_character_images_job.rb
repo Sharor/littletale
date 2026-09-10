@@ -14,7 +14,7 @@ class RecoverCharacterImagesJob < ApplicationJob
         end
       end
       if exhausted
-        assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "Screening attempts exhausted after worker interruption")
+        assessment.screening_unavailable!(reason: "Screening attempts exhausted after worker interruption")
       elsif recover_check
         ScreenCharacterImageJob.perform_later(assessment.id)
       end

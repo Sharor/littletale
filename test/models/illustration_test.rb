@@ -4,6 +4,20 @@ require "test_helper"
 require "minitest/mock"
 
 class IllustrationTest < ActiveSupport::TestCase
+  test "book image provider calls do not silently retry uncertain failures" do
+    calls = 0
+    images = Object.new
+    images.define_singleton_method(:edit) do |parameters:|
+      calls += 1
+      raise Timeout::Error, "uncertain response"
+    end
+    illustration = Illustration.new(original_description: "A park")
+    illustration.stub :client, Struct.new(:images).new(images) do
+      assert_raises(Timeout::Error) { illustration.gpt_image_1_edit([]) }
+    end
+    assert_equal 1, calls
+  end
+
   test "builds a single-character prompt with the supplied description" do
     illustration = Illustration.new
 

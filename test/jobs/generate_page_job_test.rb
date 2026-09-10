@@ -6,6 +6,18 @@ require "minitest/mock"
 class GeneratePageJobTest < ActiveJob::TestCase
   self.fixture_table_names = []
 
+  test "wardrobe pages delegate readiness to their persisted reference plan" do
+    data = { "wardrobe_plan_id" => 4, "position" => 1 }
+    book = Minitest::Mock.new
+    2.times { book.expect :generation_attempt, 0 }
+    book.expect :create_pages_from_answer, true, [data], attempt: 0
+    book.expect :refresh_generation_status!, true, [], attempt: 0
+    Book.stub :find, book do
+      GeneratePageJob.perform_now(1, data)
+    end
+    assert book.verify
+  end
+
   test "delegates page creation to the requested book" do
     book_id = 29
     page_data = { "story" => "A new chapter", "image" => "A lighthouse" }

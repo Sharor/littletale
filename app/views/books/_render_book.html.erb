@@ -8,15 +8,16 @@
         <h1><%= book.name %></h1>
       </div>
       
-      <% if book.current_pages.any? && book.current_pages.last.illustration.original_image.present? %>
+      <% cover_page = book.current_pages.order(:id).to_a.reverse.find { |page| page.illustration&.original_image&.url.present? } %>
+      <% if cover_page %>
         <div class="w-2/3 mt-4 border border-amber-900/30 p-1">
-            <%= image_tag book.current_pages.last.illustration.original_image.url, class: "w-full object-contain" %>
+            <%= image_tag cover_page.illustration.original_image.url, class: "w-full object-contain" %>
         </div>
       <% end %>
     </div>
   </div>
     <% book.current_pages.order(:id).each_with_index do |page,index| %>
-      <%= render "page", book: book, index: index, page: page %>
+      <%= render "books/page", book: book, index: index, page: page %>
     <% end %>
 
     <div class="page page-cover page-cover-bottom" data-density="hard">

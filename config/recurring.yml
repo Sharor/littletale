@@ -10,6 +10,9 @@
 #     schedule: at 5am every day
 
 production:
+  recover_book_wardrobes:
+    class: RecoverBookWardrobesJob
+    schedule: every 5 minutes
   recover_character_images:
     class: RecoverCharacterImagesJob
     schedule: every 5 minutes

@@ -2,6 +2,12 @@ class Book < ApplicationRecord
   enum :generation_status, { pending: 0, in_progress: 1, completed: 2, failed: 3 }
   belongs_to :user
 
+  has_many :book_wardrobe_plans, dependent: :destroy
+
+  def current_wardrobe_plan
+    book_wardrobe_plans.find_by(generation_attempt: generation_attempt)
+  end
+
   has_one :chatgpt
   has_and_belongs_to_many :characters
   has_many :pages
@@ -79,10 +85,18 @@ class Book < ApplicationRecord
   end
 
   def current_pages
-    pages.where(generation_attempt: generation_attempt)
+    pages.where(generation_attempt: generation_attempt).order(:story_position, :id)
   end
 
   def create_pages_from_answer(json, attempt: generation_attempt)
+    if json["wardrobe_plan_id"]
+      plan = book_wardrobe_plans.find(json["wardrobe_plan_id"])
+      return unless reload.generation_attempt == attempt && plan.generation_attempt == attempt && plan.ready?
+      page = plan.pages.find_by!(story_position: json.fetch("position"))
+      return unless page.wardrobe_ready?
+      page.illustration.generate_image_v1(characters)
+      return page
+    end
     page = pages.create!(text: json["story"], generation_attempt: attempt)
     page.illustration = Illustration.create!(original_description: json["image"])
     # You need to finish this by doing a comparison of page["present"] and characters in Book. TODO maybe?
@@ -91,33 +105,36 @@ class Book < ApplicationRecord
   end
 
   def record_generation_failure!(illustration:, failure:, request:)
-    return unless illustration.page.generation_attempt == generation_attempt
+    with_lock do
+      return unless illustration.page.generation_attempt == generation_attempt
 
-    context = failure.merge(
-      "book_id" => id,
-      "page_id" => illustration.page_id,
-      "illustration_id" => illustration.id,
-      "generation_attempt" => generation_attempt,
-      "request" => request,
-      "book_context" => generation_context
-    )
+      context = failure.merge(
+        "book_id" => id,
+        "page_id" => illustration.page_id,
+        "illustration_id" => illustration.id,
+        "generation_attempt" => generation_attempt,
+        "request" => request,
+        "book_context" => generation_context
+      )
 
-    update!(
-      generation_status: :failed,
-      generation_failed_at: Time.current,
-      generation_failure: context,
-      generation_failure_history: generation_failure_history + [ context ]
-    )
+      update!(
+        generation_status: :failed,
+        generation_failed_at: Time.current,
+        generation_failure: context,
+        generation_failure_history: generation_failure_history + [ context ]
+      )
+    end
     broadcast_generation_state
   end
 
   def refresh_generation_status!(attempt: generation_attempt)
-    return unless attempt == generation_attempt
-    return if failed?
-    return unless current_pages.count >= total_pages
-    return unless current_pages.all? { |page| page.illustration&.original_image&.present? }
+    with_lock do
+      return unless attempt == generation_attempt
+      return unless current_pages.count >= total_pages
+      return unless current_pages.all? { |page| page.illustration&.original_image&.present? }
 
-    completed!
+      update!(generation_status: :completed, generation_failure: {}, generation_failed_at: nil)
+    end
     broadcast_generation_state
   end
 

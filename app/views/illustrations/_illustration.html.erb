@@ -8,6 +8,8 @@
     </div>
   <% elsif state == "needs_review" %>
     <p class="rounded-lg bg-amber-950 p-4 text-sm text-amber-100">Your character image is waiting for an administrator to review it.</p>
+  <% elsif state == "unavailable" %>
+    <p class="p-4 text-sm text-amber-100">Image screening is temporarily unavailable. Your photo has not been reviewed yet.</p>
   <% elsif state == "checking" %>
     <p class="p-4 text-sm text-cyan-300">Checking your character image…</p>
   <% elsif request&.generation_attempt&.status == "outcome_unknown" %>

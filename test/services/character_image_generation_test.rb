@@ -101,6 +101,25 @@ class CharacterImageGenerationTest < ActiveSupport::TestCase
     assert_requested download_request, times: 1
   end
 
+  test "generates a saved description request with GPT Image and decodes its response" do
+    character = characters(:hernandes)
+    request = CharacterImageRequest.submit!(character)
+    assessment = request.assessment
+    stub_request(:post, "https://api.openai.com/v1/images/generations")
+      .with do |http_request|
+        payload = JSON.parse(http_request.body)
+        assert_equal "gpt-image-1", payload["model"]
+        assert_equal "auto", payload["quality"]
+        assert_equal payload, assessment.reload.metadata.fetch("generation_request").fetch("parameters")
+        assert_equal assessment.prompt, payload["prompt"]
+        true
+      end
+      .to_return(status: 200, headers: { "Content-Type" => "application/json" },
+        body: { data: [ { b64_json: Base64.strict_encode64(GENERATED_BYTES) } ] }.to_json)
+
+    assert_equal GENERATED_BYTES, CharacterImageGeneration.call(assessment).fetch(:io).read
+  end
+
   test "raises a refusal with a supported public reason and sanitized provider metadata" do
     request = stub_request(:post, "https://api.openai.com/v1/images/generations")
       .to_return(

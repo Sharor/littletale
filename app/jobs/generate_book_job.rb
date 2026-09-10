@@ -6,12 +6,15 @@ class GenerateBookJob < ApplicationJob
     book = Book.find(book_id)
     generation_attempt ||= book.generation_attempt
     return unless book.generation_attempt == generation_attempt
-    return unless book.ensure_character_images_ready!
+    existing_plan = book.current_wardrobe_plan
+    return unless (existing_plan && existing_plan.status != "pending") || book.ensure_character_images_ready!
 
-    book.update!(generation_status: :in_progress)
-    initialize_AI(book)
-    story = book.write_storyline
-    image_generation(story, book, generation_attempt)
+    plan = book.with_lock do
+      return unless book.generation_attempt == generation_attempt
+      book.update!(generation_status: :in_progress) if book.pending?
+      book.book_wardrobe_plans.find_or_create_by!(generation_attempt: generation_attempt)
+    end
+    BookWardrobePreparation.call(plan)
   end
 
   def initialize_AI(book)

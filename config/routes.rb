@@ -3,10 +3,15 @@ Rails.application.routes.draw do
     mount MissionControl::Jobs::Engine, at: "/jobs"
   end
   get "/console", to: "console#show"
+  get "pages/:id/illustration_controls", to: "page_illustration_controls#show", as: :illustration_controls_page
   namespace :admin do
+    resources :page_illustrations, only: [] do
+      post :regenerate, on: :member
+    end
     resources :character_image_assessments, only: %i[index show] do
       member do
         get :photo
+        post :retry_screening
         post :approve
         post :reject
       end

@@ -10,11 +10,8 @@ class Illustration < ApplicationRecord
   def generate_image_v1(characters)
     return if self.original_image.present?
 
-    data = gpt_image_1_edit(characters)
-    return false if data.blank?
-
-    extract_image_base64(data)
-    true
+    token = PageIllustrationGeneration.reserve!(self, retrying: false)
+    PageIllustrationGeneration.perform!(self, token) if token
   end
 
   def extract_image_base64(data)
@@ -26,43 +23,57 @@ class Illustration < ApplicationRecord
       image.write filename
       self.original_image = MiniMagick::Image.open(filename)
       save
-    rescue StandardError => e
-      Rails.logger.error(e)
     ensure
-      image.destroy!
+      image&.destroy!
+      File.delete(filename) if filename && File.exist?(filename)
     end
   end
 
   def gpt_image_1_edit(characters)
-    retries = 0
-    max_retries = 3
-
+    images = []
     begin
-      images = characters.map.with_index do |character, index|
-        uploader = character.illustration.original_image
-        ext = File.extname(uploader.path).presence || ".png"
+      if page&.wardrobe_required?
+        raise "Page wardrobe is not ready" unless page.wardrobe_ready?
 
-        if uploader.file.respond_to?(:url) && uploader.file.url.start_with?("http")
-          # Use Tempfile.new to guarantee a real file on disk with the correct extension
-          # This is the most reliable way to satisfy "failed to determine mimetype"
-          temp = Tempfile.new([ "image_#{index}", ext ])
+        page.book_outfits.each_with_index do |outfit, index|
+          ext = File.extname(outfit.image.filename.to_s).presence || ".png"
+          temp = Tempfile.new([ "wardrobe_#{index}", ext ])
+          images << temp
           temp.binmode
-          temp.write(URI.parse(uploader.url).read)
+          temp.write(outfit.image.download)
           temp.rewind
-          temp
-        else
-          # Local development path
-          File.open(Rails.root.join("public", uploader.path), "rb")
+        end
+      else
+        characters.each_with_index do |character, index|
+          uploader = character.illustration.original_image
+          ext = File.extname(uploader.path).presence || ".png"
+
+          if uploader.file.respond_to?(:url) && uploader.file.url.start_with?("http")
+            # Use Tempfile.new to guarantee a real file on disk with the correct extension
+            # This is the most reliable way to satisfy "failed to determine mimetype"
+            temp = Tempfile.new([ "image_#{index}", ext ])
+            images << temp
+            temp.binmode
+            temp.write(URI.parse(uploader.url).read)
+            temp.rewind
+          else
+            # Local development path
+            images << File.open(Rails.root.join("public", uploader.path), "rb")
+          end
         end
       end
 
       # 2. Call the client
-      client.images.edit(parameters: {
+      parameters = {
         prompt: specifications(),
         model: "gpt-image-1",
-        image: images,
         size: "1024x1024"
-      })
+      }
+      if page&.wardrobe_required? && images.empty?
+        client.images.generate(parameters: parameters)
+      else
+        client.images.edit(parameters: parameters.merge(image: images))
+      end
 
     rescue Faraday::BadRequestError => e
         Rails.logger.error("STATUS: #{e.response[:status]}")
@@ -72,21 +83,9 @@ class Illustration < ApplicationRecord
 
         raise e # Don't retry other 400s; the payload is the problem
 
-    rescue StandardError => e
-        retries += 1
-        images&.each(&:close) # Cleanup open files before retrying
-
-        if retries <= max_retries
-          Rails.logger.error("Attempt #{retries} failed: #{e.message}")
-          sleep(1 * retries) # Incremental backoff
-          retry
-        else
-          Rails.logger.error("Max retries reached. Failing job.")
-          raise e
-        end
     ensure
       # 3. Final cleanup to prevent memory leaks in Docker
-      images&.each(&:close)
+      images.each { |image| image.is_a?(Tempfile) ? image.close! : image.close }
     end
   end
 
@@ -134,7 +133,8 @@ class Illustration < ApplicationRecord
 
   def specifications
     # Consider adding "style_and_resolution() somewhere. TODO"
-    "Do not write any letters in the image. Use color and do not make the image monochromatic. Use the provided image(s) to make a new image using this description:\n#{self.original_description}"
+    scene = "Do not write any letters in the image. Use color and do not make the image monochromatic. Use the provided image(s) to make a new image using this description:\n#{self.original_description}"
+    page&.wardrobe_required? ? "#{scene}\n\n#{page.wardrobe_instructions}" : scene
   end
 
   # Generation of single characters
@@ -203,13 +203,19 @@ class Illustration < ApplicationRecord
       "size" => "1024x1024",
       "prompt" => specifications,
       "character_ids" => characters.map(&:id),
-      "reference_images" => characters.map do |character|
-        reference = character.illustration
-        { "character_id" => character.id, "illustration_id" => reference&.id, "image" => reference&.original_image&.identifier }
+      "reference_images" => if page&.wardrobe_required?
+        page.book_outfits.map do |outfit|
+          { "character_id" => outfit.character_id, "image" => outfit.image.filename.to_s }
+        end
+      else
+        characters.map do |character|
+          reference = character.illustration
+          { "character_id" => character.id, "illustration_id" => reference&.id, "image" => reference&.original_image&.identifier }
+        end
       end
     }
 
-    update!(prompt: request["prompt"], generation_metadata: { "request" => request, "failure" => failure })
+    update!(prompt: request["prompt"], generation_metadata: generation_metadata.merge("request" => request, "failure" => failure))
     page.book.record_generation_failure!(illustration: self, failure: failure, request: request)
     nil
   end

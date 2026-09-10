@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_08_170100) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_09_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,6 +51,36 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_08_170100) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "book_outfits", force: :cascade do |t|
+    t.bigint "book_wardrobe_plan_id", null: false
+    t.bigint "character_id", null: false
+    t.string "outfit_key", null: false
+    t.text "description", null: false
+    t.jsonb "page_numbers", default: [], null: false
+    t.jsonb "character_snapshot", default: {}, null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "generation_metadata", default: {}, null: false
+    t.datetime "claimed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_wardrobe_plan_id", "character_id", "outfit_key"], name: "index_book_outfits_unique_identity", unique: true
+    t.index ["book_wardrobe_plan_id"], name: "index_book_outfits_on_book_wardrobe_plan_id"
+  end
+
+  create_table "book_wardrobe_plans", force: :cascade do |t|
+    t.bigint "book_id", null: false
+    t.integer "generation_attempt", null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "story", default: [], null: false
+    t.jsonb "character_snapshots", default: [], null: false
+    t.jsonb "failure", default: {}, null: false
+    t.datetime "claimed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id", "generation_attempt"], name: "index_book_wardrobe_plans_on_book_id_and_generation_attempt", unique: true
+    t.index ["book_id"], name: "index_book_wardrobe_plans_on_book_id"
   end
 
   create_table "books", force: :cascade do |t|
@@ -208,8 +238,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_08_170100) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "generation_attempt", default: 0, null: false
+    t.bigint "book_wardrobe_plan_id"
+    t.integer "story_position"
+    t.index ["book_id", "generation_attempt", "story_position"], name: "index_pages_unique_story_position", unique: true
     t.index ["book_id", "generation_attempt"], name: "index_pages_on_book_id_and_generation_attempt"
     t.index ["book_id"], name: "index_pages_on_book_id"
+    t.index ["book_wardrobe_plan_id"], name: "index_pages_on_book_wardrobe_plan_id"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -395,6 +429,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_08_170100) do
   add_foreign_key "action_logs", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "book_outfits", "book_wardrobe_plans"
+  add_foreign_key "book_wardrobe_plans", "books"
   add_foreign_key "books", "users", on_delete: :cascade
   add_foreign_key "character_image_assessments", "users"
   add_foreign_key "character_image_decisions", "character_image_assessments", column: "assessment_id"
@@ -413,6 +449,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_08_170100) do
   add_foreign_key "events", "visitors", on_delete: :cascade
   add_foreign_key "illustrations", "characters", on_delete: :cascade
   add_foreign_key "illustrations", "pages", on_delete: :cascade
+  add_foreign_key "pages", "book_wardrobe_plans"
   add_foreign_key "pages", "books", on_delete: :cascade
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

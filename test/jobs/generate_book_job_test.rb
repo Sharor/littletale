@@ -5,27 +5,14 @@ require "minitest/mock"
 
 class GenerateBookJobTest < ActiveJob::TestCase
   test "orchestrates story generation without performing external work itself" do
-    book_id = 42
-    story = [ { "story" => "A fox explored", "image" => "A fox in a forest" } ]
-    book = Minitest::Mock.new
-    book.expect :generation_attempt, 0
-    book.expect :generation_attempt, 0
-    book.expect :ensure_character_images_ready!, true
-    book.expect :update!, true, [], generation_status: :in_progress
-    book.expect :write_storyline, story
-    job = GenerateBookJob.new
-
-    job.stub :initialize_AI, ->(*) {} do
-      job.stub :image_generation, ->(*) {} do
-        job.stub :ensure_storage_cache_consistency, ->(*) {} do
-          Book.stub :find, ->(id) { assert_equal book_id, id; book } do
-            job.perform(book_id)
-          end
-        end
-      end
+    book = Book.create!(user: users(:one), name: "New wardrobe book", total_pages: 1)
+    calls = []
+    BookWardrobePreparation.stub :call, ->(plan) { calls << plan.id } do
+      2.times { GenerateBookJob.perform_now(book.id) }
     end
-
-    book.verify
+    assert_equal 1, book.book_wardrobe_plans.count
+    assert_equal [book.current_wardrobe_plan.id] * 2, calls
+    assert book.reload.in_progress?
   end
 
   test "initializes and saves the structured story generator" do

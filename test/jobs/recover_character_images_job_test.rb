@@ -14,6 +14,7 @@ class RecoverCharacterImagesJobTest < ActiveJob::TestCase
   end
 
   test "abandoned screening claims can be recovered without paid generation" do
+    characters(:hernandes).photo.attach(io: File.open(file_fixture("character.png")), filename: "source.png", content_type: "image/png")
     request = CharacterImageRequest.submit!(characters(:hernandes))
     request.assessment.update!(claim_token: "abandoned", claimed_at: 2.hours.ago, check_attempts: 1)
     assert_enqueued_with(job: ScreenCharacterImageJob, args: [ request.assessment_id ]) do

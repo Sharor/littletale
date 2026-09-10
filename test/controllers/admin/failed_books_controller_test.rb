@@ -5,10 +5,12 @@ require "test_helper"
 class Admin::FailedBooksControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
-  test "forbids guests and non-administrators" do
+  test "asks guests to sign in" do
     get admin_failed_books_url
-    assert_response :forbidden
+    assert_redirected_to new_user_session_path
+  end
 
+  test "forbids signed-in non-administrators" do
     sign_in users(:one)
     get admin_failed_books_url
     assert_response :forbidden

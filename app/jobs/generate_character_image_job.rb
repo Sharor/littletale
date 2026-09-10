@@ -31,12 +31,30 @@ class GenerateCharacterImageJob < ApplicationJob
   rescue StandardError => error
     raise unless claimed
     # A response can be lost after the provider charged for it. Never resend it.
-    status = attempt.result_image.attached? ? "failed" : "outcome_unknown"
-    attempt.update!(status: status, finished_at: Time.current, failure_metadata: { "error_class" => error.class.name })
+    definite_bad_request = error.is_a?(Faraday::BadRequestError)
+    status = attempt.result_image.attached? || definite_bad_request ? "failed" : "outcome_unknown"
+    attempt.update!(status: status, finished_at: Time.current, failure_metadata: failure_metadata(error))
     fail_character(request)
   end
 
   private
+
+  def failure_metadata(error)
+    metadata = { "error_class" => error.class.name }
+    return metadata unless error.is_a?(Faraday::Error) && error.response
+
+    metadata["http_status"] = error.response[:status]
+    body = error.response[:body]
+    body = JSON.parse(body) if body.is_a?(String)
+    provider = body.is_a?(Hash) && body["error"].is_a?(Hash) ? body["error"] : {}
+    { "code" => provider["code"], "param" => provider["param"],
+      "request_id" => error.response.dig(:headers, "x-request-id") }.each do |key, value|
+      metadata[key] = value.first(100) if value.is_a?(String) && value.match?(/\A[[:alnum:]_.:\/-]+\z/)
+    end
+    metadata
+  rescue JSON::ParserError
+    metadata
+  end
 
   def publish_result!(attempt)
     request = attempt.request

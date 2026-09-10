@@ -4,6 +4,7 @@ require "minitest/mock"
 class CartoonImageJobTest < ActiveJob::TestCase
   test "legacy photo jobs go through screening without calling image generation" do
     character = characters(:hernandes)
+    character.photo.attach(io: File.open(file_fixture("character.png")), filename: "source.png", content_type: "image/png")
     Illustration.stub :where, ->(*) { flunk "legacy jobs must not bypass screening" } do
       assert_no_difference "ActionLog.count" do
         assert_enqueued_with(job: ScreenCharacterImageJob) do

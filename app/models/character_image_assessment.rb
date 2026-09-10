@@ -1,6 +1,6 @@
 class CharacterImageAssessment < ApplicationRecord
   POLICY_VERSION = "1"
-  OUTCOMES = %w[checking approved needs_review rejected].freeze
+  OUTCOMES = %w[checking approved needs_review rejected unavailable].freeze
 
   belongs_to :user
   has_one_attached :photo
@@ -8,6 +8,42 @@ class CharacterImageAssessment < ApplicationRecord
   has_many :decisions, class_name: "CharacterImageDecision", foreign_key: :assessment_id
   validates :status, inclusion: { in: OUTCOMES }
   attr_readonly :user_id, :fingerprint, :prompt, :generation_model, :policy_version
+
+  def approve_without_screening!
+    changed = false
+    with_lock do
+      return false if photo.attached? || status == "approved"
+      update!(status: "approved", internal_reason: "screening_not_required", public_reason: nil, claim_token: nil, claimed_at: nil)
+      decisions.create!(user: user, request: requests.order(:id).first, outcome: "approved", source: "automatic",
+        internal_reason: "screening_not_required")
+      changed = true
+    end
+    notify_requests! if changed
+    changed
+  end
+
+  def screening_unavailable!(reason:, expected_claim: nil)
+    changed = false
+    with_lock do
+      return false unless status == "checking" && (!expected_claim || claim_token == expected_claim)
+      failures = metadata.fetch("screening_failures", []) + [{ "reason" => reason, "recorded_at" => Time.current.iso8601 }]
+      update!(status: "unavailable", internal_reason: reason, claim_token: nil, claimed_at: nil,
+        metadata: metadata.merge("screening_failures" => failures))
+      changed = true
+    end
+    notify_requests! if changed
+    changed
+  end
+
+  def retry_screening!
+    with_lock do
+      return false unless status == "unavailable"
+      update!(status: "checking", check_attempts: 0, claim_token: nil, claimed_at: nil)
+    end
+    ScreenCharacterImageJob.perform_later(id)
+    notify_requests!
+    true
+  end
 
   def resolve!(outcome:, source:, internal_reason:, public_reason: nil, reviewer: nil, metadata: nil, expected_claim: nil)
     raise ArgumentError, "Invalid decision" unless %w[approved needs_review rejected].include?(outcome)

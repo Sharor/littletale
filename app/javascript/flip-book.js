@@ -1,9 +1,11 @@
 // flip-book.js
 import { PageFlip } from 'page-flip'
 
-document.addEventListener("turbo:load", function() {
+const initializedBooks = new WeakSet();
+
+function initializeBook() {
     const bookEl = document.getElementById('storybook');
-    if (!bookEl) return;
+    if (!bookEl || initializedBooks.has(bookEl)) return;
 
     const isMobile = window.innerWidth < 768;
 
@@ -59,4 +61,14 @@ document.addEventListener("turbo:load", function() {
     });
 
     toggleState();
+    initializedBooks.add(bookEl);
+}
+
+document.addEventListener("turbo:load", initializeBook);
+document.addEventListener("turbo:before-stream-render", (event) => {
+    const render = event.detail.render;
+    event.detail.render = async function(...args) {
+        await render.apply(this, args);
+        initializeBook();
+    };
 });

@@ -9,7 +9,7 @@
       <div>
         <%= form.label :status, "Status", class: "block text-sm font-medium text-gray-200" %>
         <%= form.select :status,
-          options_for_select([ [ "Needs review", "needs_review" ], [ "Rejected", "rejected" ], [ "Approved", "approved" ] ], @status),
+          options_for_select([ [ "Needs review", "needs_review" ], [ "Rejected", "rejected" ], [ "Approved", "approved" ], [ "Screening unavailable", "unavailable" ] ], @status),
           {}, class: "mt-1 rounded border border-white/20 bg-gray-900 px-3 py-2 text-white" %>
       </div>
       <div>
@@ -22,7 +22,7 @@
   </div>
 
   <nav aria-label="Review status" class="mb-6 flex flex-wrap gap-3 text-sm">
-    <% [ [ "Needs review", "needs_review" ], [ "Rejected", "rejected" ], [ "Approved", "approved" ] ].each do |label, status| %>
+    <% [ [ "Needs review", "needs_review" ], [ "Rejected", "rejected" ], [ "Approved", "approved" ], [ "Screening unavailable", "unavailable" ] ].each do |label, status| %>
       <%= link_to label,
         admin_character_image_assessments_path(status: status, user_id: @user_id),
         class: "rounded border border-white/20 px-3 py-2 #{'bg-white/20' if @status == status}" %>

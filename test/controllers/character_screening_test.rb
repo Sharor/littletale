@@ -8,17 +8,21 @@ class CharacterScreeningTest < ActionDispatch::IntegrationTest
     @user = users(:one)
     @user.tutorial.update!(terms: true)
     @character = characters(:hernandes)
+    @character.photo.attach(io: File.open(file_fixture("character.png")), filename: "source.png", content_type: "image/png")
     sign_in @user
   end
 
-  test "creation queues screening without spending an image attempt" do
-    assert_no_difference "ActionLog.count" do
-      assert_enqueued_with(job: ScreenCharacterImageJob) do
+  test "description creation bypasses screening and reserves image generation" do
+    assert_difference "ActionLog.count", 1 do
+      assert_no_enqueued_jobs(only: ScreenCharacterImageJob) do
         post characters_url, params: { character: { name: "Screen me", creation_mode: "form", age: 8,
           gender: "Girl", ethnicity: "Asian", hair_color: "Black", hair_style: "Long", eye_color: "Brown" } }
       end
     end
-    assert_equal "checking", Character.find_by!(name: "Screen me").current_image_request.screening_status
+    request = Character.find_by!(name: "Screen me").current_image_request
+    assert_equal "approved", request.screening_status
+    assert_equal "screening_not_required", request.assessment.internal_reason
+    assert request.generation_attempt
   end
 
   test "owner sees review status without private evidence" do
@@ -80,13 +84,13 @@ class CharacterScreeningTest < ActionDispatch::IntegrationTest
   end
 
   test "switching to description mode removes the current photo but retains screening evidence" do
-    @character.photo.attach(io: StringIO.new("original photo"), filename: "original.png", content_type: "image/png")
+    @character.photo.attach(io: StringIO.new("original photo".b), filename: "original.png", content_type: "image/png")
     original = CharacterImageRequest.submit!(@character)
     patch character_url(@character), params: { character: { creation_mode: "form", age: 8, gender: "Girl", ethnicity: "Asian", hair_color: "Black", hair_style: "Long", eye_color: "Brown" } }
     assert_redirected_to characters_url
     assert_not @character.reload.photo.attached?
     assert original.assessment.photo.attached?
-    assert_equal "dall-e-3", @character.current_image_request.assessment.generation_model
+    assert_equal "gpt-image-1", @character.current_image_request.assessment.generation_model
   end
 
   test "Turbo replacement submission redirects to the updated character list" do

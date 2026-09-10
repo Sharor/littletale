@@ -4,6 +4,7 @@ require "test_helper"
 
 class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include ActiveJob::TestHelper
 
   setup do
     @owner = users(:one)
@@ -22,7 +23,7 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
 
   test "rejected non-image uploads cannot execute as HTML through the source route" do
     assessment = create_assessment(status: "rejected", prompt: "Invalid upload")
-    assessment.photo.attach(io: StringIO.new("<script>alert(1)</script>"), filename: "image.html", content_type: "text/html")
+    assessment.photo.attach(io: StringIO.new("<script>alert(1)</script>".b), filename: "image.html", content_type: "text/html")
     sign_in @admin
     get photo_admin_character_image_assessment_path(assessment)
     assert_equal "application/octet-stream", response.media_type
@@ -77,7 +78,7 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
       metadata: { "moderation_id" => "mod_123", "flagged" => true }
     )
     assessment.photo.attach(
-      io: StringIO.new("private image bytes"),
+      io: StringIO.new("private image bytes".b),
       filename: "source.png",
       content_type: "image/png"
     )
@@ -125,7 +126,7 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
   test "serves source photos only to administrators" do
     assessment = create_assessment(status: "needs_review")
     assessment.photo.attach(
-      io: StringIO.new("private image bytes"),
+      io: StringIO.new("private image bytes".b),
       filename: "source.png",
       content_type: "image/png"
     )
@@ -197,6 +198,24 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
     assert_equal "rejected", assessment.reload.status
     assert_equal "Please upload a clear photo containing one person.", assessment.public_reason
     assert_equal @admin, assessment.decisions.order(:id).last.reviewer
+  end
+
+  test "only admins can retry unavailable screening and duplicate retries do not enqueue again" do
+    assessment = create_assessment(status: "unavailable")
+    path = retry_screening_admin_character_image_assessment_path(assessment)
+    sign_in @owner
+    post path
+    assert_response :forbidden
+    assert_equal "unavailable", assessment.reload.status
+    sign_out @owner
+    sign_in @admin
+    get admin_character_image_assessments_path(status: "unavailable")
+    assert_select "article[data-assessment-id='#{assessment.id}']", 1
+    assert_enqueued_with(job: ScreenCharacterImageJob, args: [assessment.id]) { post path }
+    assert_redirected_to admin_character_image_assessment_path(assessment)
+    assert_equal "checking", assessment.reload.status
+    assert_no_enqueued_jobs(only: ScreenCharacterImageJob) { post path }
+    assert_empty assessment.decisions
   end
 
   private

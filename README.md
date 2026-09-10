@@ -85,3 +85,64 @@ Moderation is an application pre-check, not a guarantee of provider acceptance.
 Flagged or uncertain assessments go to review; invalid uploads and explicit
 provider moderation refusals reject with a public explanation. Wardrobe changes
 for book environments are a separate follow-up feature.
+
+### Book page illustration retries
+
+New explicit image-provider moderation rejections automatically queue a revised
+prompt and another image request for that page. The revision uses the book plot,
+current story pages, character identities and ages, and prior prompt, asking for
+an appropriate depiction and activity-appropriate clothing. Provider safety
+checks still apply.
+
+Automatic generation stops after three reservations per illustration: the original
+plus two retries. Admins can explicitly request further retries without a count limit;
+these do not restart automatic retries beyond that cap. All attempts remain recorded. Duplicate
+clicks and duplicate job deliveries cannot start another concurrent request.
+Prompt-revision failures also consume their reservation conservatively. Timeouts
+and other uncertain failures do not trigger automatic paid retries.
+
+Admins can use **Regenerate illustration** beside a missing image or in
+`/admin/failed_books`. Existing pages and successful images are retained. When all
+current pages have images, the book becomes completed again. Per-page prompts,
+outcomes, requesting admin, and owner are recorded under
+`illustration.generation_metadata["page_generation"]`; the failed-books screen
+shows the attempt history. Legacy illustrations without attempt records are
+counted as having one original attempt; historical hidden network retries cannot
+be reconstructed. Existing failed books are not retried merely by deploying this
+change; an admin can initiate a retry.
+
+No database migration is required. Restart standalone workers during deployment
+so old workers cannot use the former internal image retry loop. A worker interrupted
+after claiming an attempt leaves it running; it is deliberately not automatically
+replayed because the provider outcome may be unknown.
+
+### Book-specific wardrobes
+
+New book generations save a complete story and wardrobe plan before page images
+start. Story instructions prefer a single outfit per character, while preserving
+explicitly requested activities and required outfit transitions. Each distinct
+character/outfit gets one dressed reference image; pages and their retries reuse
+that image and the same clothing description. Original character images and
+existing books are unchanged. Whole-book regeneration creates a new plan.
+
+Character details and approved source pixels are captured before planning calls,
+so later character edits do not change a prepared book. Outfit assignments are
+validated for every character and page before reference-image requests. Page jobs
+wait until all references are ready and keep stable story positions on duplicate
+delivery. Page retry rules remain three automatic attempts and unlimited explicit
+admin retries, preserving the saved wardrobe.
+
+This adds one wardrobe-planning text request and one image request per distinct
+character/outfit. References are saved rather than regenerated per page. A rejected
+reference stops page generation with a visible notice; uncertain image requests
+are not automatically resent. No additional requests are made for old books merely
+by deploying this feature.
+
+Run the migration in development and test and restart Rails/workers. Production
+runs `RecoverBookWardrobesJob` every five minutes. In development it can be invoked
+with `bin/rails runner 'RecoverBookWardrobesJob.perform_now'`. Recovery queues
+unclaimed references/pages and reuses saved reference results; interrupted paid
+requests without saved bytes become `outcome_unknown` for investigation. Inspect
+`book.current_wardrobe_plan`, its `book_outfits`, and their `generation_metadata`
+for details. Visual outfit fidelity still depends on the image provider; local
+tests verify reference reuse and prompt consistency without paid image calls.
