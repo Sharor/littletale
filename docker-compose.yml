@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:15
+    profiles: [ "legacy-postgres" ]
     ports:
     - "5434:5432"
     environment:
@@ -11,6 +12,7 @@ services:
       - db_data:/var/lib/postgresql/data
 
   worker_db:
+    profiles: [ "legacy-postgres" ]
     ports:
     - "5433:5432"
     image: postgres:15
@@ -23,6 +25,7 @@ services:
 
   test_db:
     image: postgres:15
+    profiles: [ "legacy-postgres" ]
     ports:
       - "5435:5432"
     environment:
@@ -33,6 +36,7 @@ services:
       - test_db_data:/var/lib/postgresql/data
 
   test_worker_db:
+    profiles: [ "legacy-postgres" ]
     ports:
       - "5436:5432"
     image: postgres:15
@@ -43,53 +47,8 @@ services:
     volumes:
       - test_worker_db_data:/var/lib/postgresql/data
 
-#  web:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile.dev
-    # command: bash -c "rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3000"
-    # volumes:
-    #   - .:/rails:cached
-    #   - bundle_data:/usr/local/bundle
-    #   - ./tmp:/rails/tmp
-    # ports:
-    #   - "3000:3000"
-    # depends_on:
-    #   - db
-    #   - worker_db
-    # env_file:
-    #   .env
-    # environment:
-    #   RAILS_ENV: development
-
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    command: ./bin/docker-worker-entrypoint.sh
-    volumes:
-      - .:/app
-      - bundle_data:/usr/local/bundle
-    depends_on:
-      - worker_db
-    environment:
-      RAILS_ENV: development
-
-  assets:
-    tty: true
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    command: bash -c "yarn build:css --watch & yarn build --watch"
-    volumes:
-      - .:/rails:cached
-      - bundle_data:/usr/local/bundle
-    environment:
-      RAILS_ENV: development
-
 volumes:
   db_data:
   worker_db_data:
-  bundle_data:
   test_db_data:
   test_worker_db_data:

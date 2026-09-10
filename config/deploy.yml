@@ -2,7 +2,7 @@
 service: little_stories
 
 # Name of the container image.
-image: your-user/little_stories
+image: little_stories
 
 # Deploy to these servers.
 servers:
@@ -13,28 +13,27 @@ servers:
   #     - 192.168.0.1
   #   cmd: bin/jobs
 
-# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
-# Remove this section when using multiple web servers and ensure you terminate SSL at your load balancer.
-#
-# Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
+# Replace this host before the first deployment. Keep a single web host while
+# SQLite is in use so every process shares the same persistent filesystem.
 proxy:
   ssl: true
   host: app.example.com
 
-# Credentials for your image host.
+# The Rails 8.1 generator defaults to a local registry. Replace this block when
+# using Docker Hub, GHCR, or another authenticated registry.
 registry:
-  # Specify the registry server, if you're not using Docker Hub
-  # server: registry.digitalocean.com / ghcr.io / ...
-  username: your-user
-
-  # Always use an access token rather than real password when possible.
-  password:
-    - KAMAL_REGISTRY_PASSWORD
+  server: localhost:5555
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
   secret:
     - RAILS_MASTER_KEY
+    - OPENAI_ACCESS_TOKEN
+    - MINIO_ACCESS_KEY
+    - MINIO_SECRET_KEY
+    - MINIO_BUCKET
+    - MINIO_ENDPOINT
+    - HOSTS
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
@@ -46,10 +45,6 @@ env:
     # Set number of cores available to the application on each server (default: 1).
     # WEB_CONCURRENCY: 2
 
-    # Match this to any external database server to configure Active Record correctly
-    # Use little_stories-db for a db accessory server on same machine via local kamal docker network.
-    # DB_HOST: 192.168.0.2
-
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
 
@@ -59,10 +54,10 @@ aliases:
   console: app exec --interactive --reuse "bin/rails console"
   shell: app exec --interactive --reuse "bash"
   logs: app logs -f
-  dbc: app exec --interactive --reuse "bin/rails dbconsole"
+  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
 
 
-# Use a persistent storage volume for sqlite database files and local Active Storage files.
+# Use a persistent storage volume for SQLite database files and other local runtime files.
 # Recommended to change this to a mounted volume path that is backed up off server.
 volumes:
   - "little_stories_storage:/rails/storage"
@@ -91,26 +86,5 @@ builder:
 # ssh:
 #   user: app
 
-# Use accessory services (secrets come from .kamal/secrets).
-# accessories:
-#   db:
-#     image: mysql:8.0
-#     host: 192.168.0.2
-#     # Change to 3306 to expose port to the world instead of just local network.
-#     port: "127.0.0.1:3306:3306"
-#     env:
-#       clear:
-#         MYSQL_ROOT_HOST: '%'
-#       secret:
-#         - MYSQL_ROOT_PASSWORD
-#     files:
-#       - config/mysql/production.cnf:/etc/mysql/my.cnf
-#       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
-#     directories:
-#       - data:/var/lib/mysql
-#   redis:
-#     image: redis:7.0
-#     host: 192.168.0.2
-#     port: 6379
-#     directories:
-#       - data:/data
+# No database, cache, queue, cable, or Redis accessory is required. They use
+# SQLite files in the persistent storage volume above.

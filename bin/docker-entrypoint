@@ -1,15 +1,8 @@
 #!/bin/bash -e
 
-# Enable jemalloc for reduced memory usage and latency.
-if [ -z "${LD_PRELOAD+x}" ]; then
-    LD_PRELOAD=$(find /usr/lib -name libjemalloc.so.2 -print -quit)
-    export LD_PRELOAD
-fi
-
-# If running the Rails server then create or migrate existing database
-if [ "$1" = "bin/rails" ] && [ "$2" = "server" ]; then
-  bin/rails db:migrate
-  #bin/rails db:prepare
+# Prepare every configured database when Thruster starts the Rails server.
+if [ "${*: -2:1}" = "./bin/rails" ] && [ "${*: -1}" = "server" ]; then
+  bin/rails db:prepare
 fi
 
 exec "$@"

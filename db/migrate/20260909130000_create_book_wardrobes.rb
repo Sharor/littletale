@@ -4,9 +4,9 @@ class CreateBookWardrobes < ActiveRecord::Migration[8.0]
       t.references :book, null: false, foreign_key: true
       t.integer :generation_attempt, null: false
       t.string :status, null: false, default: "pending"
-      t.jsonb :story, null: false, default: []
-      t.jsonb :character_snapshots, null: false, default: []
-      t.jsonb :failure, null: false, default: {}
+      t.json :story, null: false, default: []
+      t.json :character_snapshots, null: false, default: []
+      t.json :failure, null: false, default: {}
       t.datetime :claimed_at
       t.timestamps
     end
@@ -17,10 +17,10 @@ class CreateBookWardrobes < ActiveRecord::Migration[8.0]
       t.bigint :character_id, null: false
       t.string :outfit_key, null: false
       t.text :description, null: false
-      t.jsonb :page_numbers, null: false, default: []
-      t.jsonb :character_snapshot, null: false, default: {}
+      t.json :page_numbers, null: false, default: []
+      t.json :character_snapshot, null: false, default: {}
       t.string :status, null: false, default: "pending"
-      t.jsonb :generation_metadata, null: false, default: {}
+      t.json :generation_metadata, null: false, default: {}
       t.datetime :claimed_at
       t.timestamps
     end

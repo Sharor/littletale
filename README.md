@@ -1,32 +1,114 @@
 # Getting started on development
 
 ## Dependencies
-sudo apt install -y libvips-dev libpq-dev
-curl -o- -L https://yarnpkg.com/install.sh | bash
-sudo apt install -y imagemagick
 
-## Running in the Dockerized setup
-docker-compose up -d --build
-(might need to run docker-compose up bin/dev for javascript errors, should be fixed better eventually.)
+```sh
+sudo apt install -y imagemagick libsqlite3-dev sqlite3 libvips-dev
+curl -o- -L https://yarnpkg.com/install.sh | bash
+bundle install
+yarn install
+bin/setup
+```
+
+## Running locally
+
+Run the web server, asset watchers, and a Solid Queue worker from WSL:
+
+```sh
+bin/dev
+```
+
+The application uses `storage/development.sqlite3`. Durable development jobs use
+`storage/development_queue.sqlite3`. Run `bin/jobs` separately if you do not use
+`bin/dev`.
 
 ## Running tests from WSL
 
-Rails commands run in WSL; PostgreSQL runs in Docker. Start the isolated test
-databases, prepare them, then run the test suite:
+Tests use the isolated `storage/test.sqlite3` file and do not need Docker:
 
 ```sh
-docker compose up -d test_db test_worker_db
 bin/rails db:prepare RAILS_ENV=test
 bin/rails test
 ```
 
 ## Troubleshooting
-Missing database: 
-docker-compose run web rake db:create RAILS_ENV=development
-docker-compose run web rake db:migrate RAILS_ENV=development
+
+Prepare missing or stale databases with `bin/rails db:prepare`. Each database has
+an explicit SQLite URL so an inherited `DATABASE_URL` cannot switch adapters; keep
+database URL variables unset because they are no longer part of this deployment.
+
+The previous PostgreSQL services and named volumes remain intact. They are excluded
+from normal startup and can be inspected explicitly with:
+
+```sh
+docker compose --profile legacy-postgres up -d db worker_db
+```
+
+Development data was not imported because a reliable import would require more
+than the approved single migration and changes to historical migrations. The old
+PostgreSQL volumes were not changed.
 
 ## Env
+
+```sh
 OPENAI_ACCESS_TOKEN='sk....'
+```
+
+## Kamal deployment
+
+This repository currently runs Rails 8.0.2.1. Its deployment and database layout
+have been compared with the Rails 8.1.3.1 application generator: Kamal 2 and
+Thruster build the container, while production uses separate SQLite databases for
+the application, Solid Cache, Solid Queue, and Solid Cable. All four files live in
+the persistent `little_stories_storage` volume. Development deliberately uses a
+separate Solid Queue database and worker for closer production parity. Existing
+MinIO upload storage remains in use.
+
+Rails 8.1 changed the generated SQLite connection setting from `pool` to
+`max_connections`. This app keeps `pool` until Rails itself is upgraded because
+Rails 8.0 does not understand the newer option. During the Rails upgrade, run
+`bin/rails app:update` and review `config/database.yml` against the generated
+8.1 configuration. See the [Rails releases](https://rubyonrails.org/releases) and
+[Rails 8.1 SQLite template](https://github.com/rails/rails/blob/v8.1.3.1/railties/lib/rails/generators/rails/app/templates/config/databases/sqlite3.yml.tt).
+
+Before the first deployment:
+
+1. Replace the server address, proxy host, image name, and registry settings in
+   `config/deploy.yml`. Keep one application host while SQLite is in use.
+2. Copy `.kamal/secrets.example` to `.kamal/secrets` and fill it from the password
+   manager. Never commit that file. Ensure `DATABASE_URL` is absent from the host
+   and Kamal environment.
+3. Point DNS at the server and make sure Docker is installed there.
+4. Run `bin/kamal setup`. Later releases use `bin/kamal deploy`; inspect them with
+   `bin/kamal details` and `bin/kamal logs`.
+
+The container entrypoint runs `db:prepare` before Thruster starts Rails. The web
+container sets `SOLID_QUEUE_IN_PUMA=true`, so do not add a separate job role unless
+you also remove that setting. A second supervisor would process the same queue.
+
+SQLite's `.backup` command produces a consistent online snapshot, including data
+held in WAL. Back up every durable database, then copy the snapshots off the host:
+
+```sh
+bin/kamal app exec --reuse 'mkdir -p /rails/storage/backups'
+bin/kamal app exec --reuse "sqlite3 /rails/storage/production.sqlite3 '.backup /rails/storage/backups/production.sqlite3'"
+bin/kamal app exec --reuse "sqlite3 /rails/storage/production_cache.sqlite3 '.backup /rails/storage/backups/production_cache.sqlite3'"
+bin/kamal app exec --reuse "sqlite3 /rails/storage/production_queue.sqlite3 '.backup /rails/storage/backups/production_queue.sqlite3'"
+bin/kamal app exec --reuse "sqlite3 /rails/storage/production_cable.sqlite3 '.backup /rails/storage/backups/production_cable.sqlite3'"
+```
+
+Cache and Cable data can be recreated, but include them for a complete snapshot.
+Keep timestamped copies outside `little_stories_storage`. Rehearse a restore with a
+disposable file before relying on a backup:
+
+```sh
+sqlite3 storage/development.sqlite3 ".backup '/tmp/little_stories_restore.sqlite3'"
+sqlite3 /tmp/little_stories_restore.sqlite3 'PRAGMA integrity_check;'
+```
+
+For a production restore, stop the app, preserve the current volume, replace each
+database from its verified snapshot, confirm `PRAGMA integrity_check` returns `ok`,
+and start the app. Do not copy only a live `.sqlite3` file while writes are active.
 
 ## Character image screening
 

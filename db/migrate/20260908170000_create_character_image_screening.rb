@@ -9,7 +9,7 @@ class CreateCharacterImageScreening < ActiveRecord::Migration[8.0]
       t.string :status, null: false, default: "checking"
       t.text :internal_reason
       t.text :public_reason
-      t.jsonb :metadata, null: false, default: {}
+      t.json :metadata, null: false, default: {}
       t.string :claim_token
       t.datetime :claimed_at
       t.integer :check_attempts, null: false, default: 0
@@ -50,7 +50,7 @@ class CreateCharacterImageScreening < ActiveRecord::Migration[8.0]
       t.datetime :started_at
       t.datetime :finished_at
       t.string :provider_request_id
-      t.jsonb :failure_metadata, null: false, default: {}
+      t.json :failure_metadata, null: false, default: {}
       t.references :illustration, foreign_key: { on_delete: :nullify }
       t.timestamps
     end

@@ -38,3 +38,6 @@ devlog.md
 !/app/assets/builds/.keep
 
 /node_modules
+
+# Kamal secrets stay local. Copy the tracked example before first deployment.
+/.kamal/secrets

@@ -7,7 +7,7 @@ WORKDIR /rails
 # Install system deps
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-      curl build-essential libpq-dev git libvips-dev postgresql-client imagemagick libmagickwand-dev && \
+      curl build-essential git imagemagick libmagickwand-dev libsqlite3-dev libvips-dev sqlite3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install JS runtime for Rails (esbuild, yarn)
@@ -21,7 +21,7 @@ RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz
 
 # Install gems (cached by Docker layer)
 COPY Gemfile Gemfile.lock ./
-RUN gem install bundler -v '~> 2.6'
+RUN gem install bundler -v 2.6.8
 RUN bundle install --jobs 4 --retry 3
 
 # Install node deps
