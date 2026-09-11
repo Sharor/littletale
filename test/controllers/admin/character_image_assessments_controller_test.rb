@@ -9,7 +9,7 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
   setup do
     @owner = users(:one)
     @admin = users(:three)
-    @admin.update!(email: User::ADMINS.first)
+    @admin.update!(admin: true)
   end
 
   test "forbids guests and non-administrators from the review queue" do

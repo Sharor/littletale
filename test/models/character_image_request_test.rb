@@ -62,7 +62,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
     request = CharacterImageRequest.submit!(@character)
     request.assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "private")
     admin = users(:three)
-    admin.update!(email: User::ADMINS.first)
+    admin.update!(admin: true)
     request.assessment.resolve!(outcome: "approved", source: "admin", reviewer: admin, internal_reason: "Reviewed")
     2.times { request.enqueue_generation! }
     assert_equal [ "needs_review", "approved" ], request.assessment.decisions.order(:id).pluck(:outcome)
@@ -131,7 +131,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
     request = CharacterImageRequest.submit!(@character)
     request.assessment.resolve!(outcome: "needs_review", source: "automatic", internal_reason: "flagged", metadata: { "id" => "mod_original", "scores" => { "violence" => 0.8 } })
     admin = users(:three)
-    admin.update!(email: User::ADMINS.first)
+    admin.update!(admin: true)
     request.assessment.resolve!(outcome: "approved", source: "admin", reviewer: admin, internal_reason: "Reviewed context")
     assert_equal "mod_original", request.assessment.reload.metadata["id"]
     assert_equal 0.8, request.assessment.metadata.dig("scores", "violence")

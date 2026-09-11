@@ -11,11 +11,16 @@ class User < ApplicationRecord
   has_many :character_image_decisions
   has_one :tutorial
 
-
   ADMINS = %w[ davchristensen90@gmail.com ]
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :trackable, :omniauthable, omniauth_providers: [ :google_oauth2 ]
+
+  def admin?
+    return true if ADMINS.include?(email)
+
+    super
+  end
 
   def self.from_omniauth(access_token)
     data = access_token.info
@@ -37,10 +42,5 @@ class User < ApplicationRecord
 
   def average_time_on_site
     Visitor.average_time_on_site_for_visitor(visits)
-  end
-
-  def admin?
-    return true if ADMINS.any? self.email
-    false
   end
 end

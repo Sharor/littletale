@@ -14,7 +14,7 @@ class Admin::BooksControllerTest < ActionDispatch::IntegrationTest
       generation_failed_at: Time.current
     )
     admin = users(:three)
-    admin.update!(email: User::ADMINS.first)
+    admin.update!(admin: true)
     sign_in admin
 
     assert_enqueued_with(job: GenerateBookJob, args: [ book.id, 1 ]) do

@@ -8,7 +8,7 @@ class Admin::PageIllustrationsControllerTest < ActionDispatch::IntegrationTest
     @page = @book.pages.create!(text: "A park adventure", generation_attempt: @book.generation_attempt)
     @image = Illustration.create!(page: @page, original_description: "A park")
     @admin = users(:three)
-    @admin.update!(email: User::ADMINS.first)
+    @admin.update!(admin: true)
   end
 
   test "only administrators can reserve a retry and duplicate clicks queue just one job" do

@@ -134,7 +134,14 @@ class Illustration < ApplicationRecord
   def specifications
     # Consider adding "style_and_resolution() somewhere. TODO"
     scene = "Do not write any letters in the image. Use color and do not make the image monochromatic. Use the provided image(s) to make a new image using this description:\n#{self.original_description}"
-    page&.wardrobe_required? ? "#{scene}\n\n#{page.wardrobe_instructions}" : scene
+    scene = "#{scene}\n\n#{page.wardrobe_instructions}" if page&.wardrobe_required?
+    "#{scene}\n\nComposition: Show one scene at a single moment, not a montage or sequence. " \
+      "Depict each character present exactly once, with one body per character. " \
+      "If the description mentions several actions, choose one coherent moment instead of drawing the same person again. " \
+      "Do not repeat characters in reflections, phone screens, photographs, inset images or background figures. " \
+      "For a selfie, show the back of the phone. " \
+      "The supplied images and saved outfits are identity references, not additional people to include. " \
+      "Include only the characters participating in this scene; keep their identities distinct."
   end
 
   # Generation of single characters

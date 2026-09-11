@@ -27,8 +27,22 @@ class UserTest < ActiveSupport::TestCase
     assert_nil existing_user.reload.name
   end
 
-  test "recognizes configured administrators only" do
-    assert User.new(email: "davchristensen90@gmail.com").admin?
-    assert_not User.new(email: "parent@example.com").admin?
+  test "Google signup cannot grant admin access from identity data" do
+    identity = Struct.new(:info).new({ "email" => "davchristensen90@gmail.com",
+      "name" => "New User", "admin" => true })
+    user = User.from_omniauth(identity)
+    assert_equal false, user.reload.admin
+    assert user.admin?
+  end
+
+  test "admin access requires an explicit grant and can be revoked" do
+    user = User.create!(email: "explicit-admin@example.com", admin: true)
+    assert user.reload.admin?
+    user.update!(admin: false)
+    assert_not user.reload.admin?
+  end
+
+  test "legacy null admin values do not grant access" do
+    assert User.new(email: "davchristensen90@gmail.com", admin: nil).admin?
   end
 end

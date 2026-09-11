@@ -6,6 +6,13 @@ database service is required for development or tests.
 
 ## Databases
 
+Never recreate, reset, drop, or replace any database without first asking the
+user and receiving explicit permission. This applies to every environment,
+including development databases, but excluding test databases, and to commands such as `db:reset`, `db:drop`, and
+schema loads that overwrite existing data. A request to fix a bug, run tests,
+or apply a migration does not authorize database recreation. If a required
+workflow would recreate a database, stop and ask for permission first.
+
 | Environment | Role | SQLite file |
 | --- | --- | --- |
 | development | primary | `storage/development.sqlite3` |

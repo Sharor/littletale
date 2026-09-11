@@ -12,6 +12,38 @@ class CharacterScreeningTest < ActionDispatch::IntegrationTest
     sign_in @user
   end
 
+  test "screening and generation stages reserve the completed image dimensions" do
+    request = CharacterImageRequest.submit!(@character)
+    @character.illustration.update!(original_image: Rack::Test::UploadedFile.new(
+      file_fixture("character.png"), "image/png"))
+
+    stages = [
+      ["checking", :pending, "Checking your character"],
+      ["needs_review", :pending, "waiting for an administrator"],
+      ["rejected", :pending, "was rejected"],
+      ["unavailable", :pending, "temporarily unavailable"],
+      ["approved", :pending, "allowance has been reached"],
+      ["approved", :in_progress, "Generating your character"],
+      ["approved", :failed, "could not be completed"],
+      ["approved", :completed, nil]
+    ]
+    stages.each do |screening, generation, message|
+      request.assessment.update_columns(status: screening)
+      @character.update_columns(generation_status: Character.generation_statuses.fetch(generation.to_s))
+      get characters_url
+      assert_response :success
+      assert_select "#illustration_section_#{@character.id}.relative.w-full.aspect-square" do
+        assert_select "div.absolute.inset-0.overflow-auto" do
+          if message
+            assert_select "p", text: /#{Regexp.escape(message)}/
+          else
+            assert_select "img.w-full.h-full.object-contain"
+          end
+        end
+      end
+    end
+  end
+
   test "description creation bypasses screening and reserves image generation" do
     assert_difference "ActionLog.count", 1 do
       assert_no_enqueued_jobs(only: ScreenCharacterImageJob) do

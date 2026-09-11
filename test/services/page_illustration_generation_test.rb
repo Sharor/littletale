@@ -20,7 +20,7 @@ class PageIllustrationGenerationTest < ActiveSupport::TestCase
     @image.update!(generation_metadata: { "page_generation" => { "status" => "failed", "attempts" => [{}, {}, {}] } })
     assert_nil PageIllustrationGeneration.reserve!(@image, retrying: true, admin: users(:one))
     admin = users(:three)
-    admin.update!(email: User::ADMINS.first)
+    admin.update!(admin: true)
 
     2.times do
       assert PageIllustrationGeneration.reserve!(@image, retrying: true, admin: admin)

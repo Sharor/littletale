@@ -19,7 +19,9 @@ bin/dev
 ```
 
 The application uses `storage/development.sqlite3`. Durable development jobs use
-`storage/development_queue.sqlite3`. Run `bin/jobs` separately if you do not use
+`storage/development_queue.sqlite3`. Live character and book updates use
+`storage/development_cable.sqlite3` to deliver worker broadcasts to the web server.
+Run `bin/jobs` separately if you do not use
 `bin/dev`.
 
 ## Running tests from WSL

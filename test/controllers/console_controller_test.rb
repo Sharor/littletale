@@ -21,7 +21,7 @@ class ConsoleControllerTest < ActionDispatch::IntegrationTest
 
   test "allows administrators without requiring tutorial completion" do
     admin = users(:three)
-    admin.update!(email: User::ADMINS.first)
+    admin.update!(admin: true)
     sign_in admin
 
     get "/console"

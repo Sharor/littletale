@@ -56,7 +56,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
 
   test "shows generating books without a whole-book rerun control for administrators" do
     admin = users(:three)
-    admin.update!(email: User::ADMINS.first)
+    admin.update!(admin: true)
     Tutorial.create!(user: admin, eula: true, terms: true, tutorial_complete: true)
     book = Book.create!(user: admin, name: "Generating", total_pages: 1, generation_status: :in_progress)
     sign_in admin

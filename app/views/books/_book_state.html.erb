@@ -1,5 +1,14 @@
 <div id="<%= dom_id(book, :state) %>">
-  <% if book.generation_status == "in_progress" %>
+  <% if book.pending? %>
+    <div class="flex flex-col items-center py-10 text-center">
+      <h1 class="text-3xl font-bold"><%= book.name %></h1>
+      <div role="status" class="mt-6">
+        <span aria-hidden="true" class="inline-block h-8 w-8 rounded-full border-4 border-yellow-200/20 border-t-yellow-300 motion-safe:animate-spin"></span>
+        <p class="mt-4 text-lg">Getting your book ready…</p>
+        <p class="mt-2 text-gray-300">Generation will begin shortly. This page will update automatically.</p>
+      </div>
+    </div>
+  <% elsif book.generation_status == "in_progress" %>
     <h1 class="text-3xl font-bold text-center"><%= book.name %></h1>
     <% wardrobe = book.current_wardrobe_plan %>
     <% if wardrobe && !wardrobe.ready? %>

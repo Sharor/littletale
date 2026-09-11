@@ -24,7 +24,7 @@ class Admin::FailedBooksControllerTest < ActionDispatch::IntegrationTest
       generation_failure: { "message" => "Rejected by the safety system", "request_id" => "req_blocked" }
     )
     admin = users(:three)
-    admin.update!(email: User::ADMINS.first)
+    admin.update!(admin: true)
     sign_in admin
 
     get admin_failed_books_url

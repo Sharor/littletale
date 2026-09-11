@@ -3,6 +3,17 @@
 require "test_helper"
 
 class BookTest < ActiveSupport::TestCase
+  test "pending book immediately displays an accessible preparation status" do
+    book = Book.new(user: users(:one), name: "New tale", total_pages: 1, generation_status: :pending)
+
+    html = ApplicationController.render(partial: "books/book_state", locals: { book: book })
+    fragment = Nokogiri::HTML.fragment(html)
+
+    assert_includes fragment.at_css('[role="status"]').to_s, "Getting your book ready"
+    assert_includes html, "New tale"
+    assert_includes html, "automatically"
+  end
+
   test "failed book displays available pages and explains the incomplete generation" do
     book = books(:one)
     book.update_columns(generation_status: Book.generation_statuses.fetch("failed"), total_pages: 2,

@@ -4,6 +4,29 @@ require "test_helper"
 require "minitest/mock"
 
 class IllustrationTest < ActiveSupport::TestCase
+  test "page image request constrains repeated actions to one depiction of each character" do
+    received = nil
+    images = Object.new
+    images.define_singleton_method(:edit) do |parameters:|
+      received = parameters
+      { "data" => [] }
+    end
+    illustration = Illustration.new(original_description:
+      "David, Amalia, and Olivia share a picnic. David holds up a phone for a family selfie.")
+
+    illustration.stub :client, Struct.new(:images).new(images) do
+      illustration.gpt_image_1_edit([])
+    end
+
+    prompt = received.fetch(:prompt)
+    assert_includes prompt, illustration.original_description
+    assert_includes prompt, "one scene at a single moment"
+    assert_includes prompt, "each character present exactly once"
+    assert_includes prompt, "Do not repeat characters"
+    assert_includes prompt, "phone screens"
+    assert_includes prompt, "identity references, not additional people"
+  end
+
   test "book image provider calls do not silently retry uncertain failures" do
     calls = 0
     images = Object.new

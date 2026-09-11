@@ -48,7 +48,7 @@ class ActionLogTest < ActiveSupport::TestCase
   end
 
   test "lets administrators bypass generation limits" do
-    admin = User.create!(email: User::ADMINS.first)
+    admin = User.create!(email: "explicit-admin@example.com", admin: true)
     character = Character.create!(user: admin, name: "Admin character")
     Character::TRIAL_CHARACTER_LIMIT.times { character.record_action!("setup_illustration") }
 
