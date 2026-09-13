@@ -85,7 +85,7 @@ group :test do
   gem "webmock"
 end
 
-gem "mission_control-jobs", "~> 1.1"
+gem "mission_control-jobs", "~> 1.2"
 gem "aws-sdk-s3", "1.170", require: false
 gem "aws-sdk-core", "3.211"
 
