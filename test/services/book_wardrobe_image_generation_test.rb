@@ -40,6 +40,24 @@ class BookWardrobeImageGenerationTest < ActiveSupport::TestCase
     assert_requested request, times: 1
   end
 
+  test "wardrobe image requests carry the saved roles and appearance metadata" do
+    saved_outfit = Outfit.new(description: "yellow raincoat and green boots", source_image: Source.new(download: png),
+      character_snapshot: { "name" => "Ava", "age" => 7, "gender" => "Girl", "eye_color" => "Green",
+        "ethnicity" => "Asian", "roles" => [ "Younger sibling", "Freckles", "Supporting" ] })
+    body = nil
+    stub_request(:post, "https://api.openai.com/v1/images/edits").to_return do |request|
+      body = request.body
+      { status: 200, headers: { "Content-Type" => "application/json" },
+        body: { data: [ { b64_json: Base64.strict_encode64(png) } ] }.to_json }
+    end
+
+    BookWardrobeImageGeneration.call(saved_outfit)
+
+    assert_includes body, '"roles":["Younger sibling","Freckles","Supporting"]'
+    assert_includes body, '"eye_color":"Green"'
+    assert_includes body, '"ethnicity":"Asian"'
+  end
+
   test "propagates timeout without retry" do
     request = stub_request(:post, "https://api.openai.com/v1/images/edits").to_timeout
     assert_raises(Faraday::ConnectionFailed) { BookWardrobeImageGeneration.call(outfit) }

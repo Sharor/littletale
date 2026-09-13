@@ -5,6 +5,7 @@ class PageIllustrationPromptTest < ActiveSupport::TestCase
   test "revision includes page context and preserves character ages with appropriate clothing" do
     book = Book.create!(user: users(:one), name: "Cycling", plot: "A family cycling trip", total_pages: 2)
     book.characters << characters(:hernandes)
+    characters(:hernandes).update!(roles: [ "Father", "Freckles", "Supporting" ])
     book.pages.create!(text: "We put on our helmets.")
     page = book.pages.create!(text: "We cycle along a quiet path.")
     illustration = Illustration.create!(page: page, original_description: "Children in pyjamas cycling")
@@ -21,6 +22,8 @@ class PageIllustrationPromptTest < ActiveSupport::TestCase
     assert_equal page.id, context["page_id"]
     assert_equal 2, context["pages"].length
     assert_equal characters(:hernandes).age, context["characters"].first["age"]
+    assert_equal [ "Father", "Freckles", "Supporting" ], context["characters"].first["roles"]
+    assert_equal "Green", context["characters"].first["eye_color"]
     assert_includes params[:messages].first[:content], "clothing appropriate to the setting"
     assert_includes params[:messages].first[:content], "rather than disguising it or evading safety checks"
   end

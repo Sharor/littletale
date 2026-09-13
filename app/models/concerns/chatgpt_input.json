@@ -9,7 +9,7 @@
             "hair_color": "Blond", 
             "hair_style": "Short",
             "ethnicity": "White", 
-            "role": "Big brother"
+            "roles": ["Big sibling", "Hero"]
         },
         {
             "name": "Annabel",
@@ -19,7 +19,7 @@
             "hair_color": "Blond", 
             "hair_style": "Braids",
             "ethnicity": "Latino", 
-            "role": "Little sister"
+            "roles": ["Younger sibling", "Supporting"]
         }
     ],
     "plot": "Peter and Annabel are left to their own for a long time and end up learning how to survive on their parents farm alone without adults."

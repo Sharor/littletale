@@ -15,6 +15,8 @@ class Character < ApplicationRecord
     attr_accessor :creation_mode
 
     # Validations
+    before_validation :normalize_roles
+    validate :validate_roles
     with_options if: -> { creation_mode == "form" } do |form|
         form.validates :name, presence: true, uniqueness: { scope: :user }
         form.validates :age, presence: true
@@ -33,10 +35,21 @@ class Character < ApplicationRecord
     HAIRCOLORS = %w[Brown Blond White Red]
     EYECOLORS = %w[Brown Blue Green Grey]
     GENDERS = %w[Boy Girl Man Woman]
-    ROLES = %w[Father Mother Tattoos Piercings Freckles Hero Villain]
+    ROLE_GROUPS = {
+        "Family" => [ "Father", "Mother", "Big sibling", "Middle sibling", "Younger sibling" ].freeze,
+        "Appearance" => %w[Tattoos Piercings Freckles].freeze,
+        "Story" => %w[Hero Villain Supporting].freeze
+    }.freeze
+    ROLES = ROLE_GROUPS.values.flatten.freeze
+    EXCLUSIVE_ROLE_GROUPS = %w[Family Story].freeze
+    BOOK_GENERATION_FIELDS = %w[id name age gender ethnicity hair_color hair_style eye_color roles].freeze
 
     TRIAL_CHARACTER_LIMIT = 3
     TRIAL_USER_LIMIT = 24
+
+    def book_generation_metadata
+        attributes.slice(*BOOK_GENERATION_FIELDS)
+    end
 
     def can_perform_action?(action_name)
         return true if user.admin?
@@ -83,6 +96,32 @@ class Character < ApplicationRecord
     end
 
     private
+
+    def normalize_roles
+        self.roles = [] if roles.nil?
+        return unless roles.is_a?(Array)
+
+        self.roles = roles.map do |role|
+            next role unless role.is_a?(String)
+
+            value = role.strip
+            ROLES.find { |allowed| allowed.casecmp?(value) } || value
+        end.reject { |role| role == "" }.uniq
+    end
+
+    def validate_roles
+        unless roles.is_a?(Array) && roles.all? { |role| role.is_a?(String) }
+            errors.add(:roles, "must be a list of role names")
+            return
+        end
+
+        errors.add(:roles, "contain an unknown role") if (roles - ROLES).any?
+        EXCLUSIVE_ROLE_GROUPS.each do |group|
+            if (roles & ROLE_GROUPS.fetch(group)).size > 1
+                errors.add(:roles, "Choose only one #{group.downcase} role.")
+            end
+        end
+    end
 
     def broadcast_status_change
         broadcast_image_status

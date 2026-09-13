@@ -38,6 +38,13 @@ class CharacterImageGenerationTest < ActiveSupport::TestCase
       .with do |provider_request|
         body = provider_request.body
         body.include?('name="prompt"') && body.include?("A child explorer") &&
+          body.include?("Depict exactly one person") &&
+          body.include?("most clearly in focus") &&
+          body.include?("baby, child, or adult") &&
+          body.include?("Do not prefer an adult") &&
+          body.include?("Exclude every other person completely") &&
+          body.include?("holding or touching another person") &&
+          body.include?("Do not combine features from different people") &&
           body.include?('name="model"') && body.include?("gpt-image-1") &&
           body.include?('name="size"') && body.include?("1024x1024") &&
           body.include?('filename="character-source') && body.include?(".png\"") &&
@@ -65,6 +72,24 @@ class CharacterImageGenerationTest < ActiveSupport::TestCase
     assert_equal "image/png", result.fetch(:content_type)
     assert_equal "img_edit_123", result.fetch(:request_id)
     assert_requested request, times: 1
+  end
+
+  test "photo isolation instructions do not change the saved source photo" do
+    character = characters(:hernandes)
+    character.photo.attach(io: StringIO.new(GIF_BYTES), filename: "family.gif", content_type: "image/gif")
+    assessment = CharacterImageRequest.submit!(character).assessment
+    original_blob_id = assessment.photo.blob.id
+    original_bytes = assessment.photo.download
+    stub_request(:post, "https://api.openai.com/v1/images/edits")
+      .to_return(status: 200, headers: { "Content-Type" => "application/json" },
+        body: { data: [ { b64_json: Base64.strict_encode64(GENERATED_BYTES) } ] }.to_json)
+
+    CharacterImageGeneration.call(assessment)
+
+    assert_equal original_blob_id, assessment.reload.photo.blob.id
+    assert_equal original_bytes, assessment.photo.download
+    assert_equal "/v1/images/edits", assessment.metadata.dig("generation_request", "endpoint")
+    assert_includes assessment.metadata.dig("generation_request", "parameters", "prompt"), "most clearly in focus"
   end
 
   test "generates from a description snapshot and downloads the returned URL" do

@@ -39,6 +39,30 @@ class ChatgptTest < ActiveSupport::TestCase
     assert_equal "A forest adventure", input.fetch("plot")
   end
 
+  test "structured story input carries character metadata without account or image request fields" do
+    character = characters(:hernandes)
+    character.update!(roles: [ "Father", "Piercings", "Tattoos", "Freckles", "Villain" ])
+    input = JSON.parse(@chatgpt.prompt_structured.last.fetch(:content))
+
+    assert_equal({ "id" => character.id, "name" => "Mr. Hernandes", "age" => 38, "gender" => "Man",
+      "ethnicity" => "Latino", "hair_color" => "Black", "hair_style" => "Ponytail", "eye_color" => "Green",
+      "roles" => [ "Father", "Piercings", "Tattoos", "Freckles", "Villain" ] }, input.fetch("characters").sole)
+    instructions = @chatgpt.prompt_structured.first.fetch(:content)
+    assert_includes instructions, "family roles"
+    assert_includes instructions, "Hero, Villain and Supporting"
+    assert_includes instructions, "appearance, not morality"
+  end
+
+  test "structured story examples use optional lists from the role catalog" do
+    [ @chatgpt.input, @chatgpt.example_input ].each do |example|
+      JSON.parse(example).fetch("characters").each do |character|
+        assert_kind_of Array, character["roles"]
+        assert_empty character.fetch("roles") - Character::ROLES
+        assert_not character.key?("role")
+      end
+    end
+  end
+
   test "stores a mocked chat completion without making an external request" do
     completion = Struct.new(:choices).new([ Struct.new(:message).new(Struct.new(:content).new("A generated story")) ])
     completions = Minitest::Mock.new

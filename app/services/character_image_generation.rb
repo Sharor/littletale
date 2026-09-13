@@ -69,18 +69,39 @@ class CharacterImageGeneration
   def edit_photo
     source_image = MiniMagick::Image.read(assessment.photo.download)
     source_image.format("png")
+    parameters = {
+      prompt: photo_isolation_prompt,
+      model: assessment.generation_model,
+      size: IMAGE_SIZE
+    }
+    if assessment.is_a?(CharacterImageAssessment)
+      assessment.update!(metadata: assessment.metadata.merge("generation_request" => {
+        "endpoint" => "/v1/images/edits", "parameters" => parameters
+      }))
+    end
 
     Tempfile.create([ "character-source", ".png" ]) do |file|
       source_image.write(file.path)
-      client.images.edit(parameters: {
-        prompt: assessment.prompt,
-        model: assessment.generation_model,
-        image: [ file.path ],
-        size: IMAGE_SIZE
-      })
+      client.images.edit(parameters: parameters.merge(image: [ file.path ]))
     end
   ensure
     source_image&.destroy!
+  end
+
+  def photo_isolation_prompt
+    <<~PROMPT
+      #{assessment.prompt}
+
+      Subject selection and composition requirements:
+      Depict exactly one person from the source photo: the person most clearly in focus.
+      Judge focus by facial sharpness and visual prominence. Use central position and apparent size only to break a close tie.
+      The selected person can be a baby, child, or adult. Do not prefer an adult because of age or caregiving role.
+      If the selected person is a baby, retain the baby and exclude the adults. If the selected person is an adult, retain that adult and exclude babies and children.
+      Exclude every other person completely from the generated image. Include no secondary faces, heads, limbs, bodies, silhouettes, reflections, or background people.
+      If the selected person is holding or touching another person, depict only the selected person. Do not combine features from different people.
+      Preserve the selected person's recognizable facial features, hair, skin tone, apparent age, and clothing character while rendering one standalone storybook character.
+      The generated image must contain one character only on the requested plain background, with no text.
+    PROMPT
   end
 
   def generate_from_description

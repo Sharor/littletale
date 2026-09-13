@@ -25,25 +25,7 @@
           <% end %>
         </div>
 
-        <%# 2. Roles Selection %>
-        <div class="space-y-4 border-t border-white/10 pt-4">
-          <h3 class="text-lg font-medium text-gray-300">Character Role(s) (Optional)</h3>
-          <div class="grid grid-cols-2 gap-4">
-            <% character_options[:roles].each do |role| %>
-              <% role_id = "character_roles_#{role.to_s.gsub(/[^a-z0-9_]+/i, '_')}" %>
-              <div class="relative">
-                <label for="<%= role_id %>" class="cursor-pointer">
-                  <%= form.check_box :roles, { include_hidden: false, id: role_id, class: "hidden peer role-checkbox-form" }, role, nil %>
-                  <div class="rounded-xl border border-white/20 p-4 text-center transition-all duration-200 text-sm font-semibold hover:bg-white/5 peer-checked:bg-cyan-900 peer-checked:ring-2 peer-checked:ring-cyan-500 peer-checked:border-cyan-500">
-                    <%= format_option_for_display(role) %>
-                  </div>
-                </label>
-              </div>
-            <% end %>
-          </div>
-        </div>
-
-        <%# 3. Mode TABS %>
+        <%# 2. Mode TABS %>
         <div class="border-b border-white/20 mb-6">
           <nav class="flex space-x-2" aria-label="Tabs">
             <button type="button" id="tab-photo" onclick="toggleMode('photo')"
@@ -57,7 +39,7 @@
           </nav>
         </div>
 
-        <%# 4. Mode CONTENT CONTAINERS %>
+        <%# 3. Mode CONTENT CONTAINERS %>
 
         <%# Photo Mode %>
         <div id="content-photo" class="mode-content space-y-4 <%= 'hidden' if character_creation_mode == 'form' %>">
@@ -68,16 +50,20 @@
               Choose Photo
               <%= form.file_field :photo_upload, accept: "image/*", class: "hidden", id: "character_photo_upload", onchange: "handlePhotoPreview(this.files[0])" %>
             </label>
-            <span id="file-name-display" class="text-sm text-gray-400">No file chosen.</span>
+            <span id="file-name-display" class="text-sm text-gray-400"><%= @character.photo.attached? ? @character.photo.filename : "No file chosen." %></span>
           </div>
           <% if @character.errors[:photo].any? %>
             <p class="text-xs text-red-400 mt-1">Photo upload <%= @character.errors[:photo].first %></p>
           <% end %>
 
           <div id="photo-preview-container" class="mt-6">
-            <div id="character-photo-preview-image" class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center">
-              <p class="text-gray-500">Your photo preview will appear here.</p>
-            </div>
+            <% if @character.photo.attached? %>
+              <%= render "characters/photo_preview", blob: @character.photo %>
+            <% else %>
+              <div id="character-photo-preview-image" class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center">
+                <p class="text-gray-500">Your photo preview will appear here.</p>
+              </div>
+            <% end %>
           </div>
         </div>
 
@@ -110,6 +96,9 @@
             <% end %>
           </div>
         </div>
+
+        <%# 4. Optional Roles %>
+        <%= render "roles", form: form %>
 
         <%# 5. Buttons %>
         <div class="flex justify-between mt-10 pt-6 border-t border-white/10">

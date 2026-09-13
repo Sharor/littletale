@@ -55,6 +55,39 @@ class BookWardrobePreparationTest < ActiveSupport::TestCase
     assert_equal "wardrobe_preparation_failed", @book.generation_failure["type"]
   end
 
+  test "story and wardrobe retain saved roles from before a character edit" do
+    @character.update!(roles: [ "Father", "Piercings", "Tattoos", "Freckles", "Villain" ])
+    requests = []
+    story = @story
+    outfits = @outfits
+    character = @character
+    client = Object.new
+    client.define_singleton_method(:chat) do |parameters:|
+      requests << parameters
+      character.update!(roles: [ "Supporting" ]) if requests.length == 1
+      { "choices" => [ { "message" => { "content" => (requests.length == 1 ? story : outfits).to_json } } ] }
+    end
+
+    OpenAI::Client.stub :new, client do
+      GenerateBookJob.perform_now(@book.id)
+      GenerateBookJob.perform_now(@book.id)
+    end
+
+    assert_equal 2, requests.size
+    requests.each do |request|
+      metadata = JSON.parse(request.fetch(:messages).last.fetch(:content)).fetch("characters").sole
+      assert_equal [ "Father", "Piercings", "Tattoos", "Freckles", "Villain" ], metadata.fetch("roles")
+    end
+    assert_includes requests.first.fetch(:messages).first.fetch(:content), "Hero, Villain and Supporting"
+    plan = @book.current_wardrobe_plan
+    assert_equal "preparing", plan.status
+    assert_equal [ "Father", "Piercings", "Tattoos", "Freckles", "Villain" ], plan.character_snapshots.sole.fetch("roles")
+    plan.book_outfits.each do |outfit|
+      assert_equal [ "Father", "Piercings", "Tattoos", "Freckles", "Villain" ], outfit.character_snapshot.fetch("roles")
+    end
+    assert_equal [ "Supporting" ], @character.reload.roles
+  end
+
   test "provider credit exhaustion is explained and recorded without retrying generation" do
     error = Faraday::TooManyRequestsError.new("quota exhausted", status: 429,
       headers: { "x-request-id" => "req_quota" },

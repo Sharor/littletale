@@ -3,6 +3,64 @@
 require "test_helper"
 
 class CharacterTest < ActiveSupport::TestCase
+  test "roles are optional and persist as an empty list" do
+    character = characters(:hernandes)
+    [ [], nil, [ "", " " ] ].each do |roles|
+      character.roles = roles
+      assert character.valid?
+      assert_equal [], character.roles
+      character.save!
+      assert_equal [], character.reload.roles
+    end
+  end
+
+  test "roles normalize spelling blanks and duplicates without losing selections" do
+    character = characters(:hernandes)
+    character.update!(roles: [ " father ", "", "Father", " VILLAIN ", "Piercings" ])
+
+    assert_equal [ "Father", "Villain", "Piercings" ], character.reload.roles
+  end
+
+  test "roles reject unknown values and anything other than a list of strings" do
+    character = characters(:hernandes)
+    [ "Father", { "family" => "Father" }, [ "Wizard" ], [ 1 ], [ nil ], [ [ "Father" ] ] ].each do |roles|
+      character.roles = roles
+      assert_not character.valid?, "Expected invalid roles: #{roles.inspect}"
+      assert character.errors[:roles].any?
+    end
+  end
+
+  test "every pair of family roles conflicts in both creation modes" do
+    character = characters(:hernandes)
+    character.photo.attach(io: File.open(file_fixture("character.png")), filename: "character.png", content_type: "image/png")
+    %w[form photo].each do |mode|
+      character.creation_mode = mode
+      [ "Father", "Mother", "Big sibling", "Middle sibling", "Younger sibling" ].combination(2) do |roles|
+        character.roles = roles
+        assert_not character.valid?, "Expected conflicting family roles: #{roles.inspect}"
+        assert_includes character.errors[:roles], "Choose only one family role."
+      end
+    end
+  end
+
+  test "hero villain and supporting are mutually exclusive" do
+    character = characters(:hernandes)
+    %w[Hero Villain Supporting].combination(2) do |roles|
+      character.roles = roles
+      assert_not character.valid?, "Expected conflicting story roles: #{roles.inspect}"
+      assert_includes character.errors[:roles], "Choose only one story role."
+    end
+  end
+
+  test "each family and story role can combine with all appearance traits" do
+    character = characters(:hernandes)
+    [ "Father", "Mother", "Big sibling", "Middle sibling", "Younger sibling" ].product(%w[Hero Villain Supporting]).each do |family, story|
+      roles = [ family, "Piercings", "Tattoos", "Freckles", story ]
+      character.update!(roles: roles)
+      assert_equal roles, character.reload.roles
+    end
+  end
+
   test "character description is ready for image generation" do
     @character = characters(:hernandes)
 

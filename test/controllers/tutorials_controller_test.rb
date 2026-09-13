@@ -29,7 +29,7 @@ class TutorialsControllerTest < ActionDispatch::IntegrationTest
     assert_predicate tutorial, :eula?
     assert_not tutorial.terms?
     assert_select "h1", I18n.t("activerecord.attributes.tutorial.terms")
-    assert_select "form[action='#{tutorial_path}']"
+    assert_select "form[action='#{books_path}']"
   end
 
   test "tutorial accepts the terms and renders the completion step" do

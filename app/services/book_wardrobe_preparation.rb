@@ -23,7 +23,7 @@ class BookWardrobePreparation
           bytes = reference.original_image.read
           blob = ActiveStorage::Blob.create_and_upload!(io: StringIO.new(bytes.b), filename: "source.png", content_type: "image/png")
           plan.source_images.attach(blob)
-          character.attributes.slice(*BookWardrobePlanner::CHARACTER_FIELDS).merge("source_blob_id" => blob.id)
+          character.book_generation_metadata.merge("source_blob_id" => blob.id)
         end
       end
     end

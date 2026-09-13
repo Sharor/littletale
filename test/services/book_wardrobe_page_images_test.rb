@@ -21,7 +21,7 @@ class BookWardrobePageImagesTest < ActiveSupport::TestCase
 
   setup do
     @page = WardrobePage.new(Book.new(1, 7), 1,
-      [Outfit.new(9, "blue swimsuit", { "name" => "Ada" }, Attachment.new("wardrobe pixels"))], true, true)
+      [Outfit.new(9, "blue swimsuit", { "name" => "Ada", "roles" => [ "Younger sibling", "Freckles", "Supporting" ] }, Attachment.new("wardrobe pixels"))], true, true)
     @illustration = Illustration.new(original_description: "Ada in a red coat", generation_metadata: {})
     @illustration.define_singleton_method(:page) { @test_page }
     @illustration.instance_variable_set(:@test_page, @page)
@@ -107,6 +107,7 @@ class BookWardrobePageImagesTest < ActiveSupport::TestCase
     context = JSON.parse(captured[:messages].last[:content])
     assert_equal "blue swimsuit", context.fetch("wardrobe").first.fetch("description")
     assert_equal "Ada", context.fetch("wardrobe").first.fetch("character_snapshot").fetch("name")
+    assert_equal [ "Younger sibling", "Freckles", "Supporting" ], context.fetch("characters").sole.fetch("roles")
     assert_includes captured[:messages].first[:content], "Preserve the saved clothing, colors and equipment"
     assert_not_includes captured[:messages].first[:content], "fully clothed"
   end
