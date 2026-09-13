@@ -24,7 +24,7 @@ class RecoverCharacterImagesJob < ApplicationJob
       attempt.with_lock do
         if attempt.status == "in_progress" && attempt.started_at < cutoff
           attempt.update!(status: attempt.result_image.attached? ? "failed" : "outcome_unknown",
-            finished_at: Time.current, failure_metadata: { "error_class" => "WorkerInterrupted" })
+            finished_at: Time.current, failure_metadata: attempt.failure_metadata.merge("error_class" => "WorkerInterrupted"))
         end
       end
       if attempt.request.current?
@@ -35,6 +35,10 @@ class RecoverCharacterImagesJob < ApplicationJob
 
     CharacterImageRequest.joins(:assessment).where(character_image_assessments: { status: "approved" }, provider_rejected: false).find_each do |request|
       request.enqueue_generation!
+    end
+
+    CharacterImageRequest.where(provider_rejected: true).find_each do |request|
+      request.retry_provider_rejection_with_current_prompt!
     end
   end
 end

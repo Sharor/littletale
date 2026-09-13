@@ -218,7 +218,30 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
     assert_empty assessment.decisions
   end
 
+  test "generation retry is scoped to assessment and admin and stale clicks are ignored" do
+    request = CharacterImageRequest.submit!(characters(:hernandes))
+    attempt = request.reload.generation_attempt
+    attempt.update!(status: "failed")
+    path = retry_generation_admin_character_image_assessment_path(request.assessment)
+    payload = { request_id: request.id, attempt_version: attempt.updated_at.iso8601(6) }
+    post path, params: payload
+    assert_response :forbidden
+    sign_in @owner
+    post path, params: payload
+    assert_response :forbidden
+    sign_out @owner
+    sign_in @admin
+    get admin_character_image_assessment_path(request.assessment)
+    assert_select "input[value='Retry generation']"
+    assert_enqueued_with(job: GenerateCharacterImageJob, args: [attempt.id]) { post path, params: payload }
+    assert_no_enqueued_jobs(only: GenerateCharacterImageJob) { post path, params: payload }
+    other = create_assessment(status: "approved")
+    post retry_generation_admin_character_image_assessment_path(other), params: payload
+    assert_response :not_found
+  end
+
   private
+
 
   def create_assessment(status:, prompt: "A character portrait", user: @owner, internal_reason: nil, metadata: {})
     CharacterImageAssessment.create!(

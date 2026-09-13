@@ -117,8 +117,12 @@ and start the app. Do not copy only a live `.sqlite3` file while writes are acti
 New and edited character images are screened before image generation. A review
 holds only that request; other characters and unrelated books can still generate.
 Owners see rejection reasons, but pending-review evidence is visible only to admins.
-Open `/console` → **Character image reviews** to review requests and inspect
-rejections (including image-provider refusals).
+Open `/admin` for links to character reviews, failed book generations, background
+jobs, and the Rails console. Character assessment pages show a retry or regenerate
+action for each current approved request. Retries preserve the previous outcome in
+the attempt metadata and record the requesting administrator. Unknown provider
+outcomes require an explicit paid-request confirmation; duplicate or stale clicks
+do not enqueue another generation.
 
 Identical photo bytes and effective prompts share screening within the same user,
 including uploads for different characters. Renaming a file does not cause another

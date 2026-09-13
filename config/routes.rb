@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   get "/console", to: "console#show"
   get "pages/:id/illustration_controls", to: "page_illustration_controls#show", as: :illustration_controls_page
   namespace :admin do
+    root to: "dashboard#index"
     resources :page_illustrations, only: [] do
       post :regenerate, on: :member
     end
@@ -12,6 +13,7 @@ Rails.application.routes.draw do
       member do
         get :photo
         post :retry_screening
+        post :retry_generation
         post :approve
         post :reject
       end

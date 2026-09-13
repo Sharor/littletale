@@ -9,6 +9,7 @@ class CharacterImageGeneration
   FILENAME = "character.png"
   CONTENT_TYPE = "image/png"
   IMAGE_SIZE = "1024x1024"
+  DESCRIPTION_PROMPT_VERSION = "2"
   REFUSAL_CODES = %w[
     moderation_blocked
     content_policy_violation
@@ -35,14 +36,21 @@ class CharacterImageGeneration
   end
 
   def call
-    response = photo_attached? ? edit_photo : generate_from_prompt
+    response, prior_refusals = if photo_attached?
+      [ edit_photo, [] ]
+    elsif structured_description?
+      generate_from_description
+    else
+      [ generate_from_prompt(assessment.prompt), [] ]
+    end
     bytes = response.dig("data", 0, "b64_json") ? decode_image(response) : download_image(response)
 
     {
       io: StringIO.new(bytes.b).tap(&:binmode),
       filename: FILENAME,
       content_type: CONTENT_TYPE,
-      request_id: sanitized_value(response["id"] || response["request_id"])
+      request_id: sanitized_value(response["id"] || response["request_id"]),
+      prior_refusals: prior_refusals
     }
   rescue Faraday::Error => error
     raise refusal_from(error) if explicit_refusal?(error)
@@ -75,9 +83,29 @@ class CharacterImageGeneration
     source_image&.destroy!
   end
 
-  def generate_from_prompt
+  def generate_from_description
+    [ generate_from_prompt(description_prompt), [] ]
+  rescue Faraday::Error => first_error
+    raise unless explicit_refusal?(first_error)
+
+    prior_refusal = refusal_from(first_error).metadata
+    begin
+      [ generate_from_prompt(description_prompt(reduced: true)), [ prior_refusal ] ]
+    rescue Faraday::Error => second_error
+      raise unless explicit_refusal?(second_error)
+
+      refusal = refusal_from(second_error)
+      raise Refused.new(public_reason: refusal.public_reason,
+        metadata: refusal.metadata.merge(
+          "description_prompt_version" => DESCRIPTION_PROMPT_VERSION,
+          "prior_refusals" => [ prior_refusal ]
+        ))
+    end
+  end
+
+  def generate_from_prompt(prompt)
     parameters = {
-      prompt: assessment.prompt,
+      prompt: prompt,
       model: assessment.generation_model,
       size: IMAGE_SIZE,
       quality: assessment.generation_model.start_with?("gpt-image-") ? "auto" : "standard",
@@ -89,6 +117,70 @@ class CharacterImageGeneration
       }))
     end
     client.images.generate(parameters: parameters)
+  end
+
+  def structured_description?
+    description_details.present?
+  end
+
+  def description_details
+    return @description_details if defined?(@description_details)
+
+    json = assessment.prompt.split("Character details:\n", 2).second
+    parsed = JSON.parse(json) if json
+    @description_details = parsed.is_a?(Hash) ? parsed : nil
+  rescue JSON::ParserError
+    @description_details = nil
+  end
+
+  def description_prompt(reduced: false)
+    # Rebuild app-owned character data instead of forwarding old safety wording.
+    # Keep provider instructions focused on the intended family-storybook depiction.
+    details = description_details
+    age = details["age"].to_i
+    age_phrase = age.positive? ? "#{age}-year-old" : "age-appropriate"
+    gender = safe_description_value(details["gender"])
+    ethnicity = safe_description_value(details["ethnicity"])
+    eye_color = safe_description_value(details["eye_color"])
+    hair_color = safe_description_value(details["hair_color"])
+    hair_style = safe_description_value(details["hair_style"])
+
+    if reduced
+      appearance = [ eye_color && "#{eye_color.downcase} eyes",
+        hair_color && "#{hair_color.downcase} hair",
+        hair_style && "hair worn in #{hair_style.downcase}" ].compact.join(", ")
+      return <<~PROMPT
+        Simple family storybook portrait of one fictional #{age_phrase} character#{appearance.present? ? " with #{appearance}" : ""}.
+        Use an ordinary everyday outfit suitable for that age and a relaxed neutral standing pose.
+        Use full color on an entirely light brown background. Include no other people, objects, scenery, or text.
+      PROMPT
+    end
+
+    identity = [ ethnicity, gender ].compact.map(&:downcase).join(" ")
+    identity = "character" if identity.blank?
+    appearance = [ eye_color && "#{eye_color.downcase} eyes",
+      hair_color && "#{hair_color.downcase} hair",
+      hair_style && "hair worn in #{hair_style.downcase}" ].compact.join(", ")
+    roles = Array(details["roles"]).filter_map { |role| safe_description_value(role) }
+
+    <<~PROMPT
+      Create one wholesome family storybook character in Western children's book style, full color and high detail.
+      Depict a #{age_phrase} #{identity}#{appearance.present? ? " with #{appearance}" : ""}.
+      Dress the character in ordinary age-appropriate everyday clothing and show a relaxed neutral standing pose.
+      Show the character alone on an entirely light brown background, without objects, scenery, action, conflict, or text.
+      #{roles.present? ? "Render these roles only as gentle personality or appearance details: #{roles.join(", ")}." : "Do not add traits or details that were not supplied."}
+    PROMPT
+  end
+
+  def safe_description_value(value)
+    return unless value.is_a?(String)
+
+    value = value.squish
+    return if value.blank? || value.length > 50
+    return unless value.match?(/\A[[:alnum:] '\/-]+\z/)
+    return if value.match?(/sex|nude|naked|erotic|porn|fetish|lingerie|underwear|genital|breast/i)
+
+    value
   end
 
   def decode_image(response)

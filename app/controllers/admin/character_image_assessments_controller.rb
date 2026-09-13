@@ -36,6 +36,14 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
     redirect_to admin_character_image_assessment_path(@assessment), notice: "Screening retry requested."
   end
 
+  def retry_generation
+    request = @assessment.requests.find(params[:request_id])
+    queued = request.admin_retry_generation!(admin: current_user,
+      expected_version: params[:attempt_version], confirm_unknown: params[:confirm_unknown] == "1")
+    redirect_to admin_character_image_assessment_path(@assessment),
+      notice: queued ? "Character generation queued." : "Generation was not queued. Refresh and check the request status and confirmation."
+  end
+
   def approve
     changed = @assessment.resolve!(
       outcome: "approved",

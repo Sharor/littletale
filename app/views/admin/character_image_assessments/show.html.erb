@@ -72,7 +72,7 @@
     <% if @requests.any? %>
       <div class="mt-4 overflow-x-auto">
         <table class="w-full border-collapse text-left text-sm">
-          <thead><tr class="border-b border-white/20"><th class="p-2">Request</th><th class="p-2">Character</th><th class="p-2">Screening outcome</th><th class="p-2">Generation</th><th class="p-2">Failure evidence</th></tr></thead>
+          <thead><tr class="border-b border-white/20"><th class="p-2">Request</th><th class="p-2">Character</th><th class="p-2">Screening outcome</th><th class="p-2">Generation</th><th class="p-2">Actions</th><th class="p-2">Attempt history and evidence</th></tr></thead>
           <tbody>
             <% @requests.each do |request| %>
               <tr class="border-b border-white/10 align-top">
@@ -80,6 +80,23 @@
                 <td class="p-2"><%= request.character&.name || "Deleted character ##{request.original_character_id}" %></td>
                 <td class="p-2"><%= request.screening_status.humanize %><% if request.public_reason.present? %><br><span class="text-gray-300"><%= request.public_reason %></span><% end %></td>
                 <td class="p-2"><%= request.generation_attempt&.status || "Not reserved" %></td>
+                <td class="p-2">
+                  <% if (reason = request.admin_retry_unavailable_reason) %>
+                    <p class="text-gray-300"><%= reason %></p>
+                    <% if request.character&.current_image_request && request.character.current_image_request_id != request.id %>
+                      <%= link_to "Current assessment", admin_character_image_assessment_path(request.character.current_image_request.assessment_id), class: "underline" %>
+                    <% end %>
+                  <% else %>
+                    <%= form_with url: retry_generation_admin_character_image_assessment_path(@assessment), method: :post do |form| %>
+                      <%= hidden_field_tag :request_id, request.id %>
+                      <%= hidden_field_tag :attempt_version, request.generation_attempt&.updated_at&.iso8601(6) || "none" %>
+                      <% if request.generation_attempt&.status == "outcome_unknown" %>
+                        <label class="mb-3 block"><%= check_box_tag :confirm_unknown, "1", false, required: true %> I understand the previous request may have been charged and this starts another paid request.</label>
+                      <% end %>
+                      <%= form.submit request.generation_attempt&.status == "completed" ? "Regenerate image" : "Retry generation", class: "rounded bg-cyan-700 px-4 py-2 text-white hover:bg-cyan-600" %>
+                    <% end %>
+                  <% end %>
+                </td>
                 <td class="p-2"><pre class="whitespace-pre-wrap"><%= JSON.pretty_generate(request.generation_attempt&.failure_metadata || {}) %></pre></td>
               </tr>
             <% end %>

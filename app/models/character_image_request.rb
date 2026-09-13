@@ -114,4 +114,75 @@ class CharacterImageRequest < ApplicationRecord
     end
     character&.broadcast_image_status if current?
   end
+
+  def retry_provider_rejection_with_current_prompt!
+    attempt = nil
+    retry_generation = false
+    user.with_lock do
+      with_lock do
+        attempt = generation_attempt
+        return false unless provider_rejected? && current? && !assessment.photo.attached?
+        return false unless attempt&.status == "failed" && !attempt.result_image.attached?
+
+        failure = attempt.failure_metadata
+        return false if failure["description_prompt_version"] == CharacterImageGeneration::DESCRIPTION_PROMPT_VERSION
+        return false unless CharacterImageGeneration::REFUSAL_CODES.include?(failure["code"].to_s.downcase)
+
+        attempt.with_lock do
+          attempt.update!(status: "reserved", started_at: nil, finished_at: nil, provider_request_id: nil,
+            failure_metadata: {
+              "description_prompt_version" => CharacterImageGeneration::DESCRIPTION_PROMPT_VERSION,
+              "prior_refusals" => [ failure ]
+            })
+          update!(provider_rejected: false, rejection_reason: nil)
+          retry_generation = true
+        end
+      end
+    end
+    if retry_generation
+      GenerateCharacterImageJob.perform_later(attempt.id)
+      character&.broadcast_image_status
+    end
+    retry_generation
+  end
+
+  def admin_retry_unavailable_reason
+    return "Character was deleted." unless character
+    return "Inputs have changed. Open the character's current assessment." unless current?
+    return "Resolve screening before generating." unless assessment.status == "approved"
+    return "Generation is already queued or running." if %w[reserved in_progress].include?(generation_attempt&.status)
+    nil
+  end
+
+  def admin_retry_generation!(admin:, expected_version:, confirm_unknown: false)
+    raise ArgumentError, "Administrator required" unless admin&.admin?
+    attempt = nil
+    user.with_lock do
+      with_lock do
+        association(:generation_attempt).reset
+        return false if admin_retry_unavailable_reason
+        attempt = generation_attempt
+        return false unless expected_version.to_s == (attempt&.updated_at&.iso8601(6) || "none")
+        return false if attempt&.status == "outcome_unknown" && !confirm_unknown
+        if attempt
+          history = Array(attempt.failure_metadata["admin_history"])
+          history += [attempt.attributes.slice("status", "started_at", "finished_at", "provider_request_id", "illustration_id").merge(
+            "failure_metadata" => attempt.failure_metadata.except("admin_history"),
+            "generation_request" => assessment.metadata["generation_request"], "prompt" => assessment.prompt)]
+          attempt.result_image.detach if attempt.status == "completed"
+          attempt.update!(status: "reserved", started_at: nil, finished_at: nil, provider_request_id: nil,
+            illustration_id: nil, failure_metadata: { "admin_history" => history,
+              "requested_by_admin_id" => admin.id, "requested_at" => Time.current.iso8601 })
+        else
+          log = character.action_logs.create!(action: "setup_illustration", user: user)
+          attempt = create_generation_attempt!(action_log: log,
+            failure_metadata: { "requested_by_admin_id" => admin.id, "requested_at" => Time.current.iso8601 })
+        end
+        update!(provider_rejected: false, rejection_reason: nil)
+      end
+    end
+    GenerateCharacterImageJob.perform_later(attempt.id)
+    character.broadcast_image_status
+    true
+  end
 end

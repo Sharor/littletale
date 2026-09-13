@@ -158,7 +158,7 @@ class CharacterImageRequestTest < ActiveSupport::TestCase
     assert_equal({ "age" => 22, "gender" => "Girl", "ethnicity" => "White", "hair_color" => "Brown",
       "hair_style" => "Long", "eye_color" => "Brown", "roles" => [ "Hero", "Freckles" ] }, details)
     assert_includes prompt, "fictional"
-    assert_includes prompt, "fully clothed"
+    assert_includes prompt, "age-appropriate everyday clothing"
     assert_includes prompt, "numeric age"
   end
 

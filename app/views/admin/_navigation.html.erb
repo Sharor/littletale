@@ -1,0 +1,5 @@
+<nav aria-label="Administration" class="mx-auto mb-6 flex max-w-6xl flex-wrap gap-4 rounded-lg border border-white/20 bg-black/20 p-4 text-sm text-white">
+  <% [["Admin home", admin_root_path], ["Character image reviews", admin_character_image_assessments_path], ["Failed books", admin_failed_books_path], ["Background jobs", "/jobs"], ["Console", "/console"], ["Back to books", books_path]].each do |label, path| %>
+    <%= link_to label, path, class: "rounded px-2 py-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-cyan-300", aria: { current: request.path == path ? "page" : nil } %>
+  <% end %>
+</nav>

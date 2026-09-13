@@ -1,0 +1,13 @@
+<main class="mx-auto max-w-6xl text-white">
+  <p class="text-sm uppercase tracking-widest text-cyan-300">Little Fables · Operations</p>
+  <h1 class="mt-2 text-4xl font-bold">Administration</h1>
+  <p class="mt-3 text-gray-300">Review character images, resolve generation failures, and inspect background work.</p>
+  <div class="mt-8 grid gap-4 sm:grid-cols-2">
+    <% [["Character image reviews", "#{@reviews} awaiting review. Inspect requests and retry character generation.", admin_character_image_assessments_path], ["Failed book generations", "#{@failed_books} failed books. Review errors and retry images or stories.", admin_failed_books_path], ["Background jobs", "Inspect queued, running, and failed background jobs.", "/jobs"], ["Rails Console", "Open the existing development console for technical investigation.", "/console"]].each do |title, description, path| %>
+      <%= link_to path, class: "block rounded-xl border border-white/20 bg-black/20 p-6 hover:border-cyan-300 focus-visible:outline focus-visible:outline-cyan-300" do %>
+        <h2 class="text-xl font-semibold"><%= title %> →</h2>
+        <p class="mt-3 text-gray-300"><%= description %></p>
+      <% end %>
+    <% end %>
+  </div>
+</main>

@@ -21,11 +21,17 @@ class GenerateCharacterImageJob < ApplicationJob
     unless attempt.result_image.attached?
       result = CharacterImageGeneration.call(request.assessment)
       attempt.result_image.attach(io: result.fetch(:io), filename: result.fetch(:filename), content_type: result.fetch(:content_type))
-      attempt.update!(provider_request_id: result[:request_id])
+      failure_metadata = attempt.failure_metadata
+      if result[:prior_refusals].present?
+        failure_metadata = failure_metadata.merge("prior_refusals" =>
+          Array(failure_metadata["prior_refusals"]) + result[:prior_refusals])
+      end
+      attempt.update!(provider_request_id: result[:request_id], failure_metadata: failure_metadata)
     end
     publish_result!(attempt)
   rescue CharacterImageGeneration::Refused => error
-    attempt.update!(status: "failed", finished_at: Time.current, failure_metadata: error.metadata)
+    attempt.update!(status: "failed", finished_at: Time.current,
+      failure_metadata: attempt.failure_metadata.merge(error.metadata))
     request.reject_by_provider!(public_reason: error.public_reason, metadata: error.metadata)
     fail_character(request)
   rescue StandardError => error
@@ -33,7 +39,7 @@ class GenerateCharacterImageJob < ApplicationJob
     # A response can be lost after the provider charged for it. Never resend it.
     definite_bad_request = error.is_a?(Faraday::BadRequestError)
     status = attempt.result_image.attached? || definite_bad_request ? "failed" : "outcome_unknown"
-    attempt.update!(status: status, finished_at: Time.current, failure_metadata: failure_metadata(error))
+    attempt.update!(status: status, finished_at: Time.current, failure_metadata: attempt.failure_metadata.merge(failure_metadata(error)))
     fail_character(request)
   end
 

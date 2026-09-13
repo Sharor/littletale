@@ -32,6 +32,13 @@
   </head>
 
  <body class="sleek-gradient min-h-screen p-4">
+    <% if current_user&.admin? %>
+      <% if controller_path.start_with?("admin/") %>
+        <%= render "admin/navigation" %>
+      <% else %>
+        <p class="mb-4 text-right"><%= link_to "Administration", admin_root_path, class: "text-cyan-300 underline" %></p>
+      <% end %>
+    <% end %>
     
       <%= yield %>
       <turbo-frame id="modal"></turbo-frame>

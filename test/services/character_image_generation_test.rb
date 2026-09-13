@@ -111,13 +111,101 @@ class CharacterImageGenerationTest < ActiveSupport::TestCase
         assert_equal "gpt-image-1", payload["model"]
         assert_equal "auto", payload["quality"]
         assert_equal payload, assessment.reload.metadata.fetch("generation_request").fetch("parameters")
-        assert_equal assessment.prompt, payload["prompt"]
+        assert_not_equal assessment.prompt, payload["prompt"]
+        assert_includes payload["prompt"], "wholesome"
+        assert_no_match(/sex(?:ual)?/i, payload["prompt"])
         true
       end
       .to_return(status: 200, headers: { "Content-Type" => "application/json" },
         body: { data: [ { b64_json: Base64.strict_encode64(GENERATED_BYTES) } ] }.to_json)
 
     assert_equal GENERATED_BYTES, CharacterImageGeneration.call(assessment).fetch(:io).read
+  end
+
+  test "uses a filter-safe provider prompt for the rejected teen description" do
+    character = characters(:hernandes)
+    character.update!(age: 14, gender: "Girl", ethnicity: "White", hair_color: "Blond",
+      hair_style: "Braids", eye_color: "Blue", roles: [])
+    assessment = CharacterImageRequest.submit!(character).assessment
+    stub_request(:post, "https://api.openai.com/v1/images/generations")
+      .with do |http_request|
+        prompt = JSON.parse(http_request.body).fetch("prompt")
+        assert_includes prompt, "wholesome family storybook"
+        assert_includes prompt, "14-year-old"
+        assert_includes prompt, "ordinary age-appropriate everyday clothing"
+        assert_no_match(/sex(?:ual)?/i, prompt)
+        true
+      end
+      .to_return(status: 200, headers: { "Content-Type" => "application/json" },
+        body: { data: [ { b64_json: Base64.strict_encode64(GENERATED_BYTES) } ] }.to_json)
+
+    assert_equal GENERATED_BYTES, CharacterImageGeneration.call(assessment).fetch(:io).read
+  end
+
+  test "retries a sexual-category false positive once with a reduced description prompt" do
+    character = characters(:hernandes)
+    character.update!(age: 14, gender: "Girl", ethnicity: "White", hair_color: "Blond",
+      hair_style: "Braids", eye_color: "Blue", roles: [])
+    assessment = CharacterImageRequest.submit!(character).assessment
+    calls = 0
+    provider_request = stub_request(:post, "https://api.openai.com/v1/images/generations")
+      .to_return do |http_request|
+        calls += 1
+        if calls == 1
+          { status: 400, headers: { "Content-Type" => "application/json", "x-request-id" => "req_false_positive" },
+            body: { error: { code: "moderation_blocked", category: "sexual" } }.to_json }
+        else
+          prompt = JSON.parse(http_request.body).fetch("prompt")
+          assert_includes prompt, "Simple family storybook portrait"
+          assert_no_match(/sex(?:ual)?/i, prompt)
+          { status: 200, headers: { "Content-Type" => "application/json" },
+            body: { data: [ { b64_json: Base64.strict_encode64(GENERATED_BYTES) } ] }.to_json }
+        end
+      end
+
+    result = CharacterImageGeneration.call(assessment)
+
+    assert_equal GENERATED_BYTES, result.fetch(:io).read
+    assert_equal [ { "code" => "moderation_blocked", "request_id" => "req_false_positive", "category" => "sexual" } ],
+      result.fetch(:prior_refusals)
+    assert_requested provider_request, times: 2
+  end
+
+  test "retries a category-free content filter once for a structured description" do
+    assessment = CharacterImageRequest.submit!(characters(:hernandes)).assessment
+    provider_request = stub_request(:post, "https://api.openai.com/v1/images/generations")
+      .to_return(
+        { status: 400, headers: { "Content-Type" => "application/json" },
+          body: { error: { code: "content_filter" } }.to_json },
+        { status: 200, headers: { "Content-Type" => "application/json" },
+          body: { data: [ { b64_json: Base64.strict_encode64(GENERATED_BYTES) } ] }.to_json }
+      )
+
+    assert_equal GENERATED_BYTES, CharacterImageGeneration.call(assessment).fetch(:io).read
+    assert_requested provider_request, times: 2
+  end
+
+  test "stops after the reduced description prompt is refused and retains both refusals" do
+    character = characters(:hernandes)
+    assessment = CharacterImageRequest.submit!(character).assessment
+    calls = 0
+    provider_request = stub_request(:post, "https://api.openai.com/v1/images/generations")
+      .to_return do
+        calls += 1
+        { status: 400,
+          headers: { "Content-Type" => "application/json", "x-request-id" => "req_refusal_#{calls}" },
+          body: { error: { code: "moderation_blocked", category: "sexual" } }.to_json }
+      end
+
+    error = assert_raises(CharacterImageGeneration::Refused) do
+      CharacterImageGeneration.call(assessment)
+    end
+
+    assert_equal CharacterImageGeneration::DESCRIPTION_PROMPT_VERSION,
+      error.metadata["description_prompt_version"]
+    assert_equal "req_refusal_2", error.metadata["request_id"]
+    assert_equal "req_refusal_1", error.metadata.dig("prior_refusals", 0, "request_id")
+    assert_requested provider_request, times: 2
   end
 
   test "raises a refusal with a supported public reason and sanitized provider metadata" do
