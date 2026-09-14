@@ -1,10 +1,12 @@
-<p style="color: green"><%= notice %></p>
+<% if notice %>
+  <p class="fable-public-notice" role="status"><%= notice %></p>
+<% end %>
 
-<div class="parchment text-center pt-30 pb-40" >
-    <h1 class="font-extrabold text-3xl" >
+<main class="fable-public fable-public-document" aria-labelledby="eula-title">
+    <h1 id="eula-title">
       <%= t('activerecord.attributes.tutorial.eula') %>
     </h1>
-    <div class="h-auto w-full gap-2 px-60 pt-30 pb-20">    
+    <div class="fable-public-prose fable-public-eula-copy">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean quis lorem quis magna fringilla interdum a sed leo. Aenean non ante non ligula interdum ullamcorper nec malesuada turpis. Mauris non enim sed erat scelerisque semper a eget justo. Sed euismod in nisi vitae fringilla. Integer sit amet purus ut nisi pellentesque finibus. Donec et pulvinar nisi. Nam ultricies vitae ligula in aliquam. Sed sollicitudin pulvinar efficitur. Ut elementum cursus nibh. Suspendisse id nulla rhoncus, mattis est eu, suscipit elit.
 
 Praesent vehicula porta rhoncus. In eget elit eget massa porttitor auctor vel vel lectus. Etiam pulvinar nisi nec neque molestie tincidunt. Quisque sed feugiat neque, eu lacinia urna. Quisque orci erat, interdum eu urna quis, pulvinar elementum augue. Ut molestie tempus scelerisque. Nunc eleifend a enim sit amet eleifend. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Proin et nisl quis nisi pellentesque fermentum. Aliquam aliquam fringilla odio pulvinar ultrices. Curabitur malesuada in mi vitae mattis. Aenean efficitur lacus non sem dictum, et scelerisque lacus consectetur. Sed vel luctus nisi. Etiam et ligula vel nibh bibendum efficitur nec et enim. Aenean nisl mauris, scelerisque imperdiet feugiat vitae, cursus quis tortor. Vestibulum sed bibendum felis, eu commodo erat.
@@ -25,15 +27,14 @@ Curabitur in tempor mauris. Phasellus vel ante sit amet purus porta interdum eu 
 
 Integer nec ex et mauris commodo fringilla vitae non ligula. Donec eleifend, quam vehicula lobortis tincidunt, est purus scelerisque mauris, nec viverra orci risus dictum metus. Nulla id lobortis sem. Fusce condimentum sit amet erat in pharetra. Ut facilisis turpis mi, eu sagittis enim mattis nec. Vivamus ac elit vel erat euismod venenatis. Nam finibus nibh ut urna tincidunt pulvinar. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed lobortis malesuada egestas. Aenean sit amet egestas magna. Donec enim nunc, molestie a pretium dapibus, pulvinar nec ante. Donec nec mauris ac felis vestibulum rutrum quis vel ipsum. Sed eu urna luctus, finibus nisi id, lacinia augue. Vivamus molestie sapien leo, at ullamcorper eros tempor ut. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
     </div>
-    <div class="grid grid-cols-2 h-auto w-full gap-2 px-60 pb-20">    
-      <div class="text-center h-auto content-center" >
-          <%= button_to t('activerecord.attributes.tutorial.accept'), terms_path, class: "fantasy-button ", method: :get %>
+    <div class="fable-public-document-actions">
+      <div class="fable-public-document-action" >
+          <%= button_to t('activerecord.attributes.tutorial.accept'), terms_path, class: "fable-public-button", method: :get %>
       </div>
-      <div class="text-center h-auto content-center" >
-          <%= button_to t('activerecord.attributes.tutorial.decline'), destroy_user_session_path, class: "fantasy-button ", method: :delete,  data: { turbo: false  } %>
+      <div class="fable-public-document-action" >
+          <%= button_to t('activerecord.attributes.tutorial.decline'), destroy_user_session_path, class: "fable-public-button fable-public-button-outline", method: :delete,  data: { turbo: false  } %>
       </div>
       
     </div>
-</div>
-
+</main>
 

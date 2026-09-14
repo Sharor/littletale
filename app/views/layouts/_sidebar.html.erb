@@ -1,7 +1,6 @@
-<% unless browser.device.mobile? %>
 <!-- 1. LEFT SIDE NAVIGATION BAR (Sidebar) - FROSTED GLASS EFFECT -->
-<aside class="w-full lg:w-64 mb-6 lg:mb-0 lg:mr-6 p-4 rounded-xl frosted-glass h-auto lg:h-[calc(100vh-3rem)] sticky top-6 self-start">
-    <div class="text-2xl font-bold mb-8 text-cyan-300">
+<aside class="site-sidebar w-full lg:w-64 mb-6 lg:mb-0 lg:mr-6 p-4 rounded-xl frosted-glass h-auto lg:h-[calc(100vh-3rem)] sticky top-6 self-start">
+    <div class="site-brand text-2xl font-bold mb-8 text-cyan-300">
         Book Tracker
     </div>
 
@@ -20,7 +19,7 @@
         <% end %>
     </nav>
 
-    <div class="mt-8 pt-4 border-t border-white/10">
+    <div class="site-filters mt-8 pt-4 border-t border-white/10">
         <h4 class="text-sm font-medium uppercase text-gray-400 mb-2">Filters</h4>
         <div class="space-y-2">
             <button class="w-full text-left p-2 rounded-md text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">Sci-Fi</button>
@@ -28,23 +27,23 @@
             <button class="w-full text-left p-2 rounded-md text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">History</button>
         </div>
     </div>
+    <%= render "layouts/settings" %>
 </aside>
-<% end %>
 
-<header class="block lg:hidden w-full frosted-glass sticky top-0 z-50 border-b border-white/10 mb-4">
+<header class="site-mobile-header block lg:hidden w-full frosted-glass sticky top-0 z-50 border-b border-white/10 mb-4">
   <div class="flex items-center justify-between p-4">
-    <div class="text-xl font-bold text-cyan-300">
+    <div class="site-brand text-xl font-bold text-cyan-300">
       Book Tracker
     </div>
     
     <nav class="flex space-x-4">
-      <%= link_to books_path, class: "p-2 text-gray-300 hover:text-cyan-300" do %>
+      <%= link_to books_path, class: "p-2 text-gray-300 hover:text-cyan-300", aria: { label: "Home Dashboard" } do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
       <% end %>
       
-      <%= link_to "#", class: "p-2 text-gray-300 hover:text-cyan-300" do %>
+      <%= link_to "#", class: "p-2 text-gray-300 hover:text-cyan-300", aria: { label: "Reading List" } do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2zM9 16l-2-2m0 0l2-2m-2 2h8" />
         </svg>
@@ -52,9 +51,12 @@
     </nav>
   </div>
   
-  <div class="flex space-x-2 px-4 pb-3 overflow-x-auto no-scrollbar">
+  <div class="site-mobile-tools">
+  <div class="site-mobile-filters flex space-x-2 px-4 pb-3 overflow-x-auto no-scrollbar">
     <button class="whitespace-nowrap px-3 py-1 rounded-full bg-white/5 text-xs text-gray-300 border border-white/10">Sci-Fi</button>
     <button class="whitespace-nowrap px-3 py-1 rounded-full bg-white/5 text-xs text-gray-300 border border-white/10">Fantasy</button>
     <button class="whitespace-nowrap px-3 py-1 rounded-full bg-white/5 text-xs text-gray-300 border border-white/10">History</button>
+  </div>
+  <%= render "layouts/settings" %>
   </div>
 </header>

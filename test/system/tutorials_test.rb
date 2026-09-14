@@ -13,7 +13,7 @@ class TutorialsTest < ApplicationSystemTestCase
     Warden.test_reset!
   end
 
-  test "a signed-in user can complete the tutorial flow" do
+  test "a signed-in user can accept the agreements and continue to the library" do
     visit eula_url
     assert_text I18n.t("activerecord.attributes.tutorial.eula")
 
@@ -21,10 +21,7 @@ class TutorialsTest < ApplicationSystemTestCase
     assert_text I18n.t("activerecord.attributes.tutorial.terms")
 
     click_on I18n.t("activerecord.attributes.tutorial.accept")
-    assert_text I18n.t("activerecord.attributes.tutorial.tutorial")
-
-    click_on I18n.t("activerecord.attributes.tutorial.continue")
-    assert_current_path authenticated_root_path
-    assert_predicate Tutorial.find_by!(user: users(:one)), :tutorial_complete?
+    assert_current_path books_path
+    assert_predicate Tutorial.find_by!(user: users(:one)), :terms?
   end
 end

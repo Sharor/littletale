@@ -1,19 +1,10 @@
-<p style="color: green"><%= notice %></p>
-
-<div class="parchment text-center pt-30 pb-40" >
-    <h1 class="font-extrabold text-3xl" >
-      <%= t('activerecord.attributes.tutorial.tutorial') %>
-    </h1>
-    <div class="h-auto w-full gap-2 px-60 pt-30 pb-20">    
-        
-    </div>
-    <div class="gr h-auto w-full gap-2 px-60 pb-20">    
-      <div class="text-center h-auto content-center" >
-          <%= button_to t('activerecord.attributes.tutorial.continue'), tutorial_complete_path, class: "fantasy-button ", method: :post %>
-      </div>
-     
-      
-    </div>
-</div>
-
-
+<main class="fable-public fable-public-document fable-public-tutorial" aria-labelledby="tutorial-title">
+  <% if notice %>
+    <p class="fable-public-notice" role="status"><%= notice %></p>
+  <% end %>
+  <h1 id="tutorial-title"><%= t('activerecord.attributes.tutorial.tutorial') %></h1>
+  <span class="fable-public-flourish" aria-hidden="true">❧</span>
+  <div class="fable-public-document-actions">
+    <%= button_to t('activerecord.attributes.tutorial.continue'), tutorial_complete_path, class: "fable-public-button", method: :post %>
+  </div>
+</main>

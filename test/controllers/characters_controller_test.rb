@@ -19,10 +19,16 @@ class CharactersControllerTest < ActionDispatch::IntegrationTest
     get characters_url
 
     assert_response :success
-    assert_select "h2", "Characters"
+    assert_select "main.fable-character-overview"
+    assert_select "form .fable-character-overview-header + .fable-character-grid"
+    assert_select ".fable-character-overview-header button.fable-character-book-cta[type='submit'] span:first-child",
+      I18n.t("helpers.submit.character.add", default: "Create Book with Selected Characters")
     assert_select "a[href='#{new_character_path}']", text: /New Character/
     assert_select "h2", text: @character.name
     assert_select "h2", text: other_character.name, count: 0
+    assert_select "input[type='checkbox'][aria-label=?]:not(.hidden)", "Select #{@character.name}"
+    assert_select "a[href='#{edit_character_path(@character)}'][aria-label=?]", "Edit #{@character.name}"
+    assert_select "a[href='#{confirm_delete_character_path(@character)}'][aria-label=?]", "Delete #{@character.name}"
   end
 
   test "new renders both character creation modes" do
@@ -45,9 +51,10 @@ class CharactersControllerTest < ActionDispatch::IntegrationTest
     get edit_character_url(@character)
 
     assert_response :success
+    assert_select "#character-creation-container.fable-character-editor"
     assert_select "#content-photo:not(.hidden)"
     assert_select "#file-name-display", "original-character.png"
-    assert_select "#photo-preview-container img[alt='Character Photo Preview']", 1 do |images|
+    assert_select "#photo-preview-container .fable-photo-preview-frame img.fable-photo-preview-image[alt='Character Photo Preview']", 1 do |images|
       assert_includes images.first["src"], "/rails/active_storage/"
     end
   end

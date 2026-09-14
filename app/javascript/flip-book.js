@@ -7,27 +7,23 @@ function initializeBook() {
     const bookEl = document.getElementById('storybook');
     if (!bookEl || initializedBooks.has(bookEl)) return;
 
-    const isMobile = window.innerWidth < 768;
-
-    // Force a specific aspect ratio for mobile portrait
-    const pageWidth = isMobile ? window.innerWidth - 20 : 550;
-    const pageHeight = isMobile ? 650 : 800;
-
     const pageFlip = new PageFlip(bookEl, {
-        width: pageWidth,
-        height: pageHeight,
+        width: 550,
+        height: 800,
         size: "stretch",
         showCover: true,
-        usePortrait: isMobile, // [cite: 1]
-        drawShadow: !isMobile, 
+        usePortrait: true,
+        drawShadow: true,
         flippingTime: 800,
         mobileScrollSupport: true,
-        // Add this to prevent the "miniature" scale-down
-        minWidth: isMobile ? 300 : 550,
-        minHeight: isMobile ? 450 : 800
+        // Below an 840px reader, show one page. CSS lets it fit smaller phones.
+        minWidth: 420,
+        maxWidth: 550,
+        minHeight: 100,
+        maxHeight: 800
     });
 
-    pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+    pageFlip.loadFromHTML(bookEl.querySelectorAll('.page'));
 
     document.getElementById('prevPage')?.addEventListener('click', () => {
         pageFlip.flipPrev();
@@ -37,10 +33,13 @@ function initializeBook() {
         pageFlip.flipNext();
     });
 
-    // Re-calculates and forces a redraw for mobile
-    if (isMobile) {
-        pageFlip.updateFromHtml(document.querySelectorAll('.page'));
-    }
+    // Sidebar and container changes can resize the book without a window resize.
+    const resizeObserver = new ResizeObserver(() => {
+        if (bookEl.isConnected) pageFlip.update();
+        else resizeObserver.disconnect();
+    });
+    resizeObserver.observe(bookEl);
+    document.addEventListener('turbo:before-cache', () => resizeObserver.disconnect(), { once: true });
 
     const toggleState = () => {
         const index = pageFlip.getCurrentPageIndex();

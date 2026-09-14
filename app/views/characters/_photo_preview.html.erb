@@ -1,12 +1,12 @@
 <%# app/views/characters/_photo_preview.html.erb %>
 <%# Requires local variable: blob %>
 
-<div id="character-photo-preview-image" class="w-full border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center">
+<div id="character-photo-preview-image" class="fable-photo-preview-frame border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center">
     <% if blob.present? %>
         <%# Removed h-full and object-cover to allow image to dictate container height %>
         <%= image_tag rails_storage_proxy_path(blob), 
             alt: "Character Photo Preview", 
-            class: "w-full h-auto" %>
+            class: "fable-photo-preview-image" %>
     <% else %>
         <p class="text-gray-500">Error loading image preview.</p>
     <% end %>

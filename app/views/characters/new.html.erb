@@ -1,8 +1,8 @@
-<div class="app-wrapper flex flex-col lg:flex-row text-white">
+<div class="fable-layout">
   <%= render "layouts/sidebar" %>
 
-  <div class="flex-grow flex items-start lg:items-center justify-center min-h-[80vh] w-full">
-    <div id="character-creation-container" class="w-full max-w-4xl frosted-glass rounded-2xl shadow-2xl p-6 md:p-10 my-8">
+  <div class="fable-main fable-ui">
+    <div id="character-creation-container" class="fable-panel fable-character-editor">
 
       <h1 class="text-4xl font-extrabold text-white mb-6 border-b border-white/20 pb-3">
         <%= @character.persisted? ? "Edit Character" : "New Character Creation" %>
@@ -45,7 +45,7 @@
         <div id="content-photo" class="mode-content space-y-4 <%= 'hidden' if character_creation_mode == 'form' %>">
           <h2 class="text-xl font-semibold text-white">Upload Character Photo</h2>
 
-          <div class="flex items-center space-x-4">
+          <div class="fable-upload-choice flex items-center space-x-4">
             <label class="block cursor-pointer px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200 border <%= @character.errors[:photo].any? ? 'border-red-500' : 'border-transparent' %>">
               Choose Photo
               <%= form.file_field :photo_upload, accept: "image/*", class: "hidden", id: "character_photo_upload", onchange: "handlePhotoPreview(this.files[0])" %>
@@ -81,7 +81,7 @@
                 <p class="text-xs text-red-400 mt-1"><%= @character.errors[:age].first %></p>
             <% end %>
         </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <% { gender: 'Gender', ethnicity: 'Ethnicity / Appearance', hair_style: 'Hair Style', hair_color: 'Hair Color', eye_color: 'Eye Color' }.each do |field, label| %>
               <div class="space-y-1">
                 <label class="block text-sm font-medium <%= @character.errors[field].any? ? 'text-red-400' : 'text-gray-300' %>"><%= label %></label>

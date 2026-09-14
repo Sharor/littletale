@@ -50,6 +50,7 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
 
     assert_response :success
     assert_select "h1", "Character image reviews"
+    assert_select "nav[aria-label='Review status'] a[aria-current='page']", "Needs review"
     assert_select "article[data-assessment-id='#{held.id}']", 1
     assert_select "article", count: 1
 

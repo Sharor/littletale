@@ -7,7 +7,9 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get new_user_session_url
 
     assert_response :success
-    assert_select "h1", "Welcome back!"
+    assert_select "main[aria-labelledby='sign-in-title']", count: 1 do
+      assert_select "h1#sign-in-title", "Welcome back!"
+    end
     assert_select "form[action='#{user_google_oauth2_omniauth_authorize_path}'][method='post']"
     assert_select "button", "Continue with Google"
   end

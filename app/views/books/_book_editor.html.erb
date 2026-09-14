@@ -2,14 +2,14 @@
   <% if book.finished_generation? %>
     <!-- Render book w/pages and illustrations -->
     <%= render book %>
-    <div class="mt-5 pb-13 bottom-0 content-center w-full px-60 inset-x-0">
+    <div class="fable-ui fable-editor-actions">
       <div class="grid grid-cols-2 text-center">
         <%= button_to "Back", books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
         <%= button_to "Delete", book, method: :delete, data: { turbo: false }, class: 'fantasy-button' %>
       </div>
     </div>
   <% else %>
-  <div class="parchment h-screen text-center pt-15" >
+  <div class="fable-ui fable-panel text-center" >
     <h1 class="font-extrabold text-3xl" >Writing your book!</h1>
     <%= render partial: "books/loading", locals: { book: book } %>
     <br />
@@ -18,7 +18,7 @@
   </div>
   <% end %>
 <% else %>
-  <div class="parchment text-center pt-10 pb-20 " >
+  <div class="fable-ui fable-panel text-center" >
     <div class="grid grid-cols-3 text-center">
       <%= button_to "Back", books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
       
@@ -32,7 +32,7 @@
         </div>
       </h1>
     </div>
-    <div class=" w-full gap-2 px-60 mt-20">
+    <div class="w-full gap-2 mt-8">
       <%= turbo_stream_from "book_#{book.id}_characters" %>
       <%= turbo_stream_from "illustrations" %>
 

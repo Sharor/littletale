@@ -20,9 +20,31 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     get books_url
 
     assert_response :success
-    assert_select "h2", "Current Library"
+    assert_select "main h1", "Current Library"
     assert_select "h3", text: @book.name
     assert_select "h3", text: private_book.name, count: 0
+    assert_select "main a[href='#{characters_path}']", text: /Make a new book/
+    assert_select "main a[href='#{book_path(@book)}'][aria-label=?]", "Read #{@book.name}", text: "Read"
+  end
+
+  test "empty library preserves the create book tutorial entry point" do
+    @user.books.destroy_all
+
+    get books_url
+
+    assert_response :success
+    assert_select "main h1", "Current Library"
+    assert_select "main a.new_book_tutorial[href='#{characters_path}']", text: /Make a new book/, count: 1
+    assert_select "main h3", count: 0
+  end
+
+  test "library renders accessible navigation for mobile devices in either orientation" do
+    get books_url, headers: { "User-Agent" => "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1" }
+
+    assert_response :success
+    # CSS selects the appropriate navigation at the current viewport width.
+    assert_select "aside nav a[href='#{books_path}']", text: /Home Dashboard/
+    assert_select "header nav a[href='#{books_path}'][aria-label='Home Dashboard']"
   end
 
   test "new renders the page limit for the user's tier" do

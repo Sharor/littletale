@@ -25,7 +25,8 @@
     <% [ [ "Needs review", "needs_review" ], [ "Rejected", "rejected" ], [ "Approved", "approved" ], [ "Screening unavailable", "unavailable" ] ].each do |label, status| %>
       <%= link_to label,
         admin_character_image_assessments_path(status: status, user_id: @user_id),
-        class: "rounded border border-white/20 px-3 py-2 #{'bg-white/20' if @status == status}" %>
+        class: "rounded border border-white/20 px-3 py-2 #{'bg-white/20' if @status == status}",
+        aria: { current: @status == status ? "page" : nil } %>
     <% end %>
   </nav>
 

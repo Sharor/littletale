@@ -1,18 +1,18 @@
 <turbo-frame id="modal">
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="fable-ui fable-delete-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
     
     <!-- Background overlay -->
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
     <!-- Modal -->
-    <div class="relative bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-md p-6 animate-fadeIn scale-95">
+    <div role="dialog" aria-modal="true" aria-labelledby="delete-character-heading" class="fable-delete-dialog relative w-full max-w-md p-6">
       
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-semibold text-red-400">Confirm Deletion</h3>
+        <h3 id="delete-character-heading" class="text-xl font-semibold text-red-400">Confirm Deletion</h3>
 
         <%= link_to "#",
           data: { turbo_frame: "modal" },
-          class: "text-gray-400 hover:text-white transition" do %>
+          aria: { label: "Close" }, class: "fable-dialog-close text-gray-400 hover:text-white transition" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>

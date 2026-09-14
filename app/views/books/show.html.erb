@@ -1,9 +1,9 @@
-<div class="app-wrapper flex flex-col lg:flex-row text-white">
+<div class="fable-layout">
   <%= render "layouts/sidebar" %>
 
-  <main class="flex-1 p-6">
+  <main class="fable-reader-main">
     <%= turbo_stream_from @book %>
     <%= turbo_stream_from current_user, :characters %>
     <%= render @book %>
   </main>
-</div>w
+</div>

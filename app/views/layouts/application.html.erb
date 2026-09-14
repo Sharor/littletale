@@ -31,16 +31,18 @@
     </script>
   </head>
 
- <body class="sleek-gradient min-h-screen p-4">
-    <% if current_user&.admin? %>
-      <% if controller_path.start_with?("admin/") %>
-        <%= render "admin/navigation" %>
-      <% else %>
-        <p class="mb-4 text-right"><%= link_to "Administration", admin_root_path, class: "text-cyan-300 underline" %></p>
-      <% end %>
-    <% end %>
-    
+ <body class="storybook-theme <%= content_for(:body_class) %>">
+    <% if current_user&.admin? && (controller_path.start_with?("admin/") || controller_path == "console") %>
+      <div class="fable-layout">
+        <%= render "layouts/sidebar" %>
+        <div class="fable-main fable-ui fable-admin">
+          <%= render "admin/navigation" %>
+          <%= yield %>
+        </div>
+      </div>
+    <% else %>
       <%= yield %>
-      <turbo-frame id="modal"></turbo-frame>
+    <% end %>
+    <turbo-frame id="modal"></turbo-frame>
   </body>
 </html>

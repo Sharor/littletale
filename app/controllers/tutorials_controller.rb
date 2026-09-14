@@ -1,6 +1,6 @@
 class TutorialsController < ApplicationController
-  before_action :set_tutorial, only: %i[ eula terms tutorial complete ]
-  skip_before_action :check_tutorial, only: %i[ eula terms tutorial ]
+  before_action :set_tutorial, only: %i[ eula terms accept_terms tutorial complete ]
+  skip_before_action :check_tutorial, only: %i[ eula terms accept_terms tutorial ]
 
 
   def eula
@@ -8,6 +8,11 @@ class TutorialsController < ApplicationController
 
   def terms
     @tutorial.update(eula: true)
+  end
+
+  def accept_terms
+    @tutorial.update!(terms: true)
+    redirect_to books_url
   end
 
   def tutorial

@@ -1,0 +1,245 @@
+/* Application surfaces deliberately exclude the flip-book subtree. */
+.fable-main {
+  min-width: 0;
+  width: 100%;
+  padding: 2rem 1rem 3rem;
+}
+.fable-ui { color: var(--fable-ink); line-height: 1.6; }
+.fable-ui :is(h1, h2, h3), .fable-reader-title {
+  font-family: "EB Garamond", Georgia, serif;
+  color: var(--fable-ink);
+  overflow-wrap: anywhere;
+}
+.fable-ui h1 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 400; line-height: 1.15; }
+.fable-ui h2 { font-weight: 600; }
+.fable-ui :is(.text-white, .text-gray-100, .text-gray-200, .text-gray-300, .text-gray-800, .text-gray-900, .text-black) { color: var(--fable-ink); }
+.fable-ui :is(.text-gray-400, .text-gray-500, .text-gray-600) { color: var(--fable-muted); }
+.fable-ui :is(.text-cyan-200, .text-cyan-300, .text-cyan-400, .text-blue-400, .text-indigo-400, .text-yellow-500) { color: var(--fable-wine); }
+.fable-ui :is(.text-red-100, .text-red-200, .text-red-400, [role="alert"]) { color: #912e30; }
+.fable-ui :is(.text-amber-100, .text-amber-200) { color: #78501e; }
+.fable-ui :is(.border, .border-t, .border-b, fieldset) { border-color: #b6976366; }
+.fable-ui :is(.frosted-glass, [class~="bg-black/20"], [class~="bg-black/30"], [class~="bg-white/5"], [class~="bg-white/10"], [class~="bg-gray-900/50"], [class~="bg-gray-800"]) {
+  background: #fff9eb80;
+  backdrop-filter: none;
+  border-color: #b6976366;
+  box-shadow: none;
+}
+.fable-ui :is([class~="bg-amber-950"], [class~="bg-amber-950/40"]) { background: #eed7a4; }
+.fable-ui :is([class~="bg-red-950"], [class~="bg-red-950/40"], [class~="bg-red-900/50"]) { background: #f3d8ce; }
+.fable-ui [class~="bg-green-950/40"] { background: #dce5cd; }
+.fable-panel, .fable-ui .fable-panel {
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  border: 1px solid #b6976380;
+  border-radius: 4px;
+  background: #fff9eb99;
+  box-shadow: 0 8px 24px #4d38270d;
+}
+.fable-book-form { max-width: 52rem; margin-top: 2rem; }
+.fable-ui :is(input, textarea, select):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]) {
+  min-height: 44px;
+  max-width: 100%;
+  padding: .65rem .8rem;
+  border: 1px solid var(--fable-field-border, #a38960);
+  border-radius: 3px;
+  color: var(--fable-ink);
+  background: #fffaf0;
+  font: inherit;
+}
+.fable-ui textarea { resize: vertical; }
+.fable-ui .border-red-500 { --fable-field-border: #912e30; }
+.fable-ui input::placeholder, .fable-ui textarea::placeholder { color: #806b50; opacity: 1; }
+.fable-ui select { text-overflow: ellipsis; }
+.fable-ui :is(input[type="checkbox"], input[type="radio"]) { accent-color: var(--fable-wine); }
+.fable-ui :where(button, input[type="submit"], .fantasy-button, a[class*="py-"]):not(.fable-character-action) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  max-width: 100%;
+  padding: .65rem 1.2rem;
+  border: 1px solid #632630;
+  border-radius: 3px;
+  color: #fff5df;
+  background: var(--fable-wine);
+  font: 600 .95rem/1.3 "Inter", sans-serif;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  cursor: pointer;
+}
+.fable-ui :is(a, button).bg-gray-700, .fable-ui .mode-tab:not(.bg-cyan-700) {
+  border-color: #b69763;
+  color: var(--fable-ink);
+  background: #efe2c6;
+}
+.fable-ui :is(input[type="submit"], button).bg-green-700 { background: #435b38; border-color: #435b38; }
+.fable-ui :is(input[type="submit"], button):is(.bg-red-600, .bg-red-700) { background: #912e30; }
+.fable-ui :is(button, input):disabled { cursor: not-allowed; opacity: .5; }
+.fable-ui :is(a, button, input, textarea, select, summary):focus-visible {
+  outline: 3px solid #a7522d;
+  outline-offset: 3px;
+}
+.fable-ui .peer:focus-visible + :is(div, span) { outline: 3px solid #a7522d; outline-offset: 3px; }
+.fable-ui .peer:checked + :is(div, span) { background: #ead5b3; color: var(--fable-ink); border-color: #742d38; box-shadow: 0 0 0 2px #742d38; }
+.fable-ui .mode-tab { flex: 1; }
+.fable-ui #character-roles label > span { min-height: 44px; border-radius: 3px; }
+.fable-ui #character-roles legend { color: var(--fable-muted); }
+.fable-upload-choice { flex-wrap: wrap; gap: .75rem; }
+.fable-ui .fable-upload-choice > label { display: inline-flex; align-items: center; min-height: 44px; color: #fff5df; background: var(--fable-wine); }
+.fable-upload-choice > span { overflow-wrap: anywhere; margin: 0; }
+
+.fable-character-editor {
+  width: 98%;
+  max-width: none;
+  margin: 0 auto;
+}
+.fable-photo-preview-frame {
+  width: min(100%, 32rem);
+  height: clamp(14rem, 34vw, 24rem);
+  margin-inline: auto;
+  padding: .75rem;
+}
+.fable-photo-preview-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.fable-character-grid, .fable-selection-grid { display: grid; gap: 1.5rem 1rem; }
+.fable-character-grid { grid-template-columns: minmax(0, 1fr); }
+.fable-selection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fable-character-grid > *, .fable-selection-grid > * { min-width: 0; }
+.fable-character-overview { width: 96%; margin-inline: auto; }
+.fable-character-picker { display: block; }
+.fable-character-overview-header {
+  display: grid;
+  gap: 1.25rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  border: 1px solid #b6976380;
+  border-left: 5px solid var(--fable-wine);
+  border-radius: 4px;
+  background: linear-gradient(120deg, #fffaf0d9, #eddbb7a6);
+  box-shadow: 0 10px 28px #4d38270d;
+}
+.fable-character-overview-header h1 { margin: 0; }
+.fable-character-eyebrow {
+  margin: 0 0 .2rem;
+  color: var(--fable-wine);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.fable-character-intro { max-width: 38rem; margin: .45rem 0 0; color: var(--fable-muted); }
+.fable-ui .fable-character-book-cta {
+  width: 100%;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .9rem 1.1rem;
+  box-shadow: 3px 4px 0 #4d1d2670;
+}
+.fable-character-grid > a { display: flex; text-decoration: none; }
+.fable-character-grid > a > div { width: 100%; margin: 0; border-color: #ad8957; border-radius: 8px; }
+.fable-character-grid > a svg, .fable-character-grid > a span { color: var(--fable-wine); }
+.fable-ui .fable-character-card {
+  height: 100%;
+  overflow: hidden;
+  padding: .85rem;
+  border: 1px solid #b69763a6;
+  border-radius: 8px;
+  background: linear-gradient(155deg, #fffaf0e8, #f1dfbca8);
+  box-shadow: 2px 3px 0 #b6976338, 0 10px 22px #4d38270a;
+}
+.fable-character-card-heading { min-height: 44px; padding: .65rem 2.75rem 0; }
+.fable-character-card-heading > div { padding: 0; }
+.fable-character-card-heading h2 { white-space: normal; overflow-wrap: anywhere; font-size: 1.15rem; line-height: 1.2; }
+.fable-character-portrait { margin-top: .6rem; background: #ead8b447; }
+.fable-ui .fable-character-action {
+  display: grid;
+  place-items: center;
+  top: 0;
+  min-width: 44px;
+  min-height: 44px;
+  opacity: 1;
+  transform: none;
+  color: var(--fable-muted);
+}
+.fable-character-detail { max-width: 48rem; }
+.fable-character-detail [id^="illustration_section_"] { max-width: 24rem; }
+
+.site-settings { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #bd96594d; }
+.site-settings h4 { margin: 0 0 .5rem; color: #c8b38f; font-size: .65rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; }
+.site-settings a { display: flex; align-items: center; min-height: 44px; padding: .65rem .5rem; color: #f2e3c4; font-size: .85rem; border-radius: 3px; }
+.site-mobile-tools { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem 1rem; padding: 0 1rem .75rem; }
+.site-mobile-tools .site-mobile-filters { padding: 0; overflow: visible; }
+.site-mobile-tools .site-settings { margin: 0; padding: 0; border: 0; display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
+.site-mobile-tools .site-settings h4 { margin: 0; font-size: .6rem; letter-spacing: .08em; }
+:is(.library-layout, .fable-layout) .site-mobile-filters button { padding: .5rem .65rem; }
+.site-mobile-tools .site-settings a { border: 1px solid #bd96594d; padding: .5rem .65rem; }
+:is(.library-layout, .fable-layout) .site-sidebar .site-filters { border-color: #bd96594d; }
+
+.fable-reader-main { min-width: 0; padding: 1rem; background: radial-gradient(ellipse at center, #fff5dc80, transparent 70%); }
+.fable-reader-title { font-size: clamp(2rem, 4vw, 3rem); }
+.fable-book-status { max-width: 45rem; margin: 2rem auto; }
+.fable-notice { color: #78501e; border: 1px solid #b6976377; border-radius: 4px; background: #f5e7c5; }
+.fable-reader-main #castle_construction { color: var(--fable-ink); }
+.fable-reader-main #castle_construction .text-gray-500 { color: var(--fable-muted); }
+.fable-editor-actions { padding: 1rem; }
+
+.fable-dialog-overlay { position: fixed; inset: 0; z-index: 60; padding: 1rem; overflow-y: auto; background: #241b15c9; }
+.fable-dialog-shell { width: 100%; max-width: 48rem; margin: 1rem auto; color: var(--fable-ink); background: var(--fable-paper); border: 1px solid var(--fable-line); border-radius: 4px; box-shadow: 0 24px 70px #0005; }
+.fable-dialog-inner { min-width: 0; padding: clamp(1rem, 4vw, 2.5rem); }
+.fable-dialog-heading { display: flex; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+.fable-ui .fable-dialog-close { display: grid; place-items: center; flex-shrink: 0; min-width: 44px; min-height: 44px; color: var(--fable-wine); text-decoration: none; }
+.fable-delete-overlay { overflow-y: auto; }
+.fable-delete-dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; color: var(--fable-ink); background: var(--fable-paper); border: 1px solid #b69763; border-radius: 4px; box-shadow: 0 24px 70px #0005; }
+.fable-selection-grid { max-height: 60dvh; overflow-y: auto; padding: .25rem; }
+.fable-selection-grid .peer + div { border-color: #b6976377; border-radius: 3px; }
+.fable-ui #book_plot { min-height: 7rem; }
+.fable-ui .fable-dialog-shell input.submit { margin: 0; }
+
+.fable-admin { overflow-wrap: anywhere; }
+.fable-admin > nav { margin-bottom: 2rem; background: #fff9eb80; border-color: #b6976377; gap: .5rem; }
+.fable-ui.fable-admin > nav a { color: var(--fable-ink); background: transparent; border-color: transparent; }
+.fable-ui.fable-admin > nav a[aria-current="page"] { background: var(--fable-wine); color: #fff5df; }
+.fable-admin nav[aria-label="Review status"] a { color: var(--fable-ink); background: #fff9eb80; border-color: #b6976377; }
+.fable-admin nav[aria-label="Review status"] a[aria-current="page"] { color: #fff5df; background: var(--fable-wine); border-color: var(--fable-wine); }
+.fable-admin :is(article, section) { border-radius: 4px; }
+.fable-admin pre { max-width: 100%; color: var(--fable-ink); }
+.fable-admin table { min-width: 40rem; }
+.fable-admin th { background: #e5d3af; }
+.fable-admin td { border-bottom: 1px solid #b697634d; }
+.fable-admin summary { min-height: 44px; padding: .5rem 0; cursor: pointer; }
+.fable-admin dl > div { min-width: 0; }
+
+@media (hover: hover) {
+  .fable-ui :is(button, input[type="submit"]):not(:disabled):hover { filter: brightness(1.1); }
+  .site-settings a:hover { color: var(--fable-gold); background: #e2c27512; }
+}
+@media (max-width: 479px) {
+  .fable-character-add-card [class~="aspect-[3/3]"] { min-height: 10rem; aspect-ratio: auto; }
+  .fable-character-overview .fable-character-portrait [id^="illustration_section_"] { aspect-ratio: 16 / 7; }
+}
+@media (min-width: 480px) {
+  .fable-character-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 600px) {
+  .fable-main { padding: 2.5rem 2rem 4rem; }
+  .fable-character-grid, .fable-selection-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+  .fable-character-overview-header { grid-template-columns: minmax(0, 1fr) minmax(14rem, 22rem); }
+}
+@media (min-width: 1024px) {
+  .fable-main { padding: 3rem clamp(1.5rem, 3vw, 4rem) 4rem; }
+  .fable-reader-main { padding: 2rem; }
+}
+@media (min-width: 1400px) {
+  .fable-character-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 1800px) {
+  .fable-character-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}

@@ -1,17 +1,17 @@
 <%= turbo_frame_tag "character_select_modal" do %>
   <div aria-labelledby="modal-title"
-    aria-modal="true" class="w-full overflow-y-auto fixed inset-0 z-50 bg-black/80" role="dialog">
-    <div class="parchment h-screen w-2/4 mx-auto flex  justify-center">
-      <div class=" max-w-3xl p-12 bg-transparent min-w-[600px] animate-fade-in-up">
-        <div class="grid grid-cols-3 ">
-          <h1 id="modal-title" class="col-start-2 font-extrabold text-2xl">Choose characters</h1>
+    aria-modal="true" class="fable-ui fable-dialog-overlay" role="dialog">
+    <div class="fable-dialog-shell">
+      <div class="fable-dialog-inner">
+        <div class="fable-dialog-heading">
+          <h1 id="modal-title" class="font-extrabold text-2xl">Choose characters</h1>
           
-          <%= link_to "\u{274C}", book_path(@book), class: ' mb-14' %>
+          <%= link_to "\u{274C}", book_path(@book), class: 'fable-dialog-close', aria: { label: 'Close' } %>
         </div>
     
     <%= turbo_stream_from current_user, :characters %>
     <%= form_with url: save_selected_characters_path(book_id: @book.id), method: :post, data: { turbo_frame: "character_select_modal" } do %>
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-scroll h-180 <%= @tutorial %>">
+      <div class="fable-selection-grid <%= @tutorial %>">
       <% @characters.each_with_index do |character, index| %>
           <% is_selected = @book.characters.include?(character) %>
         
@@ -19,7 +19,7 @@
           <label class="items-center cursor-pointer">
             <%= check_box_tag "character_ids[]", character.id, is_selected,
               id: "character_#{index}",
-              class: "peer hidden" %>
+              class: "peer sr-only" %>
             <div class="rounded-xl border p-4 text-center transition-all duration-200 peer-checked:bg-blue-100 peer-checked:ring-2 peer-checked:ring-blue-500">
               <p><%= character.name %></p>
               <%= render "illustrations/illustration", character: character %>

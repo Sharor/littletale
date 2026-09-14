@@ -1,41 +1,32 @@
-<p style="color: green"><%= notice %></p>
+<main class="fable-public fable-public-login" aria-labelledby="login-title">
+  <% if notice %>
+    <p class="fable-public-notice" role="status"><%= notice %></p>
+  <% end %>
 
-  <div class="card flex items-center justify-center">
-    <div class="imgBox">
-      <div class="bark"></div>
-      <%= image_tag("frontpage.png") %>
-      <!--img src="/assets/frontpage.png"-->
-      <!--img src="https://image.ibb.co/fYzTrb/lastofus.jpg"-->
-      <button class="btn btn-blue"></button>
+  <div class="fable-public-welcome-book">
+    <div class="fable-public-welcome-cover">
+      <%= image_tag "frontpage.png", alt: "Little Stories fairytale book cover" %>
     </div>
-    <div class="details text-center m-[20%]">
-      <div class="mt-2 mb-8">
-        <h4 class="color1 text-2xl btn btn-blue mb-14">Only your fantasy</h2>
-        <h4 class="color2 text-xl mb-14">limits what you can do!</h3>
+    <div class="fable-public-welcome-copy">
+      <header>
+        <h1 id="login-title">Only your fantasy</h1>
+        <p class="fable-public-subtitle">limits what you can do!</p>
+      </header>
+      <div class="fable-public-prose">
+        <p>Welcome to Little stories!</p>
+        <p>We'll take you through the process of
+        making your very own fairytale.</p>
+        <p>You start by setting up which
+        people should be in the story
+        and then give an outline for what
+        the story should be about.</p>
+        <p>Then our fairies and typewriters take care of the rest!</p>
+        <p>Login with google below, to get started</p>
       </div>
-      <p>Welcome to Little stories!</p>
-      <p>We'll take you through the process of</p>
-      <p>making your very own fairytale.</p>
-      <p>You start by setting up which</p>
-      <p>people should be in the story</p>
-      <p>and then give an outline for what</p>
-      <p>the story should be about.</p>
-      <br/>
-      <p>Then our fairies and typewriters take care of the rest!</p>
-      <p>Login with google below, to get started</p>
-      <br/>
-        <%= button_to user_google_oauth2_omniauth_authorize_path, class: "btn btn-danger", method: :post, data: {turbo: "false", turbolinks: false } do %>
-          <div class="px-6 sm:px-0 max-w-sm">
-              <i type="button" 
-              class="text-white w-full  bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-between mr-2 mb-2"><svg class="mr-2 -ml-1 w-4 h-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
-              Login with Google<div></div></i>
-          </div>
-        <% end %>
-      <br/>
-      
-      <!--p class="text-right">Happy storytelling!</p-->
-      <!--p class="text-right">The team at Little Stories (should look like signature)</p-->
-      <br/>
-     
+      <%= button_to user_google_oauth2_omniauth_authorize_path, class: "fable-public-button fable-public-google", method: :post, data: { turbo: "false", turbolinks: false } do %>
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
+        Login with Google
+      <% end %>
     </div>
   </div>
+</main>

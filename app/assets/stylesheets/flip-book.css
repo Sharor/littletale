@@ -1,29 +1,23 @@
-/* app/assets/stylesheets/book.css */
-
-
 .book-container {
     position: relative;
     z-index: 2;
-}
-
-/* THE FIX: Remove library container shadows entirely */
-.stPageFlip {
-    background: transparent !important;
-}
-
-.stPageFlip, .stPageFlip canvas {
-    background: transparent !important;
-    box-shadow: none !important;
+    width: 100%;
+    min-width: 0;
+    container: book-reader / inline-size;
 }
 
 #storybook {
+    display: none;
     background: transparent !important;
-    box-shadow: 0 10px 50px rgba(0,0,0,0.4);
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.25);
     transition: box-shadow 0.2s ease;
+    margin-inline: auto;
+    /* The library's minWidth chooses a spread; it must not widen a phone. */
+    min-width: 0 !important;
+    min-height: 0 !important;
 }
 
-/* Hard Kill the shadow when closed or flipping to/from cover */
-#storybook.is-closed, 
+#storybook.is-closed,
 #storybook.is-flipping {
     box-shadow: none !important;
 }
@@ -32,78 +26,131 @@
     opacity: 1;
 }
 
-.under-book-text {
-    position: absolute;
-    /* This pins it to the left side of the book's center */
-    left: calc(50% - 450px); 
-    top: 15%;
-    width: 200px;
+.book-container .under-book-text {
+    width: min(100%, 36rem);
+    margin: 1.25rem auto 0;
     font-family: "EB Garamond", serif;
-    color: white;
-    pointer-events: none;
-    /* Ensure it's above the background but below the flip-book canvas layers */
-    z-index: 1; 
+    color: #786044;
+    font-size: 0.95rem;
+    line-height: 1.5;
     text-align: center;
-    border-bottom: 1px solid rgba(62, 43, 31, 0.2);
-    padding-bottom: 10px;
+    pointer-events: none;
     opacity: 0;
     transition: opacity 0.4s ease;
 }
 
-.page, .page-content, .page-text {
+#storybook .page,
+#storybook .page-content,
+#storybook .page-text {
     box-sizing: border-box;
 }
 
-.page.page-cover {
+#storybook .page {
+    container-type: inline-size;
+    overflow: hidden;
+}
+
+#storybook .page.--left:not(.page-cover) {
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    background-image: linear-gradient(to right, transparent 95%, rgba(0, 0, 0, 0.1)), url("https://www.transparenttextures.com/patterns/natural-paper.png");
+}
+
+#storybook .page.--right:not(.page-cover) {
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    background-image: linear-gradient(to left, transparent 95%, rgba(0, 0, 0, 0.1)), url("https://www.transparenttextures.com/patterns/natural-paper.png");
+}
+
+#storybook .page.page-cover {
     background: #422d1e;
     background-image: url("https://www.transparenttextures.com/patterns/leather.png");
     padding: 15px;
+    color: #e2c275;
 }
 
-.page-cover .page-content {
+#storybook .page-cover-top {
+    border-radius: 0 4px 4px 0;
+}
+
+#storybook .page-cover-bottom {
+    border-radius: 4px 0 0 4px;
+}
+
+#storybook .page-cover .page-content {
     background: #4b3621;
     border: 1px solid #d4af37;
     outline: 4px double #d4af37;
     outline-offset: -12px;
     height: 100%;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-    box-sizing: border-box;
 }
 
-.page-cover h1 {
+#storybook .page-cover h1 {
     font-family: "EB Garamond", serif;
     color: #e2c275;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    font-size: 2.2rem;
+    letter-spacing: 0.12em;
+    font-size: clamp(1.3rem, 6.4cqw, 2.2rem);
+    line-height: 1.2;
     text-align: center;
+    overflow-wrap: anywhere;
 }
 
-/* --- INTERNAL PAGES (RESTORED GOLD SQUARE) --- */
-.page:not(.page-cover) {
+#storybook .page-cover img {
+    max-height: 50cqw;
+    object-fit: contain;
+}
+
+#storybook .page-cover h2 {
+    color: #e2c275;
+    font-family: "EB Garamond", serif;
+}
+
+#storybook .page:not(.page-cover) {
     background-color: #f2e8c9;
     background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+    color: #3d2b1f;
 }
 
-.page:not(.page-cover) .page-content {
-    margin: 30px; 
-    height: calc(100% - 60px);
-    border: 2px solid #bfa37e; /* The Square Border you wanted back */
-    padding: 25px;
+#storybook .page:not(.page-cover) .page-content {
+    --page-gutter: clamp(12px, 5.4cqw, 30px);
+    margin: var(--page-gutter);
+    height: calc(100% - var(--page-gutter) * 2);
+    border: 2px solid #bfa37e;
+    padding: clamp(12px, 4.5cqw, 25px);
     background: rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-/* --- RIBBON --- */
-.bookmark-ribbon {
+#storybook .page-text {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #bfa37e transparent;
+}
+
+#storybook .story-body {
+    font-family: "EB Garamond", serif;
+    font-size: clamp(1rem, 3.2cqw, 1.1rem);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+#storybook .page-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 12px;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+#storybook .bookmark-ribbon {
     position: absolute;
     top: -5px;
     left: 75%;
@@ -112,151 +159,63 @@
     background: #800000;
     z-index: 100;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.book-back-button {
+#storybook .book-back-button {
     display: inline-block;
+    max-width: 100%;
     padding: 12px 24px;
     margin-top: 20px;
-    
-    /* Typography */
     font-family: "EB Garamond", serif;
     text-transform: uppercase;
+    text-align: center;
     letter-spacing: 2px;
     font-size: 0.9rem;
     font-weight: bold;
-    color: #e2c275 !important; /* Gold Foil Color */
-    text-decoration: none !important;
-
-    /* The "Stamped" Look */
+    color: #e2c275;
+    text-decoration: none;
     border: 1px solid #e2c275;
     outline: 1px solid #e2c275;
     outline-offset: 3px;
     background: rgba(0, 0, 0, 0.2);
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-    
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
-.book-back-button:hover {
+#storybook .book-back-button:hover {
     background: #e2c275;
-    color: #3d2b1f !important; /* Invert colors: Dark text on Gold */
+    color: #3d2b1f;
     box-shadow: 0 0 15px rgba(226, 194, 117, 0.4);
     transform: translateY(-2px);
 }
 
-.illustration {
-    display: block !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+#storybook .illustration {
+    display: block;
+    margin: 0 auto 18px;
     max-width: 100%;
+    max-height: clamp(140px, 52cqw, 300px);
     height: auto;
     object-fit: contain;
 }
 
-@media (max-width: 767px) {
-    .app-wrapper, 
-    .app-wrapper main {
-        display: flex !important;
-        flex-direction: column !important;
-        height: 100vh !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    /* The container grows to fill space above the buttons */
-    .book-container {
-        flex-grow: 1; 
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        width: 100vw !important;
-        position: relative;
-        z-index: 1;
-        overflow: hidden;
-    }
-
-    /* Shrink the book stage so buttons are always visible */
-    #storybook {
-        height: 70vh !important; 
-        margin: auto 0 !important;
-    }
-
-    /* Fixed Navigation Bar at the bottom */
-    .book-controls {
-            position: relative;
-            z-index: 50; 
-            background: #1a1a1a; /* Match app background */
-            pointer-events: auto !important;
-        }
-
-    /* FIX: Frontpage overlapping */
-    .page-cover .page-content {
-        margin: 5% !important; /* Use % to ensure it scales with screen width */
-        padding: 10% 5% !important; /* Extra vertical padding for the title */
-        height: 90% !important;
-        outline-offset: -10px !important; /* Bring the gold line further in */
-        justify-content: flex-start !important; /* Stop vertical centering from pushing text out */
-    }
-
-    .page-cover h1 {
-        font-size: 1.4rem !important;
-        line-height: 1.2;
-        margin-bottom: 15px !important;
-    }
-
-    /* FIX: Single pages cut off at sides */
-    .page:not(.page-cover) .page-content {
-        margin: 3% !important;
-        padding: 8px 12px !important; /* Narrower horizontal padding */
-        height: 94% !important;
-        justify-content: flex-start !important; /* Start text at top */
-        width: 92% !important; /* Force it narrower than the page */
-        border: 1px solid #bfa37e !important;
-    }
-
-    /* Adjust illustration and text for the new smaller frame */
-    .illustration {
-        max-height: 25vh !important; /* Keep it small to save text space */
-        margin-bottom: 12px !important;
-    }
-
-    .story-body {
-        font-size: 0.875rem !important; 
-        line-height: 1.3 !important;
-        text-align: justify;
-        hyphens: auto;
-    }
-
-    .page-content {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: space-between !important;
-        height: 100% !important;
-        box-sizing: border-box;
-        padding-bottom: 5px !important;
-    }
-
-    .page-footer {
-        font-size: 9px !important;
-        padding-top: 4px;
-        margin-top: auto !important;
-    }
-
-    .nav-arrow-btn {
-        pointer-events: auto !important;
-        z-index: 100;
-    }
+.book-controls {
+    display: none;
+    position: relative;
+    z-index: 50;
+    max-width: 550px;
+    margin: 1rem auto 0;
+    background: #422d1e;
 }
 
-/* Nav arrows */
-.nav-arrow-btn {
+.book-controls .nav-arrow-btn {
+    flex: 1;
+    min-height: 44px;
     background: rgba(226, 194, 117, 0.1);
     border: 1px solid #e2c275;
     color: #e2c275;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-family: "EB Garamond", serif;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -265,12 +224,38 @@
     transition: all 0.2s ease;
 }
 
-.nav-arrow-btn:active {
+.book-controls .nav-arrow-btn:active {
     background: #e2c275;
     color: #3d2b1f;
 }
 
-/* Hide controls on desktop if you prefer swiping there */
-@media (min-width: 768px) {
-    .book-controls { display: none; }
+.book-controls .nav-arrow-btn:focus-visible,
+#storybook .book-back-button:focus-visible {
+    outline: 3px solid #e2c275;
+    outline-offset: 3px;
+}
+
+/* Keep a single page at its original maximum size, including beside a sidebar. */
+@container book-reader (max-width: 839px) {
+    #storybook {
+        max-width: 550px !important;
+    }
+}
+
+/* Hide the offstage turning page without clipping the reader's outer layout. */
+#storybook:has(.--portrait) {
+    overflow: hidden;
+}
+
+.book-container:has(.--portrait) + .book-controls {
+    display: flex;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #storybook,
+    .book-container .under-book-text,
+    .book-controls .nav-arrow-btn,
+    #storybook .book-back-button {
+        transition: none;
+    }
 }

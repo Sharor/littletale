@@ -1,5 +1,5 @@
 <%= turbo_frame_tag "book_characters" do %>
-    <div class="grid grid-cols-4 gap-2 mt-7 w-full">
+    <div class="fable-selection-grid mt-7 w-full">
         <div class="text-center overflow-hidden shadow-lg rounded-lg min-h-65 flex items-center justify-center" >
             <div>
             <%= button_to t('activerecord.attributes.characters.new'), new_character_path , class: "fantasy-button #{@tutorial}", method: :get, params: { book_id: book.id, path: book }, form: { data: { turbo_frame: "_top" } }  %>
@@ -10,7 +10,7 @@
             </div>
         </div>
         <% if book.characters.none? %>
-            <div class="col-span-3 character_generation_area"></div>
+            <div class="character_generation_area"></div>
         <% end %>
         <% book.characters.each do |character| %>
           <div class="text-center overflow-hidden shadow-lg rounded-lg h-auto">

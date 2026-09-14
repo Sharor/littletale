@@ -9,7 +9,9 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get "/"
 
     assert_response :success
-    assert_select "h1", /Turn your child into a/
+    assert_select "main[aria-labelledby='landing-title']", count: 1 do
+      assert_select "h1#landing-title", /Turn your child into a/
+    end
     assert_select "a[href='#{new_user_session_path}']", "Get Started"
     assert_select "a[href='#{new_user_session_path}']", "Create Your Story"
   end
@@ -19,7 +21,10 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "form[action='#{user_google_oauth2_omniauth_authorize_path}'][method='post']"
-    assert_select "i", /Login with Google/
+    assert_select "main[aria-labelledby='login-title']", count: 1 do
+      assert_select "h1#login-title", "Only your fantasy"
+      assert_select "button", /Login with Google/
+    end
   end
 
   test "a signed-in user who has not accepted terms is redirected from login" do

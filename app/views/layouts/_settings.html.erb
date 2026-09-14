@@ -1,0 +1,6 @@
+<section class="site-settings" aria-label="Settings">
+  <h4>Settings</h4>
+  <% if current_user&.admin? %>
+    <%= link_to "Administration", admin_root_path %>
+  <% end %>
+</section>

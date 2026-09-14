@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   end
 
   get "terms", to: "tutorials#terms", as: :terms
+  post "terms/accept", to: "tutorials#accept_terms", as: :accept_terms
   get "eula", to: "tutorials#eula", as: :eula
   get "tutorial", to: "tutorials#tutorial", as: :tutorial
   post "complete", to: "tutorials#complete", as: :tutorial_complete
