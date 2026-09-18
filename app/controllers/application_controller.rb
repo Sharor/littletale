@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   helper_method :browser
 
+  before_action :enforce_trial_access
   before_action :check_tutorial, except: %i[ track_user ]
   skip_before_action :check_tutorial, if: -> { devise_controller? && action_name == "destroy"  }
 
@@ -38,5 +39,19 @@ class ApplicationController < ActionController::Base
 
   def new_session
     session[:last_activity].blank? || session[:last_activity] < (1.hour.ago)
+  end
+
+  private
+
+  def enforce_trial_access
+    return unless user_signed_in? && current_user.trial_expired?
+    return if devise_controller? || controller_path == "settings"
+
+    if request.format.html? || request.format.turbo_stream?
+      redirect_to settings_url, alert: "Your trial has ended. Subscribe to continue.",
+        status: request.get? ? :found : :see_other
+    else
+      render json: { error: "trial_expired", settings_url: settings_url }, status: :payment_required
+    end
   end
 end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 class BooksControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
@@ -65,7 +66,67 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
 
     book = Book.find_by!(name: "A new tale", user: @user)
     assert_equal 5, book.total_pages
+    assert_equal book, @user.trial_book_reservations.held.find_by!(book: book).book
     assert_redirected_to book_url(book, format: :html)
+  end
+
+  test "create rejects a fourth held trial book without queueing generation" do
+    3.times do |number|
+      reserved = @user.books.create!(name: "Reserved #{number}", total_pages: 1)
+      TrialBookReservation.reserve_for!(reserved)
+    end
+
+    assert_no_difference("Book.count") do
+      assert_no_enqueued_jobs only: GenerateBookJob do
+        post books_url, params: { book: { name: "Fourth book", plot: "Adventure", total_pages: 1 } }
+      end
+    end
+
+    assert_response :unprocessable_content
+    assert_select "li", /three trial books/
+  end
+
+  test "a queue enqueue failure releases the newly reserved slot" do
+    failed_job = Struct.new(:successfully_enqueued?).new(false)
+
+    assert_difference("Book.count", 1) do
+      GenerateBookJob.stub :perform_later, failed_job do
+        post books_url, params: { book: { name: "Unqueued book", plot: "Adventure", total_pages: 1 } }
+      end
+    end
+
+    book = @user.books.find_by!(name: "Unqueued book")
+    assert_predicate book, :failed?
+    assert_equal "book_enqueue_failed", book.generation_failure.fetch("type")
+    assert_equal "released", book.trial_book_reservations.last.status
+    assert_equal 3, @user.trial_books_remaining
+  end
+
+  test "a raised queue enqueue error releases the newly reserved slot" do
+    enqueue_error = SolidQueue::Job::EnqueueError.new("queue database unavailable")
+
+    assert_difference("Book.count", 1) do
+      GenerateBookJob.stub :perform_later, ->(*) { raise enqueue_error } do
+        post books_url, params: { book: { name: "Queue error book", plot: "Adventure", total_pages: 1 } }
+      end
+    end
+
+    book = @user.books.find_by!(name: "Queue error book")
+    assert_redirected_to book_url(book, format: :html)
+    assert_predicate book, :failed?
+    assert_equal "book_enqueue_failed", book.generation_failure.fetch("type")
+    assert_equal "released", book.trial_book_reservations.last.status
+    assert_equal 3, @user.trial_books_remaining
+  end
+
+  test "paid users create books without trial reservations" do
+    @user.update!(tier: "basic")
+
+    assert_difference("Book.count", 1) do
+      post books_url, params: { book: { name: "Paid book", plot: "Adventure", total_pages: 6 } }
+    end
+
+    assert_empty @user.trial_book_reservations
   end
 
   test "does not expose another user's book" do

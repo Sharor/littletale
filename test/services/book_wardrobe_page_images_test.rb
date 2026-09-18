@@ -39,11 +39,10 @@ class BookWardrobePageImagesTest < ActiveSupport::TestCase
     @page.book.define_singleton_method(:characters_ready_for_generation?) { false }
     @page.book.define_singleton_method(:characters) { [] }
     @page.book.define_singleton_method(:broadcast_generation_state) { }
+    @page.book.define_singleton_method(:enqueue_illustration_retry!) { |_, actor:| false }
     calls = 0
     @illustration.stub :gpt_image_1_edit, ->(_) { calls += 1; nil } do
-      PageIllustrationGeneration.stub :enqueue!, false do
-        PageIllustrationGeneration.perform!(@illustration, token)
-      end
+      PageIllustrationGeneration.perform!(@illustration, token)
     end
     assert_equal 1, calls
   end

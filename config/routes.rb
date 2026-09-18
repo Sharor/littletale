@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   end
   get "/console", to: "console#show"
   get "pages/:id/illustration_controls", to: "page_illustration_controls#show", as: :illustration_controls_page
+  post "pages/:id/regenerate_illustration", to: "page_illustration_controls#regenerate", as: :regenerate_illustration_page
   namespace :admin do
     root to: "dashboard#index"
     resources :page_illustrations, only: [] do
@@ -20,12 +21,16 @@ Rails.application.routes.draw do
     end
     resources :failed_books, only: :index
     resources :books, only: [] do
-      post :rerun_generation, on: :member
+      member do
+        post :rerun_generation
+        post :release_trial_slot
+      end
     end
   end
   get "login", to: "home#login"
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  resource :settings, only: :show
   resources :books
   resources :characters do
     get :confirm_delete, on: :member

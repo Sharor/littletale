@@ -100,6 +100,7 @@ class IllustrationTest < ActiveSupport::TestCase
 
     assert_predicate book.reload, :failed?
     assert_equal "openai_image_moderation_blocked", book.generation_failure.fetch("type")
+    assert_equal "trial", book.generation_failure.fetch("account_access")
     assert_equal illustration.id, book.generation_failure.fetch("illustration_id")
     assert_equal "req_blocked", illustration.reload.generation_metadata.dig("failure", "request_id")
     assert_equal "gpt-image-1", illustration.generation_metadata.dig("request", "model")

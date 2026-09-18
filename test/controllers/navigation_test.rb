@@ -10,18 +10,18 @@ class NavigationTest < ActionDispatch::IntegrationTest
     sign_in @user
   end
 
-  test "ordinary users have an empty settings section in desktop and mobile navigation" do
+  test "ordinary users can open trial and subscription settings from desktop and mobile navigation" do
     [books_path, characters_path, new_book_path, book_path(books(:one))].each do |path|
       get path
 
       assert_response :success
       assert_select "aside section[aria-label='Settings']" do
         assert_select "h4", "Settings"
-        assert_select "a, button, input", count: 0
+        assert_select "a[href='#{settings_path}']", "Trial & subscription"
       end
       assert_select "header section[aria-label='Settings']" do
         assert_select "h4", "Settings"
-        assert_select "a, button, input", count: 0
+        assert_select "a[href='#{settings_path}']", "Trial & subscription"
       end
       assert_select "a[href='#{admin_root_path}']", count: 0
     end

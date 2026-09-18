@@ -9,7 +9,10 @@ class User < ApplicationRecord
   has_many :character_image_assessments
   has_many :character_image_requests
   has_many :character_image_decisions
+  has_many :trial_book_reservations, dependent: :destroy
   has_one :tutorial
+
+  TRIAL_BOOK_LIMIT = 3
 
   ADMINS = %w[ davchristensen90@gmail.com ]
   # Include default devise modules. Others available are:
@@ -42,5 +45,48 @@ class User < ApplicationRecord
 
   def average_time_on_site
     Visitor.average_time_on_site_for_visitor(visits)
+  end
+
+  def trial?
+    !admin? && !paid?
+  end
+
+  def paid?
+    tier.present? && tier != "free"
+  end
+
+  def access_type
+    return "admin" if admin?
+
+    paid? ? "paid" : "trial"
+  end
+
+  def trial_status
+    return access_type unless trial?
+    return "expired" if trial_expired?
+    return "active" if trial_started_at.present?
+
+    "not_started"
+  end
+
+  def trial_expired?
+    trial? && trial_expires_at.present? && trial_expires_at <= Time.current
+  end
+
+  def trial_books_remaining
+    return unless trial?
+
+    [ TRIAL_BOOK_LIMIT - trial_book_reservations.held.count, 0 ].max
+  end
+
+  def start_trial!
+    return unless trial?
+
+    with_lock do
+      return if trial_started_at.present?
+
+      started_at = Time.current
+      update!(trial_started_at: started_at, trial_expires_at: started_at.advance(months: 1))
+    end
   end
 end

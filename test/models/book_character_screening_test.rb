@@ -14,6 +14,18 @@ class BookCharacterScreeningTest < ActiveSupport::TestCase
       job.perform(book.id)
     end
     assert_equal "character_image_not_ready", book.reload.generation_failure["type"]
+    book.user.update!(tier: "basic")
+    assert_equal "trial", book.generation_failure["account_access"]
+  end
+
+  test "failed generation records paid account access at the time of failure" do
+    user = users(:two)
+    user.update!(tier: "basic")
+    character = user.characters.create!(name: "Waiting character")
+    book = user.books.create!(name: "Paid book", total_pages: 1, characters: [ character ])
+
+    assert_not book.ensure_character_images_ready!
+    assert_equal "paid", book.reload.generation_failure["account_access"]
   end
 
   test "legacy completed images remain usable but new incomplete images do not" do

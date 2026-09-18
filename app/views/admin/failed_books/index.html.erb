@@ -5,14 +5,34 @@
     <div class="space-y-6">
       <% @books.each do |book| %>
         <article class="rounded-lg border border-red-300/30 bg-black/20 p-5">
+          <% access_type = book.generation_failure["account_access"] || book.user.access_type %>
+          <% reservation = book.trial_book_reservations.held.order(:id).last %>
           <h2 class="text-xl font-semibold"><%= book.name %></h2>
           <p class="text-sm text-gray-300">Owner: <%= book.user.email %> · Failed: <%= book.generation_failed_at %></p>
+          <p class="mt-2 text-sm" data-account-access="<%= access_type %>">
+            Account when failed: <strong><%= access_type.capitalize %></strong>
+          </p>
+          <% if reservation %>
+            <% if book.illustration_retry_in_progress? %>
+              <p class="mt-3 text-sm text-amber-200" data-quota-status="retrying">
+                Trial slot reserved · An illustration retry is in progress, so this slot cannot be released.
+              </p>
+            <% else %>
+              <div class="mt-3 flex flex-wrap items-center gap-3" data-quota-status="held">
+                <p class="text-sm text-amber-200">Trial slot reserved · <%= book.user.trial_books_remaining %> books available</p>
+                <%= button_to "Release trial slot", release_trial_slot_admin_book_path(book), method: :post,
+                  class: "rounded border border-amber-300/50 px-3 py-2 text-sm text-amber-100 hover:border-amber-200" %>
+              </div>
+            <% end %>
+          <% elsif access_type == "trial" %>
+            <p class="mt-3 text-sm text-gray-300" data-quota-status="released">Trial slot released</p>
+          <% end %>
           <p class="mt-3"><%= book.generation_failure["message"] %></p>
           <% book.current_pages.order(:id).each_with_index do |page, index| %>
             <% if page.illustration && page.illustration.original_image.blank? %>
               <div class="mt-4">
                 <p>Page <%= index + 1 %> · Illustration unavailable</p>
-                <%= render "books/illustration_controls", page: page, admin: current_user %>
+                <%= render "books/illustration_controls", page: page, actor: current_user %>
                 <details class="mt-2">
                   <summary>Illustration attempt history</summary>
                   <pre class="overflow-x-auto text-xs"><%= JSON.pretty_generate(PageIllustrationGeneration.attempts(page.illustration)) %></pre>

@@ -5,8 +5,9 @@ require "test_helper"
 class VisitorTest < ActiveSupport::TestCase
   test "calculates a visitor's total and average time on site from events" do
     visitor = Visitor.create!(user: users(:one))
-    Event.create!(visitor: visitor, path: "/books", method: "GET", created_at: 5.minutes.ago)
-    Event.create!(visitor: visitor, path: "/books/1", method: "GET", created_at: 3.minutes.ago)
+    now = Time.current
+    Event.create!(visitor: visitor, path: "/books", method: "GET", created_at: now - 5.minutes)
+    Event.create!(visitor: visitor, path: "/books/1", method: "GET", created_at: now - 3.minutes)
 
     assert_in_delta 120, Visitor.total_time_on_site_for_visitor(visitor), 1
     assert_in_delta 120, Visitor.average_time_on_site_for_visitor(visitor), 1

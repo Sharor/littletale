@@ -33,7 +33,7 @@ class PageIllustrationGeneration
       return if history.length >= MAX_ATTEMPTS && !admin&.admin?
 
       token = SecureRandom.uuid
-      history << { "number" => history.length + 1, "status" => "queued", "admin_id" => admin&.id,
+      history << { "number" => history.length + 1, "status" => "queued", "admin_id" => (admin.id if admin&.admin?),
         "user_id" => illustration.page.book.user_id, "created_at" => Time.current.iso8601 }
       illustration.update!(generation_metadata: illustration.generation_metadata.merge(
         "page_generation" => current.merge("token" => token, "status" => "queued", "attempts" => history)))
@@ -45,6 +45,10 @@ class PageIllustrationGeneration
     token = reserve!(illustration, retrying: true, admin: admin)
     return false unless token
 
+    enqueue_reserved!(illustration, token)
+  end
+
+  def self.enqueue_reserved!(illustration, token)
     job = RegeneratePageIllustrationJob.perform_later(illustration.id, token)
     return true if job && job.successfully_enqueued?
 
@@ -111,7 +115,7 @@ class PageIllustrationGeneration
       book.refresh_generation_status!(attempt: illustration.page.generation_attempt)
     else
       finish!(illustration, "rejected")
-      enqueue!(illustration)
+      book.enqueue_illustration_retry!(illustration, actor: nil)
     end
   rescue StandardError => error
     raise unless claimed

@@ -26,6 +26,24 @@ class Admin::BooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, book.generation_attempt
     assert_equal({}, book.generation_failure)
     assert_equal "req_original", book.generation_failure_history.last.fetch("request_id")
+    assert_predicate book.trial_book_reservations.held, :exists?
+  end
+
+  test "rerunning a released failed book reserves another available slot" do
+    owner = users(:one)
+    owner.update!(tier: "free")
+    book = owner.books.create!(name: "Released failure", total_pages: 1, generation_status: :failed)
+    released = TrialBookReservation.reserve_for!(book)
+    released.release!(reason: "admin_released_failed_book")
+    admin = users(:three)
+    admin.update!(admin: true)
+    sign_in admin
+
+    assert_difference("book.trial_book_reservations.held.count", 1) do
+      post rerun_generation_admin_book_url(book)
+    end
+
+    assert_predicate book.reload, :pending?
   end
 
   test "forbids non-administrators from rerunning a book" do
@@ -34,5 +52,19 @@ class Admin::BooksControllerTest < ActionDispatch::IntegrationTest
     post rerun_generation_admin_book_url(books(:one))
 
     assert_response :forbidden
+  end
+
+  test "does not rerun a book that is not failed" do
+    book = Book.create!(user: users(:one), name: "Still generating", total_pages: 1, generation_status: :in_progress)
+    admin = users(:three)
+    admin.update!(admin: true)
+    sign_in admin
+
+    assert_no_enqueued_jobs only: GenerateBookJob do
+      post rerun_generation_admin_book_url(book)
+    end
+
+    assert_redirected_to admin_failed_books_url
+    assert_equal 0, book.reload.generation_attempt
   end
 end

@@ -5,5 +5,6 @@ class Admin::DashboardController < ApplicationController
   def index
     @reviews = CharacterImageAssessment.where(status: "needs_review").count
     @failed_books = Book.failed.count
+    @users = User.includes(:trial_book_reservations).order(:email).reject(&:admin?)
   end
 end

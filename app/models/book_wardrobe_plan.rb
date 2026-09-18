@@ -48,7 +48,9 @@ class BookWardrobePlan < ApplicationRecord
   end
 
   def fail!(type:, message:, metadata: {})
-    evidence = { "type" => type, "message" => message, "wardrobe_plan_id" => id, "metadata" => metadata }
+    evidence = book.generation_failure_context(
+      "type" => type, "message" => message, "wardrobe_plan_id" => id, "metadata" => metadata
+    )
     update!(status: "failed", failure: evidence)
     book.with_lock do
       return unless book.generation_attempt == generation_attempt

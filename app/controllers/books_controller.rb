@@ -34,13 +34,14 @@ class BooksController < ApplicationController
     @book.total_pages = [ @book.total_pages, @book.tier_limit ].min
 
     respond_to do |format|
-      if @book.save
-        GenerateBookJob.perform_later(@book.id)
-        format.html { redirect_to book_url(@book, format: :html), notice: "Book was successfully created." }
+      if save_with_trial_slot
+        queued = @book.enqueue_generation!
+        notice = queued ? "Book was successfully created." : "The book could not be queued. Its trial slot was released."
+        format.html { redirect_to book_url(@book, format: :html), notice: notice }
         format.json { render :show, status: :created, location: @book }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @book.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @book.errors, status: :unprocessable_content }
       end
     end
   end
@@ -49,14 +50,17 @@ class BooksController < ApplicationController
   def update
     @book.page_count = 5
     respond_to do |format|
-      if @book.update(book_params)
-        GenerateBookJob.perform_later(@book.id)
+      if update_with_trial_slot
+        queued = @book.enqueue_generation!
         format.turbo_stream {
           render turbo_stream: turbo_stream.replace(
             "book_#{@book.id}",
             partial: "books/book_editor",
             locals: { book: @book })}
-        format.html { redirect_to book_url(@book), notice: "Book is being written!" }
+        format.html do
+          notice = queued ? "Book is being written!" : "The book could not be queued. Its trial slot was released."
+          redirect_to book_url(@book), notice: notice
+        end
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @book.errors, status: :unprocessable_entity }
@@ -98,5 +102,37 @@ class BooksController < ApplicationController
     # Only allow a list of trusted parameters through.
     def book_params
       params.require(:book).permit(:name, :plot, :total_pages, character_ids: [])
+    end
+
+    def save_with_trial_slot
+      Book.transaction do
+        @book.save!
+        @book.reserve_trial_slot!
+      end
+      true
+    rescue TrialBookReservation::LimitReached
+      @book.errors.add(:base, "The trial includes three trial books. Subscribe to create another book.")
+      false
+    rescue TrialBookReservation::TrialExpired
+      @book.errors.add(:base, "The trial has expired. Subscribe to create another book.")
+      false
+    rescue ActiveRecord::RecordInvalid
+      false
+    end
+
+    def update_with_trial_slot
+      Book.transaction do
+        @book.update!(book_params)
+        @book.reserve_trial_slot!
+      end
+      true
+    rescue TrialBookReservation::LimitReached
+      @book.errors.add(:base, "The trial includes three trial books. Subscribe to continue.")
+      false
+    rescue TrialBookReservation::TrialExpired
+      @book.errors.add(:base, "The trial has expired. Subscribe to continue.")
+      false
+    rescue ActiveRecord::RecordInvalid
+      false
     end
 end

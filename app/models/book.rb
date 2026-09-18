@@ -2,6 +2,8 @@ class Book < ApplicationRecord
   enum :generation_status, { pending: 0, in_progress: 1, completed: 2, failed: 3 }
   belongs_to :user
 
+  has_many :trial_book_reservations, dependent: :nullify
+
   has_many :book_wardrobe_plans, dependent: :destroy
 
   def current_wardrobe_plan
@@ -16,6 +18,8 @@ class Book < ApplicationRecord
   validates :name, presence: true
 
   broadcasts_to ->(book) { book }, inserts_by: :replace
+
+  after_update_commit :start_owner_trial, if: -> { saved_change_to_generation_status? && completed? }
 
   # after_update_commit -> {
   #   broadcast_replace_later_to self,
@@ -70,10 +74,13 @@ class Book < ApplicationRecord
   def ensure_character_images_ready!
     return true if characters_ready_for_generation?
 
+    failure = generation_failure_context(
+      "type" => "character_image_not_ready",
+      "message" => "One or more selected character images are not ready. Choose ready characters before starting this book."
+    )
     update_columns(generation_status: self.class.generation_statuses.fetch("failed"),
       generation_failed_at: Time.current,
-      generation_failure: { "type" => "character_image_not_ready",
-        "message" => "One or more selected character images are not ready. Choose ready characters before starting this book." })
+      generation_failure: failure)
     broadcast_generation_state
     false
   end
@@ -108,14 +115,14 @@ class Book < ApplicationRecord
     with_lock do
       return unless illustration.page.generation_attempt == generation_attempt
 
-      context = failure.merge(
+      context = generation_failure_context(failure.merge(
         "book_id" => id,
         "page_id" => illustration.page_id,
         "illustration_id" => illustration.id,
         "generation_attempt" => generation_attempt,
         "request" => request,
         "book_context" => generation_context
-      )
+      ))
 
       update!(
         generation_status: :failed,
@@ -133,6 +140,7 @@ class Book < ApplicationRecord
       return unless current_pages.count >= total_pages
       return unless current_pages.all? { |page| page.illustration&.original_image&.present? }
 
+      reserve_trial_slot!
       update!(generation_status: :completed, generation_failure: {}, generation_failed_at: nil)
     end
     broadcast_generation_state
@@ -140,18 +148,97 @@ class Book < ApplicationRecord
 
   def prepare_for_regeneration!
     with_lock do
-      history = generation_failure_history
-      history += [ generation_failure ] if generation_failure.present? && !history.include?(generation_failure)
-
-      update!(
-        generation_attempt: generation_attempt + 1,
-        generation_status: :pending,
-        generation_failure: {},
-        generation_failed_at: nil,
-        generation_failure_history: history
-      )
-      generation_attempt
+      advance_generation_attempt!
     end
+  end
+
+  def prepare_failed_regeneration!
+    with_lock do
+      return unless failed?
+
+      reserve_trial_slot!
+      advance_generation_attempt!
+    end
+  end
+
+  def reserve_trial_slot!
+    TrialBookReservation.reserve_for!(self)
+  end
+
+  def enqueue_generation!(attempt: nil)
+    reservation = reserve_trial_slot!
+    job = attempt ? GenerateBookJob.perform_later(id, attempt) : GenerateBookJob.perform_later(id)
+    return true if job&.successfully_enqueued?
+
+    fail_generation_enqueue!(reservation)
+  rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
+    fail_generation_enqueue!(reservation)
+  end
+
+  def enqueue_illustration_retry!(illustration, actor:)
+    reservation_details = with_lock do
+      return false unless PageIllustrationGeneration.available?(illustration, admin: actor)
+
+      attempts_before = PageIllustrationGeneration.attempts(illustration).length
+      book_attempts_before = current_illustration_attempt_count
+      reservation = reserve_trial_slot!
+      newly_reserved = reservation&.previously_new_record?
+      token = PageIllustrationGeneration.reserve!(illustration, retrying: true, admin: actor)
+      unless token
+        attempts_after = PageIllustrationGeneration.attempts(illustration.reload).length
+        if newly_reserved && attempts_after == attempts_before
+          reservation.release!(reason: "illustration_retry_enqueue_failed")
+        end
+        return false
+      end
+
+      [ token, reservation, newly_reserved, attempts_before, book_attempts_before, generation_attempt ]
+    end
+
+    token, reservation, newly_reserved, attempts_before, book_attempts_before,
+      reserved_generation_attempt = reservation_details
+    queued = PageIllustrationGeneration.enqueue_reserved!(illustration, token)
+    release_unused_illustration_retry_slot!(reservation, illustration,
+      attempts_before: attempts_before, book_attempts_before: book_attempts_before,
+      generation_attempt: reserved_generation_attempt) if !queued && newly_reserved
+    queued
+  end
+
+  def illustration_retry_in_progress?
+    current_pages.includes(:illustration).any? do |page|
+      page.illustration && %w[queued running].include?(PageIllustrationGeneration.state(page.illustration)["status"])
+    end
+  end
+
+  def release_trial_slot!(by:)
+    with_lock do
+      return :not_failed unless failed?
+      return :retrying if illustration_retry_in_progress?
+
+      reservation = trial_book_reservations.held.order(:id).last
+      return :missing unless reservation&.release!(by: by, reason: "admin_released_failed_book")
+
+      :released
+    end
+  end
+
+  def generation_failure_context(failure)
+    failure.deep_stringify_keys.merge("account_access" => user.access_type)
+  end
+
+  def fail_generation_enqueue!(reservation)
+    reservation&.release!(reason: "queue_enqueue_failed")
+    message = if reservation
+      "Book generation could not be queued. The trial book slot was released."
+    else
+      "Book generation could not be queued."
+    end
+    update!(generation_status: :failed, generation_failed_at: Time.current,
+      generation_failure: generation_failure_context(
+        "type" => "book_enqueue_failed",
+        "message" => message
+      ))
+    false
   end
 
   def finished_generation?
@@ -185,6 +272,38 @@ class Book < ApplicationRecord
     }
   end
 
+  def advance_generation_attempt!
+    history = generation_failure_history
+    history += [ generation_failure ] if generation_failure.present? && !history.include?(generation_failure)
+
+    update!(
+      generation_attempt: generation_attempt + 1,
+      generation_status: :pending,
+      generation_failure: {},
+      generation_failed_at: nil,
+      generation_failure_history: history
+    )
+    generation_attempt
+  end
+
+  def release_unused_illustration_retry_slot!(reservation, illustration, attempts_before:, book_attempts_before:,
+    generation_attempt:)
+    with_lock do
+      return unless failed? && self.generation_attempt == generation_attempt
+      return if illustration_retry_in_progress?
+      return unless PageIllustrationGeneration.attempts(illustration.reload).length == attempts_before
+      return unless current_illustration_attempt_count == book_attempts_before
+
+      reservation.reload.release!(reason: "illustration_retry_enqueue_failed") if reservation.status == "held"
+    end
+  end
+
+  def current_illustration_attempt_count
+    current_pages.includes(:illustration).sum do |page|
+      page.illustration ? PageIllustrationGeneration.attempts(page.illustration).length : 0
+    end
+  end
+
   def broadcast_generation_state
     broadcast_replace_to(
       self,
@@ -192,5 +311,9 @@ class Book < ApplicationRecord
       partial: "books/book_state",
       locals: { book: self }
     )
+  end
+
+  def start_owner_trial
+    user.start_trial! if trial_book_reservations.held.exists?
   end
 end

@@ -2,5 +2,7 @@
   <h4>Settings</h4>
   <% if current_user&.admin? %>
     <%= link_to "Administration", admin_root_path %>
+  <% elsif current_user %>
+    <%= link_to "Trial & subscription", settings_path %>
   <% end %>
 </section>

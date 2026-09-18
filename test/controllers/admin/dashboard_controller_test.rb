@@ -19,5 +19,11 @@ class Admin::DashboardControllerTest < ActionDispatch::IntegrationTest
     %w[/admin/character_image_assessments /admin/failed_books /jobs /console].each do |path|
       assert_select "a[href='#{path}']"
     end
+    assert_select "h2", "User access"
+    assert_select "tr[data-user-id='#{users(:one).id}']" do
+      assert_select "td", text: users(:one).email
+      assert_select "td", text: /Not started/
+      assert_select "td", text: /3/
+    end
   end
 end

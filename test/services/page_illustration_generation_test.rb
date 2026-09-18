@@ -99,6 +99,27 @@ class PageIllustrationGenerationTest < ActiveSupport::TestCase
     assert_equal 3, @image.reload.generation_metadata.dig("page_generation", "attempts").length
   end
 
+  test "an automatic retry cannot bypass a released book slot when the trial allowance is full" do
+    user = @book.user
+    user.update!(tier: "free")
+    released = TrialBookReservation.reserve_for!(@book)
+    released.release!(reason: "admin_released_failed_book")
+    3.times do |number|
+      held_book = user.books.create!(name: "Held #{number}", total_pages: 1)
+      TrialBookReservation.reserve_for!(held_book)
+    end
+    token = PageIllustrationGeneration.reserve!(@image, retrying: false)
+
+    @image.stub :gpt_image_1_edit, nil do
+      assert_no_enqueued_jobs only: RegeneratePageIllustrationJob do
+        PageIllustrationGeneration.perform!(@image, token)
+      end
+    end
+
+    assert_equal 1, PageIllustrationGeneration.attempts(@image.reload).length
+    assert_not_predicate @book.trial_book_reservations.held, :exists?
+  end
+
   test "successful images and superseded pages cannot be retried" do
     @image.update!(original_image: File.open(file_fixture("character.png")))
     assert_nil PageIllustrationGeneration.reserve!(@image, retrying: true)

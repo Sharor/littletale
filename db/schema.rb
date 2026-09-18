@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_11_124000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -243,6 +243,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_11_124000) do
     t.index ["book_wardrobe_plan_id"], name: "index_pages_on_book_wardrobe_plan_id"
   end
 
+  create_table "trial_book_reservations", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "book_id"
+    t.string "status", default: "held", null: false
+    t.datetime "released_at"
+    t.integer "released_by_id"
+    t.string "release_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id"], name: "index_held_trial_reservation_per_book", unique: true, where: "status = 'held'"
+    t.index ["released_by_id"], name: "index_trial_book_reservations_on_released_by_id"
+    t.index ["user_id", "status"], name: "index_trial_book_reservations_on_user_id_and_status"
+    t.index ["user_id"], name: "index_trial_book_reservations_on_user_id"
+  end
+
   create_table "tutorials", force: :cascade do |t|
     t.boolean "eula"
     t.boolean "terms"
@@ -269,6 +284,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_11_124000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "tier"
+    t.datetime "trial_started_at"
+    t.datetime "trial_expires_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -306,6 +323,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_11_124000) do
   add_foreign_key "illustrations", "pages", on_delete: :cascade
   add_foreign_key "pages", "book_wardrobe_plans"
   add_foreign_key "pages", "books", on_delete: :cascade
+  add_foreign_key "trial_book_reservations", "books", on_delete: :nullify
+  add_foreign_key "trial_book_reservations", "users"
+  add_foreign_key "trial_book_reservations", "users", column: "released_by_id", on_delete: :nullify
   add_foreign_key "tutorials", "users", on_delete: :cascade
   add_foreign_key "visitors", "users", on_delete: :cascade
 end

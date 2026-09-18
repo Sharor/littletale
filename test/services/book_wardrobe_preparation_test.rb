@@ -53,6 +53,7 @@ class BookWardrobePreparationTest < ActiveSupport::TestCase
     end
     assert @book.reload.failed?
     assert_equal "wardrobe_preparation_failed", @book.generation_failure["type"]
+    assert_equal "trial", @book.generation_failure["account_access"]
   end
 
   test "story and wardrobe retain saved roles from before a character edit" do
