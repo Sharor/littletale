@@ -34,7 +34,7 @@ class RecoverCharacterImagesJob < ApplicationJob
     end
 
     CharacterImageRequest.joins(:assessment).where(character_image_assessments: { status: "approved" }, provider_rejected: false).find_each do |request|
-      request.enqueue_generation!
+      request.enqueue_generation!(allow_reacquire: false)
     end
 
     CharacterImageRequest.where(provider_rejected: true).find_each do |request|

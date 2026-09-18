@@ -81,4 +81,30 @@ class Admin::FailedBooksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to admin_failed_books_url
     assert_equal "held", reservation.status
   end
+
+  test "an administrator releases a failed paid book credit without refunding its purchase" do
+    owner = users(:one)
+    owner.update!(tier: "free", admin: false)
+    purchase = owner.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    purchase.fulfill!(checkout_session_id: "cs_failed_paid", payment_intent_id: "pi_failed_paid",
+      stripe_customer_id: "cus_failed_paid", price_id: "price_test", amount_total: 2500, currency: "dkk")
+    book = owner.books.create!(name: "Failed paid book", total_pages: 1, generation_status: :failed)
+    reservation = BookFunding.reserve_for!(book)
+    admin = users(:three)
+    admin.update!(admin: true)
+    sign_in admin
+
+    get admin_failed_books_url
+    assert_select "article", text: /Paid credit reserved/
+    assert_select "button", text: "Release book credit"
+
+    assert_difference("owner.reload.available_book_credits", 1) do
+      post release_trial_slot_admin_book_url(book)
+    end
+
+    assert_equal "released", reservation.reload.status
+    assert_equal "paid", purchase.reload.status
+    assert_equal admin, reservation.released_by
+  end
 end

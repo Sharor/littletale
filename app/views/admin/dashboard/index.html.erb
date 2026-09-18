@@ -20,14 +20,20 @@
             <th class="p-4">User</th>
             <th class="p-4">Status</th>
             <th class="p-4">Books available</th>
+            <th class="p-4">Character credits</th>
           </tr>
         </thead>
         <tbody>
           <% @users.each do |user| %>
             <tr class="border-b border-white/10 last:border-0" data-user-id="<%= user.id %>">
               <td class="p-4"><%= user.email %></td>
-              <td class="p-4"><%= user.trial_status.humanize %></td>
-              <td class="p-4"><%= user.trial_books_remaining || "Unlimited" %></td>
+              <td class="p-4"><%= user.paid? ? user.tier.capitalize : user.trial_status.humanize %></td>
+              <td class="p-4" data-admin-book-credits="<%= user.available_book_credits if user.paid? %>">
+                <%= user.paid? ? user.available_book_credits : user.trial_books_remaining %>
+              </td>
+              <td class="p-4" data-admin-character-credits="<%= user.available_character_credits if user.paid? %>">
+                <%= user.paid? ? user.available_character_credits : "Trial allowance" %>
+              </td>
             </tr>
           <% end %>
         </tbody>

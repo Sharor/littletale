@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 class Admin::BooksControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
@@ -66,5 +67,27 @@ class Admin::BooksControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to admin_failed_books_url
     assert_equal 0, book.reload.generation_attempt
+  end
+
+  test "a rerun queue failure keeps an existing paid book reservation held" do
+    owner = users(:one)
+    owner.update!(tier: "free", admin: false)
+    purchase = owner.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    purchase.fulfill!(checkout_session_id: "cs_admin_retry_held", payment_intent_id: "pi_admin_retry_held",
+      stripe_customer_id: "cus_admin_retry_held", price_id: "price_test", amount_total: 2500, currency: "dkk")
+    book = owner.books.create!(name: "Held paid failure", total_pages: 1, generation_status: :failed)
+    reservation = BookFunding.reserve_for!(book)
+    failed_job = Struct.new(:successfully_enqueued?).new(false)
+    admin = users(:three)
+    admin.update!(admin: true)
+    sign_in admin
+
+    GenerateBookJob.stub(:perform_later, failed_job) do
+      post rerun_generation_admin_book_url(book)
+    end
+
+    assert_equal "held", reservation.reload.status
+    assert_equal 0, owner.reload.available_book_credits
   end
 end

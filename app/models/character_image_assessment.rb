@@ -9,7 +9,7 @@ class CharacterImageAssessment < ApplicationRecord
   validates :status, inclusion: { in: OUTCOMES }
   attr_readonly :user_id, :fingerprint, :prompt, :generation_model, :policy_version
 
-  def approve_without_screening!
+  def approve_without_screening!(notify: true)
     changed = false
     with_lock do
       return false if photo.attached? || status == "approved"
@@ -18,7 +18,7 @@ class CharacterImageAssessment < ApplicationRecord
         internal_reason: "screening_not_required")
       changed = true
     end
-    notify_requests! if changed
+    notify_requests! if changed && notify
     changed
   end
 
@@ -40,9 +40,13 @@ class CharacterImageAssessment < ApplicationRecord
       return false unless status == "unavailable"
       update!(status: "checking", check_attempts: 0, claim_token: nil, claimed_at: nil)
     end
-    ScreenCharacterImageJob.perform_later(id)
+    job = ScreenCharacterImageJob.perform_later(id)
+    return screening_retry_enqueue_failed! unless job&.successfully_enqueued?
+
     notify_requests!
     true
+  rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
+    screening_retry_enqueue_failed!
   end
 
   def resolve!(outcome:, source:, internal_reason:, public_reason: nil, reviewer: nil, metadata: nil, expected_claim: nil)
@@ -70,8 +74,27 @@ class CharacterImageAssessment < ApplicationRecord
   def notify_requests!
     requests.find_each do |request|
       next unless request.current?
-      request.enqueue_generation! if status == "approved"
+      CharacterFunding.release!(request, reason: "character_screening_rejected") if status == "rejected"
+      if status == "approved"
+        request.enqueue_generation!(release_on_failure: true,
+          allow_reacquire: request.funding_source.nil?)
+      end
       request.character.broadcast_image_status
     end
+  end
+
+  private
+
+  def screening_retry_enqueue_failed!
+    with_lock do
+      update!(status: "unavailable", internal_reason: "screening_retry_enqueue_failed") if status == "checking"
+    end
+    requests.find_each do |request|
+      next unless request.current?
+
+      CharacterFunding.release!(request, reason: "character_screening_enqueue_failed")
+    end
+    notify_requests!
+    false
   end
 end

@@ -52,8 +52,11 @@ class Character < ApplicationRecord
     end
 
     def can_perform_action?(action_name)
-        return true if user.admin?
+        account = user.reload
+        return true if account.admin?
         character_action_count = action_logs.for_action(action_name).count
+        return character_action_count < TRIAL_CHARACTER_LIMIT if account.paid?
+
         user_action_count = user.action_logs.for_action(action_name).count
 
         character_action_count < TRIAL_CHARACTER_LIMIT && user_action_count < TRIAL_USER_LIMIT

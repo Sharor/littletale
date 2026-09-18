@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -50,6 +50,36 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "book_credit_reservations", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "book_credit_id", null: false
+    t.integer "book_id"
+    t.string "status", default: "held", null: false
+    t.datetime "released_at"
+    t.integer "released_by_id"
+    t.string "release_reason"
+    t.datetime "consumed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_credit_id"], name: "index_book_credit_reservations_on_book_credit_id"
+    t.index ["book_credit_id"], name: "index_held_reservation_per_book_credit", unique: true, where: "status = 'held'"
+    t.index ["book_id"], name: "index_held_book_credit_reservation_per_book", unique: true, where: "status = 'held'"
+    t.index ["released_by_id"], name: "index_book_credit_reservations_on_released_by_id"
+    t.index ["user_id", "status"], name: "index_book_credit_reservations_on_user_id_and_status"
+    t.index ["user_id"], name: "index_book_credit_reservations_on_user_id"
+  end
+
+  create_table "book_credits", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "book_purchase_id", null: false
+    t.string "status", default: "available", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_purchase_id"], name: "index_book_credits_on_book_purchase_id", unique: true
+    t.index ["user_id", "status"], name: "index_book_credits_on_user_id_and_status"
+    t.index ["user_id"], name: "index_book_credits_on_user_id"
+  end
+
   create_table "book_outfits", force: :cascade do |t|
     t.integer "book_wardrobe_plan_id", null: false
     t.bigint "character_id", null: false
@@ -64,6 +94,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
     t.datetime "updated_at", null: false
     t.index ["book_wardrobe_plan_id", "character_id", "outfit_key"], name: "index_book_outfits_unique_identity", unique: true
     t.index ["book_wardrobe_plan_id"], name: "index_book_outfits_on_book_wardrobe_plan_id"
+  end
+
+  create_table "book_purchases", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "status", default: "pending", null: false
+    t.string "product_id", null: false
+    t.string "price_id"
+    t.string "stripe_checkout_session_id"
+    t.string "stripe_payment_intent_id"
+    t.string "stripe_customer_id"
+    t.string "idempotency_key", null: false
+    t.integer "amount_total"
+    t.string "currency"
+    t.boolean "livemode", default: false, null: false
+    t.datetime "paid_at"
+    t.text "failure_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "checkout_url"
+    t.datetime "checkout_expires_at"
+    t.index ["idempotency_key"], name: "index_book_purchases_on_idempotency_key", unique: true
+    t.index ["stripe_checkout_session_id"], name: "index_book_purchases_on_stripe_checkout_session_id", unique: true
+    t.index ["stripe_payment_intent_id"], name: "index_book_purchases_on_stripe_payment_intent_id", unique: true
+    t.index ["user_id"], name: "index_book_purchases_on_user_id"
+    t.index ["user_id"], name: "index_one_pending_book_purchase_per_user", unique: true, where: "status = 'pending'"
   end
 
   create_table "book_wardrobe_plans", force: :cascade do |t|
@@ -102,6 +157,38 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
     t.integer "character_id", null: false
     t.index ["book_id", "character_id"], name: "index_books_characters_on_book_id_and_character_id"
     t.index ["character_id", "book_id"], name: "index_books_characters_on_character_id_and_book_id"
+  end
+
+  create_table "character_credit_reservations", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "character_credit_id", null: false
+    t.integer "character_image_request_id"
+    t.string "status", default: "held", null: false
+    t.datetime "released_at"
+    t.integer "released_by_id"
+    t.string "release_reason"
+    t.datetime "consumed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_credit_id"], name: "index_character_credit_reservations_on_character_credit_id"
+    t.index ["character_credit_id"], name: "index_held_reservation_per_character_credit", unique: true, where: "status = 'held'"
+    t.index ["character_image_request_id"], name: "index_held_character_credit_reservation_per_request", unique: true, where: "status = 'held'"
+    t.index ["released_by_id"], name: "index_character_credit_reservations_on_released_by_id"
+    t.index ["user_id", "status"], name: "index_character_credit_reservations_on_user_id_and_status"
+    t.index ["user_id"], name: "index_character_credit_reservations_on_user_id"
+  end
+
+  create_table "character_credits", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "book_purchase_id", null: false
+    t.integer "ordinal", null: false
+    t.string "status", default: "available", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_purchase_id", "ordinal"], name: "index_character_credits_on_book_purchase_id_and_ordinal", unique: true
+    t.index ["book_purchase_id"], name: "index_character_credits_on_book_purchase_id"
+    t.index ["user_id", "status"], name: "index_character_credits_on_user_id_and_status"
+    t.index ["user_id"], name: "index_character_credits_on_user_id"
   end
 
   create_table "character_image_assessments", force: :cascade do |t|
@@ -167,8 +254,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
     t.text "rejection_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "funding_source"
     t.index ["assessment_id"], name: "index_character_image_requests_on_assessment_id"
     t.index ["character_id"], name: "index_character_image_requests_on_character_id"
+    t.index ["funding_source"], name: "index_character_image_requests_on_funding_source"
     t.index ["original_character_id", "assessment_id"], name: "unique_character_image_request", unique: true
     t.index ["user_id"], name: "index_character_image_requests_on_user_id"
   end
@@ -243,6 +332,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
     t.index ["book_wardrobe_plan_id"], name: "index_pages_on_book_wardrobe_plan_id"
   end
 
+  create_table "stripe_events", force: :cascade do |t|
+    t.string "stripe_event_id", null: false
+    t.string "event_type", null: false
+    t.string "stripe_object_id"
+    t.datetime "processed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_type", "stripe_object_id"], name: "index_stripe_events_on_type_and_object", unique: true, where: "stripe_object_id IS NOT NULL"
+    t.index ["stripe_event_id"], name: "index_stripe_events_on_stripe_event_id", unique: true
+  end
+
   create_table "trial_book_reservations", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "book_id"
@@ -286,8 +386,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
     t.text "tier"
     t.datetime "trial_started_at"
     t.datetime "trial_expires_at"
+    t.string "stripe_customer_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["stripe_customer_id"], name: "index_users_on_stripe_customer_id", unique: true
   end
 
   create_table "visitors", force: :cascade do |t|
@@ -301,9 +403,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_120000) do
   add_foreign_key "action_logs", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "book_credit_reservations", "book_credits"
+  add_foreign_key "book_credit_reservations", "books", on_delete: :nullify
+  add_foreign_key "book_credit_reservations", "users"
+  add_foreign_key "book_credit_reservations", "users", column: "released_by_id", on_delete: :nullify
+  add_foreign_key "book_credits", "book_purchases"
+  add_foreign_key "book_credits", "users"
   add_foreign_key "book_outfits", "book_wardrobe_plans"
+  add_foreign_key "book_purchases", "users"
   add_foreign_key "book_wardrobe_plans", "books"
   add_foreign_key "books", "users", on_delete: :cascade
+  add_foreign_key "character_credit_reservations", "character_credits"
+  add_foreign_key "character_credit_reservations", "character_image_requests", on_delete: :nullify
+  add_foreign_key "character_credit_reservations", "users"
+  add_foreign_key "character_credit_reservations", "users", column: "released_by_id", on_delete: :nullify
+  add_foreign_key "character_credits", "book_purchases"
+  add_foreign_key "character_credits", "users"
   add_foreign_key "character_image_assessments", "users"
   add_foreign_key "character_image_decisions", "character_image_assessments", column: "assessment_id"
   add_foreign_key "character_image_decisions", "character_image_requests", column: "request_id"

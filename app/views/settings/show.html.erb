@@ -14,8 +14,11 @@
         <p class="mt-4 text-lg" data-trial-status="admin">Administrator</p>
         <p class="mt-2 text-gray-300">Administrator accounts are not subject to trial limits.</p>
       <% elsif current_user.paid? %>
-        <p class="mt-4 text-lg" data-trial-status="paid">Paid plan</p>
-        <p class="mt-2 text-gray-300">Your account is on the <%= current_user.tier.capitalize %> tier.</p>
+        <p class="mt-4 text-lg" data-trial-status="paid">Basic access</p>
+        <p class="mt-2 text-gray-300">Your reading access does not expire.</p>
+        <p class="mt-4 text-xl" data-book-credits="<%= current_user.available_book_credits %>">
+          <strong><%= pluralize(current_user.available_book_credits, "book credit") %></strong> available
+        </p>
       <% else %>
         <% status_labels = { "not_started" => "Not started", "active" => "Active", "expired" => "Expired" } %>
         <p class="mt-4 text-lg" data-trial-status="<%= current_user.trial_status %>">
@@ -33,19 +36,36 @@
         <% end %>
       <% end %>
     </section>
+
+    <% unless current_user.admin? %>
+      <section class="mt-6 max-w-2xl rounded-xl border border-amber-300/30 bg-black/20 p-6" aria-labelledby="payment-heading">
+        <p class="text-sm uppercase tracking-widest text-amber-300">Payment options</p>
+        <h2 id="payment-heading" class="mt-2 text-2xl font-semibold">Buy your next book</h2>
+        <p class="mt-3 text-gray-200">Each purchase includes one book credit and five character generations.</p>
+        <%= button_to "Buy one book credit", settings_book_purchase_path, method: :post,
+          class: "mt-5 min-h-11 rounded bg-amber-500 px-5 py-3 font-semibold text-gray-950 hover:bg-amber-400" %>
+        <button type="button" disabled class="mt-4 block cursor-not-allowed text-sm text-gray-400">Subscriptions coming soon</button>
+      </section>
+
+      <% if @purchases.any? %>
+        <section class="mt-6 max-w-2xl rounded-xl border border-white/20 bg-black/20 p-6" aria-labelledby="purchase-history-heading">
+          <h2 id="purchase-history-heading" class="text-2xl font-semibold">Purchase history</h2>
+          <ul class="mt-4 space-y-3">
+            <% @purchases.each do |purchase| %>
+              <li class="flex flex-wrap justify-between gap-3 border-b border-white/10 pb-3 last:border-0">
+                <span><%= l(purchase.created_at, format: :long) %></span>
+                <span><%= purchase.status.humanize %><% if purchase.amount_total %> · <%= number_to_currency(purchase.amount_total / 100.0, unit: purchase.currency.to_s.upcase + " ") %><% end %></span>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
+    <% end %>
   </main>
 </div>
 
 <% if current_user.trial_expired? %>
-  <div class="fable-ui fable-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="trial-expired-title">
-    <div class="fable-dialog-shell max-w-lg">
-      <div class="fable-dialog-inner text-center">
-        <p class="text-sm uppercase tracking-widest text-amber-300">Subscription required</p>
-        <h2 id="trial-expired-title" class="mt-2 text-3xl font-bold">Your trial has ended</h2>
-        <p class="mt-4 text-gray-200">You must subscribe to continue using Little Fables. Payment options will be available here.</p>
-        <%= button_to "Sign out", destroy_user_session_path, method: :delete,
-          class: "mt-6 min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300" %>
-      </div>
-    </div>
-  </div>
+  <%= render "payment_modal", reason: "expired" %>
+<% elsif params[:payment_required].present? %>
+  <%= render "payment_modal", reason: params[:payment_required] %>
 <% end %>

@@ -10,6 +10,11 @@ class User < ApplicationRecord
   has_many :character_image_requests
   has_many :character_image_decisions
   has_many :trial_book_reservations, dependent: :destroy
+  has_many :book_purchases, dependent: :restrict_with_exception
+  has_many :book_credits, dependent: :restrict_with_exception
+  has_many :character_credits, dependent: :restrict_with_exception
+  has_many :book_credit_reservations, dependent: :restrict_with_exception
+  has_many :character_credit_reservations, dependent: :restrict_with_exception
   has_one :tutorial
 
   TRIAL_BOOK_LIMIT = 3
@@ -88,5 +93,29 @@ class User < ApplicationRecord
       started_at = Time.current
       update!(trial_started_at: started_at, trial_expires_at: started_at.advance(months: 1))
     end
+  end
+
+  def available_book_credits
+    book_credits.available.count
+  end
+
+  def available_character_credits
+    character_credits.available.count
+  end
+
+  def book_generation_available?
+    return true if admin?
+    return !trial_expired? && trial_books_remaining.positive? if trial?
+
+    available_book_credits.positive?
+  end
+
+  def character_generation_available?
+    return true if admin?
+    if trial?
+      return action_logs.for_action("setup_illustration").count < Character::TRIAL_USER_LIMIT
+    end
+
+    available_character_credits.positive?
   end
 end

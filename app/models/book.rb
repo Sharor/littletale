@@ -1,8 +1,11 @@
 class Book < ApplicationRecord
+  attr_reader :prepared_funding_reservation, :prepared_funding_newly_acquired
+
   enum :generation_status, { pending: 0, in_progress: 1, completed: 2, failed: 3 }
   belongs_to :user
 
   has_many :trial_book_reservations, dependent: :nullify
+  has_many :book_credit_reservations, dependent: :nullify
 
   has_many :book_wardrobe_plans, dependent: :destroy
 
@@ -19,7 +22,7 @@ class Book < ApplicationRecord
 
   broadcasts_to ->(book) { book }, inserts_by: :replace
 
-  after_update_commit :start_owner_trial, if: -> { saved_change_to_generation_status? && completed? }
+  after_update_commit :finalize_owner_funding, if: -> { saved_change_to_generation_status? && completed? }
 
   # after_update_commit -> {
   #   broadcast_replace_later_to self,
@@ -140,7 +143,7 @@ class Book < ApplicationRecord
       return unless current_pages.count >= total_pages
       return unless current_pages.all? { |page| page.illustration&.original_image&.present? }
 
-      reserve_trial_slot!
+      reserve_generation_funding!
       update!(generation_status: :completed, generation_failure: {}, generation_failed_at: nil)
     end
     broadcast_generation_state
@@ -156,23 +159,29 @@ class Book < ApplicationRecord
     with_lock do
       return unless failed?
 
-      reserve_trial_slot!
+      @prepared_funding_reservation = reserve_generation_funding!
+      @prepared_funding_newly_acquired = @prepared_funding_reservation&.previously_new_record? || false
       advance_generation_attempt!
     end
   end
 
-  def reserve_trial_slot!
-    TrialBookReservation.reserve_for!(self)
+  def reserve_generation_funding!
+    BookFunding.reserve_for!(self)
   end
 
-  def enqueue_generation!(attempt: nil)
-    reservation = reserve_trial_slot!
+  alias_method :reserve_trial_slot!, :reserve_generation_funding!
+
+  def enqueue_generation!(attempt: nil, reservation: nil, release_on_failure: nil)
+    unless reservation
+      reservation = reserve_generation_funding!
+      release_on_failure = reservation&.previously_new_record? if release_on_failure.nil?
+    end
     job = attempt ? GenerateBookJob.perform_later(id, attempt) : GenerateBookJob.perform_later(id)
     return true if job&.successfully_enqueued?
 
-    fail_generation_enqueue!(reservation)
+    fail_generation_enqueue!(reservation, release_reservation: release_on_failure)
   rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
-    fail_generation_enqueue!(reservation)
+    fail_generation_enqueue!(reservation, release_reservation: release_on_failure)
   end
 
   def enqueue_illustration_retry!(illustration, actor:)
@@ -181,7 +190,7 @@ class Book < ApplicationRecord
 
       attempts_before = PageIllustrationGeneration.attempts(illustration).length
       book_attempts_before = current_illustration_attempt_count
-      reservation = reserve_trial_slot!
+      reservation = reserve_generation_funding!
       newly_reserved = reservation&.previously_new_record?
       token = PageIllustrationGeneration.reserve!(illustration, retrying: true, admin: actor)
       unless token
@@ -215,7 +224,7 @@ class Book < ApplicationRecord
       return :not_failed unless failed?
       return :retrying if illustration_retry_in_progress?
 
-      reservation = trial_book_reservations.held.order(:id).last
+      reservation = BookFunding.held_for(self)
       return :missing unless reservation&.release!(by: by, reason: "admin_released_failed_book")
 
       :released
@@ -223,13 +232,27 @@ class Book < ApplicationRecord
   end
 
   def generation_failure_context(failure)
-    failure.deep_stringify_keys.merge("account_access" => user.access_type)
+    context = failure.deep_stringify_keys.merge("account_access" => user.access_type)
+    if (reservation = book_credit_reservations.where(status: %w[held consumed]).order(:id).last)
+      context.merge!(
+        "funding_source" => "book_credit",
+        "funding_reservation_id" => reservation.id,
+        "purchase_id" => reservation.book_credit.book_purchase_id
+      )
+    elsif (reservation = trial_book_reservations.held.order(:id).last)
+      context.merge!("funding_source" => "trial", "funding_reservation_id" => reservation.id)
+    end
+    context
   end
 
-  def fail_generation_enqueue!(reservation)
-    reservation&.release!(reason: "queue_enqueue_failed")
-    message = if reservation
-      "Book generation could not be queued. The trial book slot was released."
+  def fail_generation_enqueue!(reservation, release_reservation:)
+    released_funding = case reservation
+    when BookCreditReservation then "book credit"
+    when TrialBookReservation then "trial book slot"
+    end
+    released = release_reservation && reservation&.release!(reason: "queue_enqueue_failed")
+    message = if released && released_funding
+      "Book generation could not be queued. The #{released_funding} was released."
     else
       "Book generation could not be queued."
     end
@@ -313,7 +336,11 @@ class Book < ApplicationRecord
     )
   end
 
-  def start_owner_trial
-    user.start_trial! if trial_book_reservations.held.exists?
+  def finalize_owner_funding
+    if trial_book_reservations.held.exists?
+      user.start_trial!
+    else
+      book_credit_reservations.held.order(:id).last&.consume!
+    end
   end
 end

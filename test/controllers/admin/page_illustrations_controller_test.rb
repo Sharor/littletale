@@ -63,4 +63,16 @@ class Admin::PageIllustrationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal 1, PageIllustrationGeneration.attempts(@image.reload).length
   end
+
+  test "an admin illustration override cannot bypass the owner's missing paid book credit" do
+    @book.user.update!(tier: "basic")
+    sign_in @admin
+
+    assert_no_enqueued_jobs only: RegeneratePageIllustrationJob do
+      post regenerate_admin_page_illustration_path(@image)
+    end
+
+    assert_redirected_to admin_failed_books_path
+    assert_equal 1, PageIllustrationGeneration.attempts(@image.reload).length
+  end
 end

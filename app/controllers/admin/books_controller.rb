@@ -12,28 +12,32 @@ class Admin::BooksController < ApplicationController
         notice: "This book is no longer in a failed state."
       return
     end
-    queued = book.enqueue_generation!(attempt: attempt)
+    queued = book.enqueue_generation!(attempt: attempt, reservation: book.prepared_funding_reservation,
+      release_on_failure: book.prepared_funding_newly_acquired)
 
     redirect_back fallback_location: admin_failed_books_path,
-      notice: queued ? "Book generation restarted." : "Book generation could not be queued. Its trial slot was released."
+      notice: queued ? "Book generation restarted." : book.generation_failure["message"]
   rescue TrialBookReservation::LimitReached
     redirect_back fallback_location: admin_failed_books_path,
       alert: "This user has no trial book slots available. Release another failed book slot first."
   rescue TrialBookReservation::TrialExpired
     redirect_back fallback_location: admin_failed_books_path,
       alert: "This user's trial has expired."
+  rescue BookCredit::LimitReached
+    redirect_back fallback_location: admin_failed_books_path,
+      alert: "This user has no book credits available."
   end
 
   def release_trial_slot
     result = Book.find(params[:id]).release_trial_slot!(by: current_user)
     case result
     when :released
-      redirect_to admin_failed_books_path, notice: "The trial book slot was released."
+      redirect_to admin_failed_books_path, notice: "The reserved generation credit was released."
     when :retrying
       redirect_to admin_failed_books_path,
         alert: "This slot cannot be released while an illustration retry is in progress."
     else
-      redirect_to admin_failed_books_path, notice: "This book does not hold a releasable trial slot."
+      redirect_to admin_failed_books_path, notice: "This book does not hold a releasable generation credit."
     end
   end
 

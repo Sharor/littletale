@@ -24,5 +24,8 @@ class PageIllustrationControlsController < ApplicationController
       alert: "All three trial book slots are currently reserved."
   rescue TrialBookReservation::TrialExpired
     redirect_to settings_path, alert: "Your trial has ended. Subscribe to continue."
+  rescue BookCredit::LimitReached
+    redirect_to settings_path(payment_required: "book"),
+      alert: "You need a book credit before retrying this illustration."
   end
 end

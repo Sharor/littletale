@@ -72,6 +72,35 @@ class PageIllustrationControlsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "a Basic owner cannot retry an unfunded failed book without a book credit" do
+    @user.update!(tier: "basic")
+
+    assert_no_enqueued_jobs only: RegeneratePageIllustrationJob do
+      post regenerate_illustration_page_url(@page)
+    end
+
+    assert_redirected_to settings_path(payment_required: "book")
+    assert_equal 1, PageIllustrationGeneration.attempts(@illustration.reload).length
+  end
+
+  test "a completed paid book reuses its consumed credit for an illustration retry" do
+    purchase = @user.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    purchase.fulfill!(checkout_session_id: "cs_funded_retry", payment_intent_id: "pi_funded_retry",
+      stripe_customer_id: "cus_funded_retry", price_id: "price_test", amount_total: 2500, currency: "dkk")
+    reservation = BookFunding.reserve_for!(@book)
+    reservation.consume!
+
+    assert_no_difference("@book.book_credit_reservations.count") do
+      assert_enqueued_jobs 1, only: RegeneratePageIllustrationJob do
+        post regenerate_illustration_page_url(@page)
+      end
+    end
+
+    assert_redirected_to book_path(@book)
+    assert_equal "consumed", reservation.reload.status
+  end
+
   test "the owner cannot retry after three illustration attempts" do
     attempts = 3.times.map { |index| { "number" => index + 1, "status" => "failed" } }
     @illustration.update!(generation_metadata: { "page_generation" => { "status" => "failed", "attempts" => attempts } })

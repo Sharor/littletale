@@ -81,6 +81,20 @@
                 <td class="p-2"><%= request.screening_status.humanize %><% if request.public_reason.present? %><br><span class="text-gray-300"><%= request.public_reason %></span><% end %></td>
                 <td class="p-2"><%= request.generation_attempt&.status || "Not reserved" %></td>
                 <td class="p-2">
+                  <% character_reservation = request.character_credit_reservations.held.order(:id).last %>
+                  <% if character_reservation %>
+                    <div class="mb-3" data-character-funding="held">
+                      <p class="text-amber-200">Character credit reserved</p>
+                      <% if CharacterFunding.admin_releasable?(request) %>
+                        <%= form_with url: release_character_credit_admin_character_image_assessment_path(@assessment), method: :post do %>
+                          <%= hidden_field_tag :request_id, request.id %>
+                          <%= submit_tag "Release character credit", class: "mt-2 rounded border border-amber-300/50 px-3 py-2 text-amber-100" %>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  <% elsif request.funding_source.present? %>
+                    <p class="mb-3 text-gray-300" data-character-funding="<%= request.funding_source %>">Funding: <%= request.funding_source.humanize %></p>
+                  <% end %>
                   <% if (reason = request.admin_retry_unavailable_reason) %>
                     <p class="text-gray-300"><%= reason %></p>
                     <% if request.character&.current_image_request && request.character.current_image_request_id != request.id %>

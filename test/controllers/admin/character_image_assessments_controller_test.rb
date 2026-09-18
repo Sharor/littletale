@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
@@ -241,6 +242,112 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
     assert_response :not_found
   end
 
+  test "an administrator can release a failed character credit" do
+    grant_paid_bundle
+    character = @owner.characters.create!(name: "Funded character", age: 8, gender: "Girl", ethnicity: "White",
+      hair_color: "Brown", hair_style: "Long", eye_color: "Blue", roles: [ "Hero" ], creation_mode: "form")
+    request = CharacterImageRequest.submit!(character)
+    request.generation_attempt.update!(status: "failed")
+    reservation = request.character_credit_reservations.held.first
+    sign_in @admin
+
+    get admin_character_image_assessment_path(request.assessment)
+    assert_select "[data-character-funding='held']", text: /credit reserved/i
+    assert_select "form[action='#{release_character_credit_admin_character_image_assessment_path(request.assessment)}']"
+
+    assert_difference("@owner.reload.available_character_credits", 1) do
+      post release_character_credit_admin_character_image_assessment_path(request.assessment),
+        params: { request_id: request.id }
+    end
+
+    assert_equal "released", reservation.reload.status
+    assert_equal @admin, reservation.released_by
+  end
+
+  test "retrying screening reacquires a released paid character credit" do
+    grant_paid_bundle
+    character = @owner.characters.create!(name: "Screened character", age: 8, gender: "Girl", ethnicity: "White",
+      hair_color: "Brown", hair_style: "Long", eye_color: "Blue", roles: [ "Hero" ], creation_mode: "form")
+    character.photo.attach(io: File.open(file_fixture("character.png")), filename: "character.png",
+      content_type: "image/png")
+    request = CharacterImageRequest.submit!(character)
+    request.assessment.update!(status: "unavailable")
+    request.character_credit_reservations.held.first.release!(by: @admin, reason: "admin_released_failed_character")
+    sign_in @admin
+
+    post retry_screening_admin_character_image_assessment_path(request.assessment)
+
+    assert_redirected_to admin_character_image_assessment_path(request.assessment)
+    assert_predicate request.character_credit_reservations.held, :exists?
+    assert_equal 4, @owner.reload.available_character_credits
+  end
+
+  test "a screening retry queue failure returns the reacquired character credit" do
+    grant_paid_bundle
+    character = @owner.characters.create!(name: "Unqueued character", age: 8, gender: "Girl", ethnicity: "White",
+      hair_color: "Brown", hair_style: "Long", eye_color: "Blue", roles: [ "Hero" ], creation_mode: "form")
+    character.photo.attach(io: File.open(file_fixture("character.png")), filename: "character.png",
+      content_type: "image/png")
+    request = CharacterImageRequest.submit!(character)
+    request.assessment.update!(status: "unavailable")
+    request.character_credit_reservations.held.first.release!(by: @admin,
+      reason: "admin_released_failed_character")
+    failed_job = Struct.new(:successfully_enqueued?).new(false)
+    sign_in @admin
+
+    ScreenCharacterImageJob.stub(:perform_later, failed_job) do
+      post retry_screening_admin_character_image_assessment_path(request.assessment)
+    end
+
+    assert_equal "unavailable", request.assessment.reload.status
+    assert_not_predicate request.character_credit_reservations.held, :exists?
+    assert_equal 5, @owner.reload.available_character_credits
+  end
+
+  test "an administrator cannot release a credit from completed generation" do
+    grant_paid_bundle
+    character = @owner.characters.create!(name: "Completed character", age: 8, gender: "Girl", ethnicity: "White",
+      hair_color: "Brown", hair_style: "Long", eye_color: "Blue", roles: [ "Hero" ], creation_mode: "form")
+    request = CharacterImageRequest.submit!(character)
+    request.generation_attempt.update!(status: "completed")
+    reservation = request.character_credit_reservations.held.first
+    sign_in @admin
+
+    get admin_character_image_assessment_path(request.assessment)
+    assert_select "form[action='#{release_character_credit_admin_character_image_assessment_path(request.assessment)}']", count: 0
+
+    assert_no_changes("reservation.reload.status") do
+      post release_character_credit_admin_character_image_assessment_path(request.assessment),
+        params: { request_id: request.id }
+    end
+
+    assert_equal "held", reservation.reload.status
+    assert_equal 4, @owner.reload.available_character_credits
+  end
+
+  test "an admin retry queue failure keeps funding already held for the failed request" do
+    grant_paid_bundle
+    character = @owner.characters.create!(name: "Held retry", age: 8, gender: "Girl", ethnicity: "White",
+      hair_color: "Brown", hair_style: "Long", eye_color: "Blue", roles: [ "Hero" ], creation_mode: "form")
+    request = CharacterImageRequest.submit!(character)
+    attempt = request.generation_attempt
+    attempt.update!(status: "failed")
+    reservation = request.character_credit_reservations.held.first
+    failed_job = Struct.new(:successfully_enqueued?).new(false)
+    sign_in @admin
+
+    GenerateCharacterImageJob.stub(:perform_later, failed_job) do
+      post retry_generation_admin_character_image_assessment_path(request.assessment), params: {
+        request_id: request.id,
+        attempt_version: attempt.updated_at.iso8601(6)
+      }
+    end
+
+    assert_equal "held", reservation.reload.status
+    assert_equal 4, @owner.reload.available_character_credits
+    assert_equal "failed", attempt.reload.status
+  end
+
   private
 
 
@@ -255,5 +362,12 @@ class Admin::CharacterImageAssessmentsControllerTest < ActionDispatch::Integrati
       internal_reason: internal_reason,
       metadata: metadata
     )
+  end
+
+  def grant_paid_bundle
+    purchase = @owner.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    purchase.fulfill!(checkout_session_id: "cs_admin_character", payment_intent_id: "pi_admin_character",
+      stripe_customer_id: "cus_admin_character", price_id: "price_test", amount_total: 2500, currency: "dkk")
   end
 end
