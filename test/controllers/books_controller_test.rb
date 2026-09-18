@@ -120,13 +120,42 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "paid users create books without trial reservations" do
-    @user.update!(tier: "basic")
+    grant_paid_bundle
 
     assert_difference("Book.count", 1) do
       post books_url, params: { book: { name: "Paid book", plot: "Adventure", total_pages: 6 } }
     end
 
     assert_empty @user.trial_book_reservations
+    assert_equal 0, @user.reload.available_book_credits
+    assert_predicate @user.book_credit_reservations.held, :exists?
+  end
+
+  test "paid users without a book credit cannot create a book" do
+    @user.update!(tier: "basic")
+
+    assert_no_difference("Book.count") do
+      assert_no_enqueued_jobs only: GenerateBookJob do
+        post books_url, params: { book: { name: "Unfunded book", plot: "Adventure", total_pages: 1 } }
+      end
+    end
+
+    assert_response :payment_required
+  end
+
+  test "a paid queue handoff failure returns its book credit" do
+    grant_paid_bundle
+    failed_job = Struct.new(:successfully_enqueued?).new(false)
+
+    GenerateBookJob.stub :perform_later, failed_job do
+      post books_url, params: { book: { name: "Paid queue failure", plot: "Adventure", total_pages: 1 } }
+    end
+
+    book = @user.books.find_by!(name: "Paid queue failure")
+    assert_predicate book, :failed?
+    assert_equal "released", book.book_credit_reservations.last.status
+    assert_match(/book credit was released/i, book.generation_failure.fetch("message"))
+    assert_equal 1, @user.reload.available_book_credits
   end
 
   test "does not expose another user's book" do
@@ -149,5 +178,15 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "#castle_construction"
     assert_select "form[action='#{rerun_generation_admin_book_path(book)}']", count: 0
+  end
+
+  private
+
+  def grant_paid_bundle
+    purchase = @user.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    purchase.fulfill!(checkout_session_id: "cs_#{SecureRandom.hex}", payment_intent_id: "pi_#{SecureRandom.hex}",
+      stripe_customer_id: "cus_books_controller_#{@user.id}", price_id: "price_test",
+      amount_total: 2500, currency: "dkk")
   end
 end

@@ -15,6 +15,7 @@ Rails.application.routes.draw do
         get :photo
         post :retry_screening
         post :retry_generation
+        post :release_character_credit
         post :approve
         post :reject
       end
@@ -31,6 +32,9 @@ Rails.application.routes.draw do
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   resource :settings, only: :show
+  post "settings/book_purchase", to: "purchases#create", as: :settings_book_purchase
+  get "settings/checkout/success", to: "purchases#success", as: :settings_checkout_success
+  post "webhooks/stripe", to: "stripe_webhooks#create", as: :stripe_webhook
   resources :books
   resources :characters do
     get :confirm_delete, on: :member

@@ -32,8 +32,23 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
   end
 
   def retry_screening
-    @assessment.retry_screening!
-    redirect_to admin_character_image_assessment_path(@assessment), notice: "Screening retry requested."
+    unless @assessment.status == "unavailable"
+      redirect_to admin_character_image_assessment_path(@assessment),
+        alert: "Screening is no longer unavailable."
+      return
+    end
+
+    CharacterCredit.transaction do
+      @assessment.requests.find_each do |request|
+        CharacterFunding.reserve_for!(request) if request.current?
+      end
+    end
+    queued = @assessment.retry_screening!
+    redirect_to admin_character_image_assessment_path(@assessment),
+      (queued ? { notice: "Screening retry requested." } : { alert: "Screening could not be queued. The character credit was released." })
+  rescue CharacterCredit::LimitReached
+    redirect_to admin_character_image_assessment_path(@assessment),
+      alert: "This user has no character credits available."
   end
 
   def retry_generation
@@ -42,6 +57,18 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
       expected_version: params[:attempt_version], confirm_unknown: params[:confirm_unknown] == "1")
     redirect_to admin_character_image_assessment_path(@assessment),
       notice: queued ? "Character generation queued." : "Generation was not queued. Refresh and check the request status and confirmation."
+  end
+
+  def release_character_credit
+    request = @assessment.requests.find(params[:request_id])
+    result = CharacterFunding.release_for_admin!(request, admin: current_user)
+    message = case result
+    when :released then "The character credit was released."
+    when :active then "The credit cannot be released while screening or generation is active."
+    else "This request has no releasable character credit."
+    end
+    redirect_to admin_character_image_assessment_path(@assessment),
+      (result == :released ? { notice: message } : { alert: message })
   end
 
   def approve

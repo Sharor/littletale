@@ -17,7 +17,13 @@
     <%= render "books/castle", book: book %>
   <% elsif book.failed? && book.generation_failure["type"] == "character_image_not_ready" %>
     <p role="status" class="fable-notice p-4 text-amber-100"><%= book.generation_failure["message"] %></p>
-    <%= link_to "Review character images", characters_path, class: "underline" %>
+    <% if book.user.book_generation_available? || book.user.character_generation_available? %>
+      <%= link_to "Review character images", characters_path, class: "underline" %>
+    <% else %>
+      <span data-character-route-disabled aria-disabled="true" title="Buy a book credit in Settings to continue.">
+        Review character images
+      </span>
+    <% end %>
   <% elsif book.failed? && book.generation_failure["type"].to_s.start_with?("wardrobe_") %>
     <p role="status" class="fable-notice p-4 text-amber-100"><%= book.generation_failure["message"] %></p>
   <% elsif book.failed? %>

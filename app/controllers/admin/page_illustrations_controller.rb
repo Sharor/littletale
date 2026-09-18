@@ -16,5 +16,8 @@ class Admin::PageIllustrationsController < ApplicationController
   rescue TrialBookReservation::TrialExpired
     redirect_back fallback_location: admin_failed_books_path,
       alert: "This user's trial has expired."
+  rescue BookCredit::LimitReached
+    redirect_back fallback_location: admin_failed_books_path,
+      alert: "This user has no book credits available."
   end
 end

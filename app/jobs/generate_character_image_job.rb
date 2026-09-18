@@ -8,7 +8,7 @@ class GenerateCharacterImageJob < ApplicationJob
     claimed = false
     request.user.with_lock do
       attempt.with_lock do
-        if request.current? && request.screening_status == "approved" &&
+        if CharacterFunding.funded?(request) && request.current? && request.screening_status == "approved" &&
             (attempt.status == "reserved" || (attempt.status == "failed" && attempt.result_image.attached?))
           attempt.update!(status: "in_progress", started_at: Time.current)
           request.character.in_progress!
@@ -84,6 +84,7 @@ class GenerateCharacterImageJob < ApplicationJob
           end
         end
         attempt.update!(status: attempt.illustration_id ? "completed" : "failed", finished_at: Time.current)
+        CharacterFunding.consume!(request) if attempt.status == "completed"
       end
     end
     request.character&.broadcast_image_status if request.current?

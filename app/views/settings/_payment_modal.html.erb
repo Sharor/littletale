@@ -1,0 +1,28 @@
+<% advisory = local_assigns[:reason] == "book_advisory" %>
+<% character_only = local_assigns[:reason] == "character" %>
+<% expired = local_assigns[:reason] == "expired" %>
+<div class="fable-ui fable-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="payment-required-title">
+  <div class="fable-dialog-shell max-w-lg">
+    <div class="fable-dialog-inner text-center">
+      <p class="text-sm uppercase tracking-widest text-amber-300">More stories await</p>
+      <h2 id="payment-required-title" class="mt-2 text-3xl font-bold">
+        <%= expired ? "Your trial has ended" : (character_only ? "Character credit required" : (advisory ? "You are out of book credits" : "Book credit required")) %>
+      </h2>
+      <p class="mt-4 text-gray-200">
+        One purchase includes one book credit and five character generations. Buy a credit now, or subscribe when plans become available.
+      </p>
+      <div class="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+        <%= button_to "Buy one book credit", settings_book_purchase_path, method: :post,
+          class: "min-h-11 rounded bg-amber-500 px-5 py-3 font-semibold text-gray-950 hover:bg-amber-400" %>
+        <% if advisory %>
+          <%= link_to "Continue to characters", continue_path,
+            class: "min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-amber-300" %>
+        <% else %>
+          <%= link_to "Back to library", books_path,
+            class: "min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-amber-300" %>
+        <% end %>
+      </div>
+      <button type="button" disabled class="mt-4 cursor-not-allowed text-sm text-gray-400">Subscriptions coming soon</button>
+    </div>
+  </div>
+</div>

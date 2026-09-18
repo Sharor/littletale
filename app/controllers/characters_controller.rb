@@ -1,7 +1,11 @@
 class CharactersController < ApplicationController
+  rescue_from CharacterCredit::LimitReached, with: :character_payment_required
+
   before_action :authenticate_user!
   before_action :set_character, only: %i[ show edit update destroy ]
   before_action :set_book, only: %i[ new create show edit update select save_selected ]
+  before_action :enforce_character_navigation, only: :index
+  before_action :enforce_character_generation_access, only: %i[ new create ]
 
   skip_before_action :check_tutorial, only: [ :confirm_delete ]
   # GET /characters or /characters.json
@@ -107,7 +111,14 @@ class CharactersController < ApplicationController
       @character.assign_attributes(attributes)
       @character.photo = nil if @character.creation_mode == "form"
       @character.photo.attach(photo_file) if photo_file.present? && @character.creation_mode != "form"
-      if @character.save
+      if character_generation_credit_required?
+        @character.errors.add(:base, "You need a character credit to regenerate this character.")
+        format.html { render_payment_required("character", redirect_status: :see_other) }
+        format.json do
+          render json: { error: "character_credit_required", settings_url: settings_url,
+            errors: @character.errors.to_hash }, status: :payment_required
+        end
+      elsif @character.save
         @character.setup_illustration
         format.turbo_stream { redirect_to(@book ? book_url(@book) : characters_url, status: :see_other) }
         format.html { redirect_to(@book ? book_url(@book) : characters_url, notice: "Character was successfully updated.") }
@@ -161,5 +172,42 @@ class CharactersController < ApplicationController
     def character_params
       params.require(:character).permit(:photo, :name, :age, :hair_color, :gender,
           :hair_style, :eye_color, :ethnicity, :photo_upload, :creation_mode, roles: [])
+    end
+
+    def enforce_character_navigation
+      has_books = current_user.book_generation_available?
+      has_characters = current_user.character_generation_available?
+      if !has_books && !has_characters
+        render_payment_required("both")
+      elsif !has_books && params[:continue] != "1"
+        @show_book_credit_advisory = true
+      end
+    end
+
+    def enforce_character_generation_access
+      return if current_user.character_generation_available?
+
+      render_payment_required("character")
+    end
+
+    def character_payment_required
+      render_payment_required("character", redirect_status: :see_other)
+    end
+
+    def character_generation_credit_required?
+      return false if current_user.character_generation_available?
+
+      image_request = @character.current_image_request
+      return true unless image_request && CharacterFunding.funded?(image_request)
+
+      CharacterImageRequest.snapshot_for(@character).fetch(:fingerprint) != image_request.assessment.fingerprint
+    end
+
+    def render_payment_required(reason, redirect_status: :found)
+      if request.format.json?
+        render json: { error: "#{reason}_credit_required", settings_url: settings_url }, status: :payment_required
+      else
+        redirect_to settings_path(payment_required: reason), status: redirect_status
+      end
     end
 end

@@ -71,4 +71,39 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "settings shows a Basic user's book credits and payment options without exposing character balance" do
+    grant_paid_bundle
+
+    get settings_url
+
+    assert_response :success
+    assert_select "[data-book-credits='1']", text: /1 book credit/
+    assert_select "form[action='#{settings_book_purchase_path}'] button", text: /Buy one book credit/
+    assert_select "[data-character-credits]", count: 0
+    assert_select "p", text: /five character generations/i
+  end
+
+  test "a payment-required settings visit shows purchase options" do
+    @user.update!(tier: "basic")
+
+    get settings_url(payment_required: "book")
+
+    assert_response :success
+    assert_select "[role='dialog'][aria-modal='true']" do
+      assert_select "h2", text: /book credit/i
+      assert_select "form[action='#{settings_book_purchase_path}']"
+      assert_select "button[disabled]", text: /Subscriptions coming soon/
+    end
+  end
+
+  private
+
+  def grant_paid_bundle
+    purchase = @user.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    purchase.fulfill!(checkout_session_id: "cs_settings", payment_intent_id: "pi_settings",
+      stripe_customer_id: "cus_settings", price_id: "price_settings", amount_total: 2500, currency: "dkk")
+    sign_in @user.reload
+  end
 end

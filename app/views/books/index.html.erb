@@ -11,7 +11,19 @@
     </header>
 
     <div class="library-grid">
-      <%= link_to characters_path, class: "library-create #{@tutorial}" do %>
+      <% if current_user.book_generation_available? %>
+        <%= link_to characters_path, class: "library-create #{@tutorial}" do %>
+          <span class="library-create-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M32 17C24 12 14 12 6 15v36c8-3 18-3 26 2 8-5 18-5 26-2V15c-8-3-18-3-26 2Zm0 0v36M12 21c5-1 10 0 14 2m-14 6c5-1 10 0 14 2m-14 6c5-1 10 0 14 2M45 24v16m-8-8h16" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="library-create-label">Make a new book</span>
+          <span class="library-create-plus" aria-hidden="true">+</span>
+        <% end %>
+      <% else %>
+        <div class="library-create opacity-60" data-new-book-disabled aria-disabled="true"
+          title="Buy a book credit in Settings to make another book.">
         <span class="library-create-mark" aria-hidden="true">
           <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M32 17C24 12 14 12 6 15v36c8-3 18-3 26 2 8-5 18-5 26-2V15c-8-3-18-3-26 2Zm0 0v36M12 21c5-1 10 0 14 2m-14 6c5-1 10 0 14 2m-14 6c5-1 10 0 14 2M45 24v16m-8-8h16" stroke-linecap="round" stroke-linejoin="round" />
@@ -19,6 +31,7 @@
         </span>
         <span class="library-create-label">Make a new book</span>
         <span class="library-create-plus" aria-hidden="true">+</span>
+        </div>
       <% end %>
 
       <% @books.each do |book| %>
