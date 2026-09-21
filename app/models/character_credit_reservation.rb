@@ -16,7 +16,8 @@ class CharacterCreditReservation < ApplicationRecord
         return false unless status == "held"
 
         update!(status: "released", released_at: Time.current, released_by: by, release_reason: reason)
-        character_credit.update!(status: "available")
+        status = character_credit.visible? || character_credit.expires_at > Time.current ? "available" : "expired"
+        character_credit.update!(status: status)
       end
     end
     true

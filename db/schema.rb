@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_21_120000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -71,12 +71,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
 
   create_table "book_credits", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.integer "book_purchase_id", null: false
+    t.integer "book_purchase_id"
     t.string "status", default: "available", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "subscription_period_id"
+    t.boolean "visible", default: true, null: false
+    t.datetime "expires_at"
     t.index ["book_purchase_id"], name: "index_book_credits_on_book_purchase_id", unique: true
+    t.index ["subscription_period_id", "id"], name: "index_book_credits_on_subscription_period_and_id"
+    t.index ["subscription_period_id"], name: "index_book_credits_on_subscription_period_id"
     t.index ["user_id", "status"], name: "index_book_credits_on_user_id_and_status"
+    t.index ["user_id", "visible", "status"], name: "index_book_credits_on_user_visibility_status"
     t.index ["user_id"], name: "index_book_credits_on_user_id"
   end
 
@@ -180,14 +186,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
 
   create_table "character_credits", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.integer "book_purchase_id", null: false
+    t.integer "book_purchase_id"
     t.integer "ordinal", null: false
     t.string "status", default: "available", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "subscription_period_id"
+    t.boolean "visible", default: true, null: false
+    t.datetime "expires_at"
     t.index ["book_purchase_id", "ordinal"], name: "index_character_credits_on_book_purchase_id_and_ordinal", unique: true
     t.index ["book_purchase_id"], name: "index_character_credits_on_book_purchase_id"
+    t.index ["subscription_period_id", "ordinal"], name: "index_character_credits_on_period_and_ordinal", unique: true, where: "subscription_period_id IS NOT NULL"
+    t.index ["subscription_period_id"], name: "index_character_credits_on_subscription_period_id"
     t.index ["user_id", "status"], name: "index_character_credits_on_user_id_and_status"
+    t.index ["user_id", "visible", "status"], name: "index_character_credits_on_user_visibility_status"
     t.index ["user_id"], name: "index_character_credits_on_user_id"
   end
 
@@ -339,8 +351,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
     t.datetime "processed_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["event_type", "stripe_object_id"], name: "index_stripe_events_on_type_and_object", unique: true, where: "stripe_object_id IS NOT NULL"
+    t.index ["event_type", "stripe_object_id"], name: "index_stripe_events_on_type_and_object"
     t.index ["stripe_event_id"], name: "index_stripe_events_on_stripe_event_id", unique: true
+  end
+
+  create_table "subscription_periods", force: :cascade do |t|
+    t.integer "user_subscription_id", null: false
+    t.string "stripe_invoice_id", null: false
+    t.string "price_id", null: false
+    t.datetime "period_start", null: false
+    t.datetime "period_end", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stripe_invoice_id"], name: "index_subscription_periods_on_stripe_invoice_id", unique: true
+    t.index ["user_subscription_id", "period_start"], name: "idx_on_user_subscription_id_period_start_7775b0bb53", unique: true
+    t.index ["user_subscription_id"], name: "index_subscription_periods_on_user_subscription_id"
   end
 
   create_table "trial_book_reservations", force: :cascade do |t|
@@ -366,6 +391,32 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_tutorials_on_user_id"
+  end
+
+  create_table "user_subscriptions", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "status", default: "pending", null: false
+    t.string "product_id", null: false
+    t.string "price_id"
+    t.string "stripe_subscription_id"
+    t.string "stripe_checkout_session_id"
+    t.string "stripe_customer_id"
+    t.string "idempotency_key", null: false
+    t.boolean "livemode", default: false, null: false
+    t.boolean "cancel_at_period_end", default: false, null: false
+    t.datetime "current_period_start"
+    t.datetime "current_period_end"
+    t.datetime "ended_at"
+    t.text "checkout_url"
+    t.datetime "checkout_expires_at"
+    t.text "failure_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["idempotency_key"], name: "index_user_subscriptions_on_idempotency_key", unique: true
+    t.index ["stripe_checkout_session_id"], name: "index_user_subscriptions_on_stripe_checkout_session_id", unique: true
+    t.index ["stripe_subscription_id"], name: "index_user_subscriptions_on_stripe_subscription_id", unique: true
+    t.index ["user_id"], name: "index_one_current_user_subscription", unique: true, where: "status IN ('pending', 'active', 'past_due', 'unpaid')"
+    t.index ["user_id"], name: "index_user_subscriptions_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -408,6 +459,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
   add_foreign_key "book_credit_reservations", "users"
   add_foreign_key "book_credit_reservations", "users", column: "released_by_id", on_delete: :nullify
   add_foreign_key "book_credits", "book_purchases"
+  add_foreign_key "book_credits", "subscription_periods"
   add_foreign_key "book_credits", "users"
   add_foreign_key "book_outfits", "book_wardrobe_plans"
   add_foreign_key "book_purchases", "users"
@@ -418,6 +470,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
   add_foreign_key "character_credit_reservations", "users"
   add_foreign_key "character_credit_reservations", "users", column: "released_by_id", on_delete: :nullify
   add_foreign_key "character_credits", "book_purchases"
+  add_foreign_key "character_credits", "subscription_periods"
   add_foreign_key "character_credits", "users"
   add_foreign_key "character_image_assessments", "users"
   add_foreign_key "character_image_decisions", "character_image_assessments", column: "assessment_id"
@@ -438,9 +491,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_18_132000) do
   add_foreign_key "illustrations", "pages", on_delete: :cascade
   add_foreign_key "pages", "book_wardrobe_plans"
   add_foreign_key "pages", "books", on_delete: :cascade
+  add_foreign_key "subscription_periods", "user_subscriptions"
   add_foreign_key "trial_book_reservations", "books", on_delete: :nullify
   add_foreign_key "trial_book_reservations", "users"
   add_foreign_key "trial_book_reservations", "users", column: "released_by_id", on_delete: :nullify
   add_foreign_key "tutorials", "users", on_delete: :cascade
+  add_foreign_key "user_subscriptions", "users"
   add_foreign_key "visitors", "users", on_delete: :cascade
 end

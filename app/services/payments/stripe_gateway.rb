@@ -21,6 +21,21 @@ module Payments
       }))
     end
 
+    def retrieve_invoice(invoice_id)
+      normalize(Stripe::Invoice.retrieve({ id: invoice_id }))
+    end
+
+    def create_billing_portal_session(params)
+      normalize(Stripe::BillingPortal::Session.create(params))
+    end
+
+    def retrieve_subscription(subscription_id)
+      normalize(Stripe::Subscription.retrieve({
+        id: subscription_id,
+        expand: [ "items.data.price.product" ]
+      }))
+    end
+
     private
 
     def normalize(value)

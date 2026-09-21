@@ -33,6 +33,8 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   resource :settings, only: :show
   post "settings/book_purchase", to: "purchases#create", as: :settings_book_purchase
+  post "settings/subscription", to: "subscriptions#create", as: :settings_subscription
+  post "settings/billing_portal", to: "billing_portal#create", as: :settings_billing_portal
   get "settings/checkout/success", to: "purchases#success", as: :settings_checkout_success
   post "webhooks/stripe", to: "stripe_webhooks#create", as: :stripe_webhook
   resources :books

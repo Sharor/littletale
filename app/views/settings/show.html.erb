@@ -14,11 +14,28 @@
         <p class="mt-4 text-lg" data-trial-status="admin">Administrator</p>
         <p class="mt-2 text-gray-300">Administrator accounts are not subject to trial limits.</p>
       <% elsif current_user.paid? %>
-        <p class="mt-4 text-lg" data-trial-status="paid">Basic access</p>
+        <% if @subscription&.status == "active" %>
+          <p class="mt-4 text-lg" data-subscription-status="active">Monthly subscription active</p>
+          <% if @subscription.current_period_end %>
+            <p class="mt-2 text-gray-300"><%= @subscription.cancel_at_period_end? ? "Subscription ends" : "Current month ends" %> <%= l(@subscription.current_period_end, format: :long) %>.</p>
+          <% end %>
+        <% else %>
+          <p class="mt-4 text-lg" data-trial-status="paid">Basic access</p>
+        <% end %>
         <p class="mt-2 text-gray-300">Your reading access does not expire.</p>
         <p class="mt-4 text-xl" data-book-credits="<%= current_user.available_book_credits %>">
           <strong><%= pluralize(current_user.available_book_credits, "book credit") %></strong> available
         </p>
+        <% if @has_subscription_history %>
+          <p class="mt-2 text-xl" data-character-credits="<%= current_user.available_character_credits %>">
+            <strong><%= pluralize(current_user.available_character_credits, "character credit") %></strong> available
+          </p>
+        <% end %>
+        <% if @subscription && @subscription.status != "pending" %>
+          <p class="mt-3 text-sm text-gray-400">Your monthly allowance is applied automatically. Only saved and purchased credits are shown here.</p>
+          <%= button_to "Manage subscription", settings_billing_portal_path, method: :post,
+            class: "mt-4 min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-cyan-300" %>
+        <% end %>
       <% else %>
         <% status_labels = { "not_started" => "Not started", "active" => "Active", "expired" => "Expired" } %>
         <p class="mt-4 text-lg" data-trial-status="<%= current_user.trial_status %>">
@@ -44,7 +61,14 @@
         <p class="mt-3 text-gray-200">Each purchase includes one book credit and five character generations.</p>
         <%= button_to "Buy one book credit", settings_book_purchase_path, method: :post,
           class: "mt-5 min-h-11 rounded bg-amber-500 px-5 py-3 font-semibold text-gray-950 hover:bg-amber-400" %>
-        <button type="button" disabled class="mt-4 block cursor-not-allowed text-sm text-gray-400">Subscriptions coming soon</button>
+        <% if @subscription&.status == "pending" %>
+          <%= button_to "Resume subscription checkout", settings_subscription_path, method: :post,
+            class: "mt-5 min-h-11 rounded border border-cyan-300 px-5 py-3 font-semibold text-white hover:bg-cyan-300/10" %>
+        <% elsif !@subscription %>
+          <p class="mt-5 text-gray-200">A subscription includes 50 books and 150 character generations each month.</p>
+          <%= button_to "Subscribe monthly", settings_subscription_path, method: :post,
+            class: "mt-3 min-h-11 rounded border border-cyan-300 px-5 py-3 font-semibold text-white hover:bg-cyan-300/10" %>
+        <% end %>
       </section>
 
       <% if @purchases.any? %>

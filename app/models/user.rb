@@ -15,6 +15,7 @@ class User < ApplicationRecord
   has_many :character_credits, dependent: :restrict_with_exception
   has_many :book_credit_reservations, dependent: :restrict_with_exception
   has_many :character_credit_reservations, dependent: :restrict_with_exception
+  has_many :user_subscriptions, dependent: :restrict_with_exception
   has_one :tutorial
 
   TRIAL_BOOK_LIMIT = 3
@@ -96,18 +97,18 @@ class User < ApplicationRecord
   end
 
   def available_book_credits
-    book_credits.available.count
+    book_credits.visible.available.count
   end
 
   def available_character_credits
-    character_credits.available.count
+    character_credits.visible.available.count
   end
 
   def book_generation_available?
     return true if admin?
     return !trial_expired? && trial_books_remaining.positive? if trial?
 
-    available_book_credits.positive?
+    book_credits.spendable.exists?
   end
 
   def character_generation_available?
@@ -116,6 +117,6 @@ class User < ApplicationRecord
       return action_logs.for_action("setup_illustration").count < Character::TRIAL_USER_LIMIT
     end
 
-    available_character_credits.positive?
+    character_credits.spendable.exists?
   end
 end

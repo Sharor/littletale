@@ -9,11 +9,17 @@
         <%= expired ? "Your trial has ended" : (character_only ? "Character credit required" : (advisory ? "You are out of book credits" : "Book credit required")) %>
       </h2>
       <p class="mt-4 text-gray-200">
-        One purchase includes one book credit and five character generations. Buy a credit now, or subscribe when plans become available.
+        One purchase includes one book credit and five character generations. Subscribe monthly for 50 books and 150 character generations.
       </p>
       <div class="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
         <%= button_to "Buy one book credit", settings_book_purchase_path, method: :post,
           class: "min-h-11 rounded bg-amber-500 px-5 py-3 font-semibold text-gray-950 hover:bg-amber-400" %>
+        <% if @subscription.nil? || @subscription.status == "pending" %>
+          <% subscription_button_label = @subscription&.status == "pending" ? "Resume subscription checkout" : "Subscribe monthly" %>
+          <%= button_to subscription_button_label,
+            settings_subscription_path, method: :post,
+            class: "min-h-11 rounded border border-cyan-300 px-5 py-3 font-semibold text-white hover:bg-cyan-300/10" %>
+        <% end %>
         <% if advisory %>
           <%= link_to "Continue to characters", continue_path,
             class: "min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-amber-300" %>
@@ -22,7 +28,6 @@
             class: "min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-amber-300" %>
         <% end %>
       </div>
-      <button type="button" disabled class="mt-4 cursor-not-allowed text-sm text-gray-400">Subscriptions coming soon</button>
     </div>
   </div>
 </div>

@@ -16,7 +16,8 @@ class BookCreditReservation < ApplicationRecord
         return false unless status == "held"
 
         update!(status: "released", released_at: Time.current, released_by: by, release_reason: reason)
-        book_credit.update!(status: "available")
+        status = book_credit.visible? || book_credit.expires_at > Time.current ? "available" : "expired"
+        book_credit.update!(status: status)
       end
     end
     true

@@ -45,7 +45,7 @@ class ApplicationController < ActionController::Base
 
   def enforce_trial_access
     return unless user_signed_in? && current_user.trial_expired?
-    return if devise_controller? || %w[settings purchases].include?(controller_path)
+    return if devise_controller? || %w[settings purchases subscriptions].include?(controller_path)
 
     if request.format.html? || request.format.turbo_stream?
       redirect_to settings_url, alert: "Your trial has ended. Subscribe to continue.",
