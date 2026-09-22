@@ -4,14 +4,14 @@
     <% attempts_used = PageIllustrationGeneration.attempts(illustration).length %>
     <% if PageIllustrationGeneration.available?(illustration, admin: actor) %>
       <% retry_path = actor.admin? ? regenerate_admin_page_illustration_path(illustration) : regenerate_illustration_page_path(page) %>
-      <%= button_to "Regenerate illustration", retry_path,
+      <%= button_to t("books.illustration.regenerate"), retry_path,
         method: :post, data: { turbo_frame: "_top" },
         class: "rounded bg-amber-700 px-3 py-2 text-sm text-white" %>
     <% elsif %w[queued running].include?(PageIllustrationGeneration.state(illustration)["status"]) %>
-      <p role="status">Illustration retry in progress.</p>
+      <p role="status"><%= t("books.illustration.retrying") %></p>
     <% elsif page.generation_attempt != page.book.generation_attempt %>
-      <p>This page is no longer current.</p>
+      <p><%= t("books.illustration.outdated") %></p>
     <% end %>
-    <p class="text-sm"><%= attempts_used %> of <%= PageIllustrationGeneration::MAX_ATTEMPTS %> attempts used</p>
+    <p class="text-sm"><%= t("books.illustration.attempts", used: attempts_used, total: PageIllustrationGeneration::MAX_ATTEMPTS) %></p>
   <% end %>
 <% end %>

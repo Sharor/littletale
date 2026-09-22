@@ -45,7 +45,7 @@
             <%= render partial: "illustrations/illustration", locals: { illustration: character.illustration } %>
           <% else %>
             <div class="w-full h-full bg-gray-700 flex items-center justify-center">
-              <p class="text-gray-400 text-xs">No image</p>
+              <p class="text-gray-400 text-xs"><%= t("characters.show.no_image") %></p>
             </div>
           <% end %>
         </div>

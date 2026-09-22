@@ -2,7 +2,8 @@
 module CharacterHelper
   # Replicates the JS logic for displaying options (e.g., 'hair_style' becomes 'Hair Style')
   def format_option_for_display(option)
-    option.to_s.split("_").map(&:capitalize).join(" ")
+    key = option.to_s.parameterize(separator: "_")
+    I18n.t("characters.options.#{key}", default: option.to_s.split("_").map(&:capitalize).join(" "))
   end
 
   # Provides all character option arrays, assuming constants are defined in the Character model

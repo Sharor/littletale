@@ -39,6 +39,31 @@ class ChatgptTest < ActiveSupport::TestCase
     assert_equal "A forest adventure", input.fetch("plot")
   end
 
+  test "structured generation specifies the book language and reader age" do
+    @book.update!(language: "da", reader_age: 7)
+
+    input = JSON.parse(@chatgpt.jsonify)
+    instructions = @chatgpt.storytellergpt_instructions
+
+    assert_equal "Danish", input.fetch("language")
+    assert_equal 7, input.fetch("reader_age")
+    assert_includes instructions, 'Write every "story" value in the requested language'
+    assert_includes instructions, 'Keep every "image" value in English'
+    assert_includes instructions, "reader_age"
+  end
+
+  test "structured generation tells image descriptions to use the saved art style" do
+    @book.update_column(:art_style, "claymation_plasticine")
+
+    input = JSON.parse(@chatgpt.jsonify)
+    instructions = @chatgpt.storytellergpt_instructions
+
+    assert_includes input.fetch("art_style"), "plasticine"
+    assert_includes input.fetch("art_style"), "stop-motion"
+    assert_includes instructions, '"art_style"'
+    assert_includes instructions, '"image"'
+  end
+
   test "structured story input carries character metadata without account or image request fields" do
     character = characters(:hernandes)
     character.update!(roles: [ "Father", "Piercings", "Tattoos", "Freckles", "Villain" ])

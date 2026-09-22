@@ -18,14 +18,14 @@ class PageIllustrationControlsController < ApplicationController
 
     queued = page.illustration && page.book.enqueue_illustration_retry!(page.illustration, actor: current_user)
     redirect_back fallback_location: book_path(page.book),
-      notice: queued ? "Illustration retry queued." : "This illustration cannot be retried or already has a retry in progress."
+      notice: queued ? I18n.t("notices.illustration.queued") : I18n.t("notices.illustration.unavailable")
   rescue TrialBookReservation::LimitReached
     redirect_back fallback_location: book_path(page.book),
-      alert: "All three trial book slots are currently reserved."
+      alert: I18n.t("notices.illustration.trial_slots")
   rescue TrialBookReservation::TrialExpired
-    redirect_to settings_path, alert: "Your trial has ended. Subscribe to continue."
+    redirect_to settings_path, alert: I18n.t("notices.trial_ended")
   rescue BookCredit::LimitReached
     redirect_to settings_path(payment_required: "book"),
-      alert: "You need a book credit before retrying this illustration."
+      alert: I18n.t("notices.illustration.credit_required")
   end
 end

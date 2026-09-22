@@ -6,12 +6,15 @@
 #
 one: 
   email: "hi@there.com"
+  language: en
   encrypted_password: <%= Devise.friendly_token[0,20] %>
   created_at: <%= Time.now %>
   updated_at: <%= Time.now %>
 
 two: 
   email: "hello@world.io"
+  language: en
 
 three: 
   email: "one@one.com"
+  language: en

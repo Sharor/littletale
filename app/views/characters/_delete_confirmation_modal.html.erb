@@ -8,11 +8,11 @@
     <div role="dialog" aria-modal="true" aria-labelledby="delete-character-heading" class="fable-delete-dialog relative w-full max-w-md p-6">
       
       <div class="flex justify-between items-center mb-4">
-        <h3 id="delete-character-heading" class="text-xl font-semibold text-red-400">Confirm Deletion</h3>
+        <h3 id="delete-character-heading" class="text-xl font-semibold text-red-400"><%= t("characters.delete.title") %></h3>
 
         <%= link_to "#",
           data: { turbo_frame: "modal" },
-          aria: { label: "Close" }, class: "fable-dialog-close text-gray-400 hover:text-white transition" do %>
+          aria: { label: t("common.close") }, class: "fable-dialog-close text-gray-400 hover:text-white transition" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -20,18 +20,16 @@
       </div>
 
       <p class="mb-6 text-gray-300 leading-relaxed">
-        Are you sure you want to delete 
-        <strong class="text-cyan-400"><%= character.name %></strong>?
-        This action is permanent.
+        <%= t("characters.delete.confirm_html", name: tag.strong(character.name, class: "text-cyan-400")) %>
       </p>
 
       <div class="flex justify-end space-x-3">
 
-        <%= link_to "Cancel", "#",
+        <%= link_to t("common.cancel"), "#",
           data: { turbo_frame: "modal" },
           class: "px-4 py-2 border border-gray-600 rounded-md hover:bg-gray-800 transition" %>
 
-        <%= button_to "Delete",
+        <%= button_to t("common.delete"),
           character_path(character),
           method: :delete,
           form: { data: { turbo_frame: "modal" } },

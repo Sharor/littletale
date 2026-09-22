@@ -32,6 +32,9 @@
   </head>
 
  <body class="storybook-theme <%= content_for(:body_class) %>">
+    <% flash.each do |type, message| %>
+      <p class="fable-ui fable-notice m-4 p-3" role="<%= type.to_s == "alert" ? "alert" : "status" %>"><%= message %></p>
+    <% end %>
     <% if current_user&.admin? && (controller_path.start_with?("admin/") || controller_path == "console") %>
       <div class="fable-layout">
         <%= render "layouts/sidebar" %>

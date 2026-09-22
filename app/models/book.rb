@@ -1,6 +1,8 @@
 class Book < ApplicationRecord
   attr_reader :prepared_funding_reservation, :prepared_funding_newly_acquired
 
+  before_validation :apply_generation_preferences, on: :create
+
   enum :generation_status, { pending: 0, in_progress: 1, completed: 2, failed: 3 }
   belongs_to :user
 
@@ -32,7 +34,11 @@ class Book < ApplicationRecord
   # }
 
   validates :total_pages, presence: true, numericality: { greater_than: 0 }
+  validates :language, inclusion: { in: User::SUPPORTED_LANGUAGES.keys }
+  validates :reader_age, numericality: { only_integer: true, in: 0..120 }, allow_nil: true
+  validates :art_style, inclusion: { in: BookArtStyle.keys }
   validate :total_pages_within_tier_limit
+  validate :art_style_is_immutable, on: :update
 
   TIER_LIMITS = {
     "free"       => 5,
@@ -45,11 +51,20 @@ class Book < ApplicationRecord
     TIER_LIMITS.fetch(user.tier, 5)
   end
 
+  def art_style_definition
+    BookArtStyle.fetch(art_style)
+  end
+
+  def art_style_prompt
+    art_style_definition.prompt
+  end
+
   def total_pages_within_tier_limit
     return unless total_pages.present?
 
     if total_pages > tier_limit
-      errors.add(:total_pages, "cannot exceed #{tier_limit} pages for the #{user.tier.capitalize} tier")
+      errors.add(:total_pages, I18n.t("activerecord.errors.models.book.attributes.total_pages.tier_limit",
+        limit: tier_limit, tier: user.tier.capitalize))
     end
   end
 
@@ -274,11 +289,23 @@ class Book < ApplicationRecord
 
   private
 
+  def art_style_is_immutable
+    errors.add(:art_style, "cannot be changed after the book is created") if will_save_change_to_art_style?
+  end
+
+  def apply_generation_preferences
+    self.language ||= user&.language || "en"
+    self.reader_age = user&.reader_age if reader_age.nil?
+  end
+
   def generation_context
     {
       "name" => name,
       "plot" => plot,
       "total_pages" => total_pages,
+      "language" => language,
+      "reader_age" => reader_age,
+      "art_style" => art_style_prompt,
       "characters" => characters.map do |character|
         illustration = character.illustration
         {
@@ -328,12 +355,14 @@ class Book < ApplicationRecord
   end
 
   def broadcast_generation_state
-    broadcast_replace_to(
-      self,
-      target: ActionView::RecordIdentifier.dom_id(self, :state),
-      partial: "books/book_state",
-      locals: { book: self }
-    )
+    I18n.with_locale(user.language.presence_in(User::SUPPORTED_LANGUAGES.keys) || I18n.default_locale) do
+      broadcast_replace_to(
+        self,
+        target: ActionView::RecordIdentifier.dom_id(self, :state),
+        partial: "books/book_state",
+        locals: { book: self }
+      )
+    end
   end
 
   def finalize_owner_funding

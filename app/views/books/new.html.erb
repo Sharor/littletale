@@ -2,7 +2,7 @@
   <%= render "layouts/sidebar" %>
 
   <main class="fable-main fable-ui">
-    <h1 class="text-2xl font-bold mb-4">New Book</h1>
+    <h1 class="text-2xl font-bold mb-4"><%= t("books.new.title") %></h1>
 
     <%= form_with model: @book, class: "fable-panel fable-book-form space-y-4" do |f| %>
       <% if @book.errors.any? %>
@@ -16,19 +16,77 @@
       <% end %>
 
       <div>
-        <%= f.label :name, class: "block" %>
+        <%= f.label :name, class: "fable-form-label block" %>
         <%= f.text_field :name, class: "bg-gray-800 text-white rounded p-2 w-full" %>
       </div>
 
       <div>
-        <%= f.label :plot, class: "block" %>
+        <%= f.label :plot, class: "fable-form-label block" %>
         <%= f.text_area :plot, class: "bg-gray-800 text-white rounded p-2 w-full", rows: 5 %>
       </div>
+
+      <div>
+        <%= f.label :language, t("books.form.language"), class: "fable-form-label block" %>
+        <%= f.select :language, User::SUPPORTED_LANGUAGES.map { |code, name| [name, code] }, {},
+          class: "bg-gray-800 text-white rounded p-2 w-full" %>
+      </div>
+
+      <div>
+        <%= f.label :reader_age, t("books.form.reader_age"), class: "fable-form-label block" %>
+        <%= f.number_field :reader_age, min: 0, max: 120,
+          class: "bg-gray-800 text-white rounded p-2 w-full" %>
+      </div>
+
+      <% selected_style = BookArtStyle.find(@book.art_style) || BookArtStyle.default %>
+      <section class="art-style-section" data-controller="art-style-picker">
+        <h2 id="book-art-style-heading" class="fable-form-label"><%= t("books.form.art_style.title") %></h2>
+        <fieldset class="art-style-picker" aria-labelledby="book-art-style-heading">
+          <legend class="sr-only"><%= t("books.form.art_style.title") %></legend>
+          <p class="art-style-picker-intro"><%= t("books.form.art_style.hint") %></p>
+
+          <div class="art-style-picker-layout">
+            <figure class="art-style-featured">
+              <div class="art-style-featured-frame">
+                <%= image_tag selected_style.preview,
+                  alt: t("books.form.art_style.preview_alt", style: selected_style.name),
+                  data: { art_style_picker_target: "preview" } %>
+              </div>
+              <figcaption>
+                <span><%= t("books.form.art_style.selected") %></span>
+                <strong data-art-style-picker-target="name" aria-live="polite"><%= selected_style.name %></strong>
+              </figcaption>
+            </figure>
+
+            <div class="art-style-options">
+              <% BookArtStyle.all.each do |style| %>
+                <div class="art-style-option">
+                  <%= f.radio_button :art_style, style.key,
+                    class: "art-style-option-input",
+                    checked: style.key == selected_style.key,
+                    data: {
+                      action: "change->art-style-picker#select",
+                      preview: image_path(style.preview),
+                      name: style.name,
+                      alt: t("books.form.art_style.preview_alt", style: style.name)
+                    } %>
+                  <%= f.label :art_style, value: style.key, class: "art-style-option-card" do %>
+                    <span class="art-style-option-image">
+                      <%= image_tag style.preview, alt: "", loading: "lazy", decoding: "async" %>
+                    </span>
+                    <span class="art-style-option-name"><%= style.name %></span>
+                    <span class="art-style-option-check" aria-hidden="true">✓</span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </fieldset>
+      </section>
 
    <% limit = @book.tier_limit %> 
 
   <div class="space-y-2">
-    <%= f.label :total_pages, "Length of the Tale", class: "block font-semibold" %>
+    <%= f.label :total_pages, t("books.form.length"), class: "fable-form-label block" %>
     
     <div class="flex flex-wrap items-center gap-4">
       <%= f.number_field :total_pages, 
@@ -38,14 +96,14 @@
           data: { action: "change->form#updateLimitHint" } %>
       
       <span class="text-sm text-gray-400">
-        Max: <strong class="text-yellow-500"><%= limit %> pages</strong> 
-        (<%= current_user.tier.capitalize %> Tier)
+        <%= t("books.form.maximum") %>: <strong class="text-yellow-500"><%= t("books.form.pages", count: limit) %></strong>
+        (<%= t("books.form.tier", tier: current_user.tier.capitalize) %>)
       </span>
     </div>
 
     <% if current_user.tier != "premium" %>
       <p class="text-xs italic text-blue-400">
-        Want more? <a href="/pricing" class="underline">Upgrade for up to 20 pages!</a>
+        <%= t("books.form.want_more") %> <a href="/pricing" class="underline"><%= t("books.form.upgrade") %></a>
       </p>
     <% end %>
   </div>
@@ -55,7 +113,7 @@
       <% end %>
 
       <div>
-        <%= f.submit "Create Book", class: "bg-blue-600 px-4 py-2 rounded cursor-pointer" %>
+        <%= f.submit t("books.form.create"), class: "bg-blue-600 px-4 py-2 rounded cursor-pointer" %>
       </div>
     <% end %>
   </main>

@@ -4,9 +4,9 @@
     <div class="fable-dialog-shell">
       <div class="fable-dialog-inner">
         <div class="fable-dialog-heading">
-          <h1 id="modal-title" class="font-extrabold text-2xl">Choose characters</h1>
+          <h1 id="modal-title" class="font-extrabold text-2xl"><%= t("characters.select.title") %></h1>
           
-          <%= link_to "\u{274C}", book_path(@book), class: 'fable-dialog-close', aria: { label: 'Close' } %>
+          <%= link_to "\u{274C}", book_path(@book), class: 'fable-dialog-close', aria: { label: t("common.close") } %>
         </div>
     
     <%= turbo_stream_from current_user, :characters %>

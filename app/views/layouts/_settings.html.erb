@@ -1,8 +1,11 @@
-<section class="site-settings" aria-label="Settings">
-  <h4>Settings</h4>
+<section class="site-settings" aria-label="<%= t("navigation.settings") %>">
+  <h4><%= t("navigation.settings") %></h4>
   <% if current_user&.admin? %>
-    <%= link_to "Administration", admin_root_path %>
+    <%= link_to t("navigation.administration"), admin_root_path %>
   <% elsif current_user %>
-    <%= link_to "Trial & subscription", settings_path %>
+    <%= link_to t("navigation.subscription"), settings_path %>
+  <% end %>
+  <% if current_user %>
+    <%= link_to t("navigation.profile"), profile_path %>
   <% end %>
 </section>

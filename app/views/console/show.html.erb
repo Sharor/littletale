@@ -1,5 +1,5 @@
-<h1>Rails Console</h1>
-<p><%= link_to "Admin home", admin_root_path %></p>
-<p><%= link_to "Failed book generations", admin_failed_books_path %></p>
-<p><%= link_to "Character image reviews", admin_character_image_assessments_path %></p>
+<h1><%= t("admin.dashboard.console") %></h1>
+<p><%= link_to t("admin.navigation.home"), admin_root_path %></p>
+<p><%= link_to t("admin.dashboard.failures"), admin_failed_books_path %></p>
+<p><%= link_to t("admin.navigation.reviews"), admin_character_image_assessments_path %></p>
 <%= console %>

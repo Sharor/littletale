@@ -4,28 +4,28 @@
     <% state = request&.screening_status %>
     <% if state == "rejected" %>
       <div class="rounded-lg bg-red-950 p-4 text-sm text-red-100">
-        <p>Your character image was rejected: <%= request.public_reason %></p>
-        <%= link_to "Edit or replace image", edit_character_path(character), class: "underline", data: { turbo_frame: "_top" }, onclick: "event.stopPropagation();" %>
+        <p><%= t("illustrations.rejected", reason: request.public_reason) %></p>
+        <%= link_to t("illustrations.edit"), edit_character_path(character), class: "underline", data: { turbo_frame: "_top" }, onclick: "event.stopPropagation();" %>
       </div>
     <% elsif state == "needs_review" %>
-      <p class="rounded-lg bg-amber-950 p-4 text-sm text-amber-100">Your character image is waiting for an administrator to review it.</p>
+      <p class="rounded-lg bg-amber-950 p-4 text-sm text-amber-100"><%= t("illustrations.needs_review") %></p>
     <% elsif state == "unavailable" %>
-      <p class="p-4 text-sm text-amber-100">Image screening is temporarily unavailable. Your photo has not been reviewed yet.</p>
+      <p class="p-4 text-sm text-amber-100"><%= t("illustrations.unavailable") %></p>
     <% elsif state == "checking" %>
-      <p class="p-4 text-sm text-cyan-300">Checking your character image…</p>
+      <p class="p-4 text-sm text-cyan-300"><%= t("illustrations.checking") %></p>
     <% elsif request&.generation_attempt&.status == "outcome_unknown" %>
-      <p class="p-4 text-sm text-amber-100">Generation could not be confirmed. We stopped to avoid another charge.</p>
+      <p class="p-4 text-sm text-amber-100"><%= t("illustrations.outcome_unknown") %></p>
     <% elsif character.failed? %>
-      <p class="p-4 text-sm text-red-200">Your character image could not be completed. An administrator can inspect the failure.</p>
+      <p class="p-4 text-sm text-red-200"><%= t("illustrations.failed") %></p>
     <% elsif character.completed? && character.illustration&.original_image&.present? %>
       <%= image_tag character.illustration.original_image.url, alt: character.name,
         class: "w-full h-full object-contain block fade-in" %>
     <% elsif character.in_progress? %>
-      <p class="p-4 text-sm text-cyan-300">Generating your character…</p>
+      <p class="p-4 text-sm text-cyan-300"><%= t("illustrations.generating") %></p>
     <% elsif state == "approved" && request.generation_attempt.nil? %>
-      <p class="p-4 text-sm text-amber-100">Your image is approved, but your generation allowance has been reached.</p>
+      <p class="p-4 text-sm text-amber-100"><%= t("illustrations.allowance_reached") %></p>
     <% else %>
-      <p class="p-4 text-sm text-gray-400">Waiting to start…</p>
+      <p class="p-4 text-sm text-gray-400"><%= t("illustrations.waiting") %></p>
     <% end %>
   </div>
 </div>

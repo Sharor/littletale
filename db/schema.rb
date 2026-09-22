@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_21_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_22_133000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -155,6 +155,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_21_120000) do
     t.datetime "generation_failed_at"
     t.integer "generation_attempt", default: 0, null: false
     t.json "generation_failure_history", default: [], null: false
+    t.string "language"
+    t.integer "reader_age"
+    t.string "art_style", default: "western_book_style", null: false
     t.index ["user_id"], name: "index_books_on_user_id"
   end
 
@@ -438,6 +441,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_21_120000) do
     t.datetime "trial_started_at"
     t.datetime "trial_expires_at"
     t.string "stripe_customer_id"
+    t.string "language"
+    t.integer "reader_age"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["stripe_customer_id"], name: "index_users_on_stripe_customer_id", unique: true

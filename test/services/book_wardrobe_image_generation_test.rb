@@ -6,8 +6,9 @@ require "webmock/minitest"
 
 class BookWardrobeImageGenerationTest < ActiveSupport::TestCase
   self.fixture_table_names = []
-  Outfit = Data.define(:description, :character_snapshot, :source_image)
+  Outfit = Data.define(:description, :character_snapshot, :source_image, :book)
   Source = Data.define(:download)
+  Book = Data.define(:art_style_prompt)
 
   setup { VCR.turn_off!(ignore_cassettes: true) }
   teardown { VCR.turn_on! }
@@ -43,7 +44,8 @@ class BookWardrobeImageGenerationTest < ActiveSupport::TestCase
   test "wardrobe image requests carry the saved roles and appearance metadata" do
     saved_outfit = Outfit.new(description: "yellow raincoat and green boots", source_image: Source.new(download: png),
       character_snapshot: { "name" => "Ava", "age" => 7, "gender" => "Girl", "eye_color" => "Green",
-        "ethnicity" => "Asian", "roles" => [ "Younger sibling", "Freckles", "Supporting" ] })
+        "ethnicity" => "Asian", "roles" => [ "Younger sibling", "Freckles", "Supporting" ] },
+      book: Book.new(BookArtStyle.fetch("western_book_style").prompt))
     body = nil
     stub_request(:post, "https://api.openai.com/v1/images/edits").to_return do |request|
       body = request.body
@@ -56,6 +58,24 @@ class BookWardrobeImageGenerationTest < ActiveSupport::TestCase
     assert_includes body, '"roles":["Younger sibling","Freckles","Supporting"]'
     assert_includes body, '"eye_color":"Green"'
     assert_includes body, '"ethnicity":"Asian"'
+  end
+
+  test "restyles wardrobe references to the book's selected art style" do
+    body = nil
+    styled_outfit = Outfit.new(description: "yellow raincoat and green boots", source_image: Source.new(download: png),
+      character_snapshot: { "name" => "Ava", "age" => 7 },
+      book: Book.new(BookArtStyle.fetch("cut_paper_collage").prompt))
+    stub_request(:post, "https://api.openai.com/v1/images/edits").to_return do |request|
+      body = request.body
+      { status: 200, headers: { "Content-Type" => "application/json" },
+        body: { data: [ { b64_json: Base64.strict_encode64(png) } ] }.to_json }
+    end
+
+    BookWardrobeImageGeneration.call(styled_outfit)
+
+    assert_includes body, "Cut-paper collage"
+    assert_includes body, "tactile fibers"
+    assert_includes body, "Restyle the character"
   end
 
   test "propagates timeout without retry" do
@@ -83,6 +103,7 @@ class BookWardrobeImageGenerationTest < ActiveSupport::TestCase
   end
 
   def outfit
-    Outfit.new(description: "yellow raincoat and green boots", character_snapshot: { "name" => "Ava", "age" => 7, "gender" => "girl", "hair_color" => "brown", "hair_style" => "curly" }, source_image: Source.new(download: png))
+    Outfit.new(description: "yellow raincoat and green boots", character_snapshot: { "name" => "Ava", "age" => 7, "gender" => "girl", "hair_color" => "brown", "hair_style" => "curly" }, source_image: Source.new(download: png),
+      book: Book.new(BookArtStyle.fetch("western_book_style").prompt))
   end
 end

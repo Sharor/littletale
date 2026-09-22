@@ -132,9 +132,11 @@ class Illustration < ApplicationRecord
   end
 
   def specifications
-    # Consider adding "style_and_resolution() somewhere. TODO"
     scene = "Do not write any letters in the image. Use color and do not make the image monochromatic. Use the provided image(s) to make a new image using this description:\n#{self.original_description}"
     scene = "#{scene}\n\n#{page.wardrobe_instructions}" if page&.wardrobe_required?
+    art_direction = page&.book&.art_style_prompt
+    scene = "#{scene}\n\nArt direction: #{art_direction} Apply this art direction throughout the complete image. " \
+      "Reference images establish character identity and clothing only; their rendering style must not override this art direction." if art_direction
     "#{scene}\n\nComposition: Show one scene at a single moment, not a montage or sequence. " \
       "Depict each character present exactly once, with one body per character. " \
       "If the description mentions several actions, choose one coherent moment instead of drawing the same person again. " \

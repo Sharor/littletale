@@ -1,8 +1,44 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 class BookTest < ActiveSupport::TestCase
+  test "new books default to the western book style" do
+    book = Book.new(user: users(:one), name: "New tale", total_pages: 1)
+
+    assert_equal "western_book_style", book.art_style
+    assert_predicate book, :valid?
+  end
+
+  test "rejects unknown art styles" do
+    book = Book.new(user: users(:one), name: "New tale", total_pages: 1, art_style: "made_up_style")
+
+    assert_not book.valid?
+    assert_includes book.errors[:art_style], "is not included in the list"
+  end
+
+  test "keeps the chosen art style fixed after creation" do
+    book = Book.create!(user: users(:one), name: "New tale", total_pages: 1, art_style: "comic_book")
+
+    assert_not book.update(art_style: "colored_pencil")
+    assert_includes book.errors[:art_style], "cannot be changed after the book is created"
+    assert_equal "comic_book", book.reload.art_style
+  end
+
+  test "broadcasts book status in the owner's language" do
+    book = books(:one)
+    book.user.update!(language: "da")
+    rendered_locale = nil
+
+    book.stub :broadcast_replace_to, ->(*) { rendered_locale = I18n.locale } do
+      book.send(:broadcast_generation_state)
+    end
+
+    assert_equal :da, rendered_locale
+    assert_equal :en, I18n.locale
+  end
+
   test "pending book immediately displays an accessible preparation status" do
     book = Book.new(user: users(:one), name: "New tale", total_pages: 1, generation_status: :pending)
 
@@ -30,6 +66,20 @@ class BookTest < ActiveSupport::TestCase
     assert_includes html, "Missing illustration"
     assert_includes html, "Illustration unavailable"
     assert_includes html, "available.png"
+  end
+
+  test "failed book displays generation failures in the active language" do
+    book = books(:one)
+    book.update_columns(generation_status: Book.generation_statuses.fetch("failed"),
+      generation_failure: { "type" => "wardrobe_provider_rate_limit",
+        "message" => "The AI service is receiving too many requests." })
+
+    html = I18n.with_locale(:da) do
+      ApplicationController.render(partial: "books/book_state", locals: { book: book })
+    end
+
+    assert_includes html, "AI-tjenesten modtager for mange anmodninger"
+    assert_not_includes html, "receiving too many requests"
   end
 
   test "completed book state renders story pages in a background update" do

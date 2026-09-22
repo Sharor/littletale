@@ -4,8 +4,8 @@
     <div class="fable-dialog-shell">
       <div class="fable-dialog-inner">
         <div class="fable-dialog-heading">
-          <h1 id="modal-title" class="font-extrabold text-2xl">The plot of your story</h1>
-          <%= link_to "\u{274C}", book_path(@book), class: 'fable-dialog-close', aria: { label: 'Close' } %>
+          <h1 id="modal-title" class="font-extrabold text-2xl"><%= t("books.edit.title") %></h1>
+          <%= link_to "\u{274C}", book_path(@book), class: 'fable-dialog-close', aria: { label: t("common.close") } %>
         </div>
         
           <%= render "form", book: @book %>

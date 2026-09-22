@@ -13,7 +13,7 @@ class PurchasesController < ApplicationController
     redirect_to checkout.url, allow_other_host: true, status: :see_other
   rescue Payments::Checkout::ConfigurationError, Stripe::StripeError => error
     Rails.logger.error("Stripe Checkout could not start: #{error.class}")
-    redirect_to settings_url, alert: "Payment is temporarily unavailable. Please try again."
+    redirect_to settings_url, alert: I18n.t("notices.payment.unavailable")
   end
 
   def success
@@ -21,10 +21,10 @@ class PurchasesController < ApplicationController
     current_user.book_purchases.find_by!(stripe_checkout_session_id: session_id)
     session = Payments::StripeGateway.new.retrieve_checkout_session(session_id)
     Payments::FulfillCheckout.call(session: session)
-    redirect_to settings_url(checkout: "success"), notice: "Payment received. Your book credit is ready."
+    redirect_to settings_url(checkout: "success"), notice: I18n.t("notices.payment.received")
   rescue Payments::FulfillCheckout::InvalidSession
     redirect_to settings_url(checkout: "pending"),
-      notice: "Your payment is still processing. Credits appear after Stripe confirms payment."
+      notice: I18n.t("notices.payment.processing")
   end
 
   private

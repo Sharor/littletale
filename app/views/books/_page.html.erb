@@ -4,7 +4,7 @@
       <% if page.illustration&.original_image&.url.present? %>
         <%= image_tag page.illustration.original_image.url, class: "illustration" %>
       <% else %>
-        <p class="text-center text-sm text-stone-600 py-6">Illustration unavailable</p>
+        <p class="text-center text-sm text-stone-600 py-6"><%= t("books.reader.illustration_unavailable") %></p>
         <% if page.persisted? %>
           <%= turbo_frame_tag dom_id(page, :illustration_controls), src: illustration_controls_page_path(page) %>
         <% end %>

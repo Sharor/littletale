@@ -3,16 +3,16 @@
         <div class="text-center overflow-hidden shadow-lg rounded-lg min-h-65 flex items-center justify-center" >
             <div>
             <% if current_user.character_generation_available? %>
-              <%= button_to t('activerecord.attributes.characters.new'), new_character_path , class: "fantasy-button #{@tutorial}", method: :get, params: { book_id: book.id, path: book }, form: { data: { turbo_frame: "_top" } }  %>
+              <%= button_to t("characters.index.new"), new_character_path , class: "fantasy-button #{@tutorial}", method: :get, params: { book_id: book.id, path: book }, form: { data: { turbo_frame: "_top" } }  %>
             <% else %>
               <button type="button" class="fantasy-button opacity-50 cursor-not-allowed" data-new-character-disabled
-                disabled aria-disabled="true" title="Buy a book credit in Settings to add more characters.">
-                <%= t('activerecord.attributes.characters.new') %>
+                disabled aria-disabled="true" title="<%= t("characters.index.character_credit_required") %>">
+                <%= t("characters.index.new") %>
               </button>
             <% end %>
             <%= turbo_frame_tag "character_modal" %>
             <% disabled = current_user.characters.none? %>
-            <%= button_to t('activerecord.attributes.characters.existing'), select_characters_path, class: "fantasy-button reuse_character #{'opacity-50 cursor-not-allowed' if disabled}",
+            <%= button_to t("characters.index.existing"), select_characters_path, class: "fantasy-button reuse_character #{'opacity-50 cursor-not-allowed' if disabled}",
             method: :get, params: { book_id: book.id }, data: { turbo_frame: "character_select_modal" }, disabled: disabled  %>
             </div>
         </div>

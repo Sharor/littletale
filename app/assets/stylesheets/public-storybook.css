@@ -16,7 +16,7 @@
 .fable-public h2 { margin: 0 0 1.4rem; font-size: clamp(2rem, 3.3vw, 3rem); }
 .fable-public h3 { margin: 0 0 .4rem; font-size: 1.5rem; }
 .fable-public p { margin: 0; }
-.fable-public a:focus-visible, .fable-public button:focus-visible { outline: 3px solid #b25c34; outline-offset: 4px; }
+.fable-public a:focus-visible, .fable-public button:focus-visible { outline: 3px solid var(--fable-wine, #742d38); outline-offset: 4px; }
 .fable-public-button {
   display: inline-flex;
   align-items: center;

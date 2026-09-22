@@ -11,37 +11,37 @@
 <%# Character Content Body: This block renders the Detailed Form by default %>
 <div id="char-<%= char_id %>-body">
     <div class="space-y-4" data-mode-content="form">
-        <label class="block text-sm font-medium">Character Name (Required)</label>
+        <label class="block text-sm font-medium"><%= t("characters.form.name") %></label>
         <input type="text" 
                 name="character[<%= char_id %>][name]" 
                 id="char-<%= char_id %>-name" 
-                placeholder="Name (e.g., Elara)" 
+                placeholder="<%= t("characters.form.name_placeholder") %>"
                 class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 character-name-input">
         <p id="char-<%= char_id %>-error-name" class="text-red-400 text-xs mt-1 hidden"></p>
 
         <%# GENDER FIELD %>
         <div class="text-center pt-2">
-            <label class="block text-sm font-medium">Gender (Required)</label>
+            <label class="block text-sm font-medium"><%= t("characters.form.gender") %></label>
             <select name="character[<%= char_id %>][gender]"
                     class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
-                <%= select_options(Character::GENDERS, 'Select Gender') %>
+                <%= select_options(Character::GENDERS, t("characters.form.select")) %>
             </select>
         </div>
         
         <%# ETHNICITY & HAIR COLOR GRID %>
         <div class="grid grid-cols-2 gap-4 pt-2">
             <div class="text-center">
-                <label class="block text-sm font-medium">Ethnicity</label>
+                <label class="block text-sm font-medium"><%= t("characters.form.ethnicity") %></label>
                 <select name="character[<%= char_id %>][ethnicity]"
                         class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
-                    <%= select_options(Character::ETHNICITIES , 'Select Ethnicity') %>
+                    <%= select_options(Character::ETHNICITIES, t("characters.form.select")) %>
                 </select>
             </div>
             <div class="text-center">
-                <label class="block text-sm font-medium">Hair Color</label>
+                <label class="block text-sm font-medium"><%= t("characters.form.hair_color") %></label>
                 <select name="character[<%= char_id %>][hair_color]"
                         class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
-                    <%= select_options(Character::HAIRCOLORS, 'Select Hair Color') %>
+                    <%= select_options(Character::HAIRCOLORS, t("characters.form.select")) %>
                 </select>
             </div>
         </div>
@@ -49,30 +49,30 @@
         <%# HAIR STYLE & EYE COLOR GRID %>
         <div class="grid grid-cols-2 gap-4 pt-2">
             <div class="text-center"> 
-                <label class="block text-sm font-medium">Hair Style</label>
+                <label class="block text-sm font-medium"><%= t("characters.form.hair_style") %></label>
                 <select name="character[<%= char_id %>][hair_style]"
                         class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
-                    <%= select_options(Character::HAIRSTYLES , 'Select Hairstyle') %>
+                    <%= select_options(Character::HAIRSTYLES, t("characters.form.select")) %>
                 </select>
             </div>
             <div class="text-center">
-                <label class="block text-sm font-medium">Eye Color</label>
+                <label class="block text-sm font-medium"><%= t("characters.form.eye_color") %></label>
                 <select name="character[<%= char_id %>][eye_color]"
                         class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white focus:ring-cyan-500 focus:border-cyan-500">
-                    <%= select_options(Character::EYECOLORS, 'Select Eye Color') %>
+                    <%= select_options(Character::EYECOLORS, t("characters.form.select")) %>
                 </select>
             </div>
         </div>
         
         <%# APPEARANCE / TRAITS TEXTAREA %>
-        <label class="block text-sm font-medium pt-2">Appearance / Traits (Detailed Description)</label>
+        <label class="block text-sm font-medium pt-2"><%= t("characters.form.detailed_description") %></label>
         <textarea name="character[<%= char_id %>][description]" 
-                    placeholder="Describe their unique appearance, personality traits, and primary motivation." 
+                    placeholder="<%= t("characters.form.description_placeholder") %>"
                     rows="3" 
                     class="w-full p-2 rounded-md bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500"></textarea>
 
         <%# ROLES CHECKBOX GRID %>
-        <label class="block text-sm font-medium pt-2">Roles / Distinctive Traits (Select all that apply)</label>
+        <label class="block text-sm font-medium pt-2"><%= t("characters.form.roles_all") %></label>
         <div class="character_attributes p-1 -m-1">
             <div class="grid grid-cols-2 gap-4">
                 <% Character::ROLES.each do |role| %>
@@ -85,7 +85,7 @@
                                 class="peer hidden">
                         <div class="rounded-xl border border-white/20 p-4 text-center transition-all duration-200 hover:bg-white/5 
                                     peer-checked:bg-cyan-900 peer-checked:ring-2 peer-checked:ring-cyan-500 peer-checked:border-cyan-500">
-                            <%= role %>
+                            <%= format_option_for_display(role) %>
                         </div>
                     </label>
                 <% end %>

@@ -4,28 +4,28 @@
     <%= render book %>
     <div class="fable-ui fable-editor-actions">
       <div class="grid grid-cols-2 text-center">
-        <%= button_to "Back", books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
-        <%= button_to "Delete", book, method: :delete, data: { turbo: false }, class: 'fantasy-button' %>
+        <%= button_to t("common.back"), books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
+        <%= button_to t("common.delete"), book, method: :delete, data: { turbo: false }, class: 'fantasy-button' %>
       </div>
     </div>
   <% else %>
   <div class="fable-ui fable-panel text-center" >
-    <h1 class="font-extrabold text-3xl" >Writing your book!</h1>
+    <h1 class="font-extrabold text-3xl" ><%= t("books.status.writing") %></h1>
     <%= render partial: "books/loading", locals: { book: book } %>
     <br />
     <%= render partial: "books/loading_progress", locals: { book: book } %>
-    <%= button_to "Back", books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
+    <%= button_to t("common.back"), books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
   </div>
   <% end %>
 <% else %>
   <div class="fable-ui fable-panel text-center" >
     <div class="grid grid-cols-3 text-center">
-      <%= button_to "Back", books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
+      <%= button_to t("common.back"), books_path, method: :get, data: { turbo: false }, class: 'fantasy-button' %>
       
     </div>
     <div class="mt-10">
       <h1 class="font-extrabold text-3xl" >
-        Preparing your new book 
+        <%= t("books.status.preparing_new") %>
         <br>
         <div class="text-red-700 ">
         <%= book.name %>
@@ -41,7 +41,7 @@
     </div>
     <div class="mt-10 mb-20">
       <%= turbo_frame_tag "book_modal" do %>
-        <%= button_to "Make book", edit_book_path(book), class: "fantasy-button tutorial_make_book", method: :get %> 
+        <%= button_to t("books.status.make"), edit_book_path(book), class: "fantasy-button tutorial_make_book", method: :get %>
       <% end %>
     </div>  
       

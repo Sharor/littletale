@@ -5,7 +5,7 @@
     <div id="character-creation-container" class="fable-panel fable-character-editor">
 
       <h1 class="text-4xl font-extrabold text-white mb-6 border-b border-white/20 pb-3">
-        <%= @character.persisted? ? "Edit Character" : "New Character Creation" %>
+        <%= t(@character.persisted? ? "characters.form.edit_title" : "characters.form.new_title") %>
       </h1>
 
       <%= form_with(model: @character, local: true, html: { class: 'space-y-6', multipart: true }) do |form| %>
@@ -14,9 +14,8 @@
 
         <%# 1. Name Input %>
         <div class="space-y-2">
-          <label class="block text-sm font-medium <%= @character.errors[:name].any? ? 'text-red-400' : 'text-gray-300' %>" for="character_name">
-            Character Name (Required)
-          </label>
+          <%= form.label :name, t("characters.form.name"),
+              class: "fable-form-label #{@character.errors[:name].any? ? 'text-red-400' : ''}" %>
           <%= form.text_field :name,
               placeholder: "Name (e.g., Elara)",
               class: "w-full p-2 rounded-md bg-white/10 border #{ @character.errors[:name].any? ? 'border-red-500' : 'border-white/10' } text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500" %>
@@ -30,11 +29,11 @@
           <nav class="flex space-x-2" aria-label="Tabs">
             <button type="button" id="tab-photo" onclick="toggleMode('photo')"
                     class="mode-tab px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-150 <%= character_creation_mode == 'photo' ? 'bg-cyan-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700' %>">
-              Photo Upload
+              <%= t("characters.form.photo_tab") %>
             </button>
             <button type="button" id="tab-form" onclick="toggleMode('form')"
                     class="mode-tab px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-150 <%= character_creation_mode == 'form' ? 'bg-cyan-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700' %>">
-              Descriptive Form
+              <%= t("characters.form.description_tab") %>
             </button>
           </nav>
         </div>
@@ -43,17 +42,17 @@
 
         <%# Photo Mode %>
         <div id="content-photo" class="mode-content space-y-4 <%= 'hidden' if character_creation_mode == 'form' %>">
-          <h2 class="text-xl font-semibold text-white">Upload Character Photo</h2>
+          <h2 class="text-xl font-semibold text-white"><%= t("characters.form.upload_title") %></h2>
 
           <div class="fable-upload-choice flex items-center space-x-4">
             <label class="block cursor-pointer px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200 border <%= @character.errors[:photo].any? ? 'border-red-500' : 'border-transparent' %>">
-              Choose Photo
+              <%= t("characters.form.choose_photo") %>
               <%= form.file_field :photo_upload, accept: "image/*", class: "hidden", id: "character_photo_upload", onchange: "handlePhotoPreview(this.files[0])" %>
             </label>
-            <span id="file-name-display" class="text-sm text-gray-400"><%= @character.photo.attached? ? @character.photo.filename : "No file chosen." %></span>
+            <span id="file-name-display" class="text-sm text-gray-400"><%= @character.photo.attached? ? @character.photo.filename : t("characters.form.no_file") %></span>
           </div>
           <% if @character.errors[:photo].any? %>
-            <p class="text-xs text-red-400 mt-1">Photo upload <%= @character.errors[:photo].first %></p>
+            <p class="text-xs text-red-400 mt-1"><%= t("characters.form.photo_error", error: @character.errors[:photo].first) %></p>
           <% end %>
 
           <div id="photo-preview-container" class="mt-6">
@@ -61,7 +60,7 @@
               <%= render "characters/photo_preview", blob: @character.photo %>
             <% else %>
               <div id="character-photo-preview-image" class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center">
-                <p class="text-gray-500">Your photo preview will appear here.</p>
+                <p class="text-gray-500"><%= t("characters.form.preview_here") %></p>
               </div>
             <% end %>
           </div>
@@ -69,11 +68,10 @@
 
         <%# Descriptive Form Mode %>
         <div id="content-form" class="mode-content space-y-6 <%= 'hidden' unless character_creation_mode == 'form' %>">
-          <h2 class="text-xl font-semibold text-white">Character Appearance</h2>
+          <h2 class="text-xl font-semibold text-white"><%= t("characters.form.appearance") %></h2>
           <div class="md:col-span-1 space-y-2">
-            <label class="block text-sm font-medium <%= @character.errors[:age].any? ? 'text-red-400' : 'text-gray-300' %>" for="character_age">
-                Age
-            </label>
+            <%= form.label :age, t("characters.form.age"),
+                class: "fable-form-label #{@character.errors[:age].any? ? 'text-red-400' : ''}" %>
             <%= form.number_field :age,
                 placeholder: "25",
                 class: "w-full p-2 rounded-md bg-white/10 border #{ @character.errors[:age].any? ? 'border-red-500' : 'border-white/10' } text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500" %>
@@ -82,11 +80,12 @@
             <% end %>
         </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <% { gender: 'Gender', ethnicity: 'Ethnicity / Appearance', hair_style: 'Hair Style', hair_color: 'Hair Color', eye_color: 'Eye Color' }.each do |field, label| %>
+            <% %i[gender ethnicity hair_style hair_color eye_color].each do |field| %>
               <div class="space-y-1">
-                <label class="block text-sm font-medium <%= @character.errors[field].any? ? 'text-red-400' : 'text-gray-300' %>"><%= label %></label>
+                <%= form.label field, t("characters.form.#{field}"),
+                    class: "fable-form-label #{@character.errors[field].any? ? 'text-red-400' : ''}" %>
                 <%= form.select field,
-                    options_for_select([['-- Select --', '']] + character_options[field].map { |opt| [format_option_for_display(opt), opt] }, @character.send(field)),
+                    options_for_select([[t("characters.form.select"), '']] + character_options[field].map { |opt| [format_option_for_display(opt), opt] }, @character.send(field)),
                     {},
                     class: "w-full p-2 rounded-md bg-white text-gray-800 border #{ @character.errors[field].any? ? 'border-red-500' : 'border-white/10' } focus:ring-cyan-500 focus:border-cyan-500" %>
                 <% if @character.errors[field].any? %>
@@ -102,8 +101,8 @@
 
         <%# 5. Buttons %>
         <div class="flex justify-between mt-10 pt-6 border-t border-white/10">
-          <%= link_to 'Back', characters_path, class: "px-6 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200" %>
-          <%= form.submit "Save", class: "px-6 py-3 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500 transition duration-200 cursor-pointer" %>
+          <%= link_to t("common.back"), characters_path, class: "px-6 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition duration-200" %>
+          <%= form.submit t("common.save"), class: "px-6 py-3 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-500 transition duration-200 cursor-pointer" %>
         </div>
       <% end %>
 
@@ -130,8 +129,8 @@
             const previewContainer = document.getElementById('photo-preview-container');
 
             if (!file) {
-                fileNameDisplay.textContent = 'No file chosen.';
-                previewContainer.innerHTML = `<div id="character-photo-preview-image" class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center"><p class="text-gray-500">Your photo preview will appear here.</p></div>`;
+                fileNameDisplay.textContent = '<%= j t("characters.form.no_file") %>';
+                previewContainer.innerHTML = `<div id="character-photo-preview-image" class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center"><p class="text-gray-500"><%= j t("characters.form.preview_here") %></p></div>`;
                 return;
             }
 
@@ -139,7 +138,7 @@
             const formData = new FormData();
             formData.append('photo', file);
 
-            previewContainer.innerHTML = `<div class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center"><svg class="animate-spin h-8 w-8 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="ml-3 text-cyan-400">Generating preview...</p></div>`;
+            previewContainer.innerHTML = `<div class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-gray-900/50 flex items-center justify-center"><svg class="animate-spin h-8 w-8 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="ml-3 text-cyan-400"><%= j t("characters.form.generating_preview") %></p></div>`;
 
             fetch('/characters/photo_preview', {
                 method: 'POST',
@@ -149,7 +148,7 @@
             .then(response => response.text())
             .then(html => { previewContainer.innerHTML = html; })
             .catch(error => {
-                previewContainer.innerHTML = `<div class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-red-900/50 flex items-center justify-center"><p class="text-red-400">Failed to load preview.</p></div>`;
+                previewContainer.innerHTML = `<div class="w-full h-64 border border-white/20 rounded-xl overflow-hidden shadow-lg bg-red-900/50 flex items-center justify-center"><p class="text-red-400"><%= j t("characters.form.preview_failed") %></p></div>`;
             });
         }
       </script>

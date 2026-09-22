@@ -12,9 +12,9 @@ class SubscriptionsController < ApplicationController
     )
     redirect_to checkout.url, allow_other_host: true, status: :see_other
   rescue Payments::SubscriptionCheckout::AlreadySubscribed
-    redirect_to settings_url, notice: "Your subscription is already active."
+    redirect_to settings_url, notice: I18n.t("notices.subscription.active")
   rescue Payments::SubscriptionCheckout::ConfigurationError, Stripe::StripeError => error
     Rails.logger.error("Stripe subscription Checkout could not start: #{error.class}")
-    redirect_to settings_url, alert: "Subscriptions are temporarily unavailable. Please try again."
+    redirect_to settings_url, alert: I18n.t("notices.subscription.unavailable")
   end
 end

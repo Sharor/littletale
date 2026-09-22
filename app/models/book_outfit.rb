@@ -2,6 +2,7 @@
 
 class BookOutfit < ApplicationRecord
   belongs_to :book_wardrobe_plan
+  delegate :book, to: :book_wardrobe_plan
   has_one_attached :source_image
   has_one_attached :image
   validates :outfit_key, uniqueness: { scope: [:book_wardrobe_plan_id, :character_id] }

@@ -1,9 +1,9 @@
 <main class="mx-auto max-w-6xl text-white">
-  <p class="text-sm uppercase tracking-widest text-cyan-300">Little Fables · Operations</p>
-  <h1 class="mt-2 text-4xl font-bold">Administration</h1>
-  <p class="mt-3 text-gray-300">Review character images, resolve generation failures, and inspect background work.</p>
+  <p class="text-sm uppercase tracking-widest text-cyan-300"><%= t("admin.dashboard.eyebrow") %></p>
+  <h1 class="mt-2 text-4xl font-bold"><%= t("admin.dashboard.title") %></h1>
+  <p class="mt-3 text-gray-300"><%= t("admin.dashboard.introduction") %></p>
   <div class="mt-8 grid gap-4 sm:grid-cols-2">
-    <% [["Character image reviews", "#{@reviews} awaiting review. Inspect requests and retry character generation.", admin_character_image_assessments_path], ["Failed book generations", "#{@failed_books} failed books. Review errors and retry images or stories.", admin_failed_books_path], ["Background jobs", "Inspect queued, running, and failed background jobs.", "/jobs"], ["Rails Console", "Open the existing development console for technical investigation.", "/console"]].each do |title, description, path| %>
+    <% [[t("admin.dashboard.reviews"), t("admin.dashboard.reviews_description", count: @reviews), admin_character_image_assessments_path], [t("admin.dashboard.failures"), t("admin.dashboard.failures_description", count: @failed_books), admin_failed_books_path], [t("admin.dashboard.jobs"), t("admin.dashboard.jobs_description"), "/jobs"], [t("admin.dashboard.console"), t("admin.dashboard.console_description"), "/console"]].each do |title, description, path| %>
       <%= link_to path, class: "block rounded-xl border border-white/20 bg-black/20 p-6 hover:border-cyan-300 focus-visible:outline focus-visible:outline-cyan-300" do %>
         <h2 class="text-xl font-semibold"><%= title %> →</h2>
         <p class="mt-3 text-gray-300"><%= description %></p>
@@ -12,15 +12,15 @@
   </div>
 
   <section class="mt-10" aria-labelledby="user-access-heading">
-    <h2 id="user-access-heading" class="text-2xl font-semibold">User access</h2>
+    <h2 id="user-access-heading" class="text-2xl font-semibold"><%= t("admin.dashboard.user_access") %></h2>
     <div class="mt-4 overflow-x-auto rounded-xl border border-white/20 bg-black/20">
       <table class="w-full text-left">
         <thead class="border-b border-white/20 text-sm uppercase tracking-wide text-gray-300">
           <tr>
-            <th class="p-4">User</th>
-            <th class="p-4">Status</th>
-            <th class="p-4">Books available</th>
-            <th class="p-4">Character credits</th>
+            <th class="p-4"><%= t("admin.dashboard.user") %></th>
+            <th class="p-4"><%= t("admin.dashboard.status") %></th>
+            <th class="p-4"><%= t("admin.dashboard.books_available") %></th>
+            <th class="p-4"><%= t("admin.dashboard.character_credits") %></th>
           </tr>
         </thead>
         <tbody>
@@ -32,7 +32,7 @@
                 <%= user.paid? ? user.available_book_credits : user.trial_books_remaining %>
               </td>
               <td class="p-4" data-admin-character-credits="<%= user.available_character_credits if user.paid? %>">
-                <%= user.paid? ? user.available_character_credits : "Trial allowance" %>
+                <%= user.paid? ? user.available_character_credits : t("admin.dashboard.trial_allowance") %>
               </td>
             </tr>
           <% end %>

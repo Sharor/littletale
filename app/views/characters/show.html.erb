@@ -7,10 +7,10 @@
 
 
 <div>
-  <%= link_to "Edit this character", edit_character_path(@character) %> |
-  <%= link_to "Back to characters", characters_path %>
+  <%= link_to t("characters.show.edit"), edit_character_path(@character) %> |
+  <%= link_to t("characters.show.back"), characters_path %>
 
-  <%= button_to "Destroy this character", @character, method: :delete %>
+  <%= button_to t("characters.show.destroy"), @character, method: :delete %>
 </div>
 
   </main>

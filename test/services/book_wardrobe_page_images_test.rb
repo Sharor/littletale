@@ -6,6 +6,7 @@ class BookWardrobePageImagesTest < ActiveSupport::TestCase
 
   Book = Struct.new(:generation_attempt, :user_id) do
     def reload = self
+    def art_style_prompt = BookArtStyle.default.prompt
   end
   WardrobePage = Struct.new(:book, :generation_attempt, :book_outfits, :ready, :required) do
     def wardrobe_required? = required

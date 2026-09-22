@@ -39,18 +39,47 @@ class TutorialsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "accepting the terms records acceptance and redirects to the library" do
+    @user.update_column(:language, "en")
     post accept_terms_url
 
     assert_predicate Tutorial.find_by!(user: @user), :terms?
     assert_redirected_to books_url
   end
 
-  test "tutorial accepts the terms and renders the completion step" do
+  test "accepting terms sends a new user to language onboarding" do
+    @user.update_column(:language, nil)
+
+    post accept_terms_url
+
+    assert_predicate Tutorial.find_by!(user: @user), :terms?
+    assert_redirected_to profile_url(onboarding: true)
+  end
+
+  test "tutorial does not implicitly accept terms" do
+    get tutorial_url
+
+    tutorial = Tutorial.find_by!(user: @user)
+    assert_redirected_to terms_url
+    assert_not tutorial.terms?
+  end
+
+  test "tutorial requires language onboarding after accepted terms" do
+    @user.tutorial.update!(terms: true)
+    @user.update_column(:language, nil)
+
+    get tutorial_url
+
+    assert_redirected_to profile_url(onboarding: true)
+  end
+
+  test "tutorial renders after terms and language are saved" do
+    @user.tutorial.update!(terms: true)
+    @user.update!(language: "en")
+
     get tutorial_url
 
     tutorial = Tutorial.find_by!(user: @user)
     assert_response :success
-    assert_predicate tutorial, :terms?
     assert_not tutorial.tutorial_complete?
     assert_select "main[aria-labelledby='tutorial-title']", count: 1 do
       assert_select "h1#tutorial-title", I18n.t("activerecord.attributes.tutorial.tutorial")

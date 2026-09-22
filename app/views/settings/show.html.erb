@@ -4,76 +4,76 @@
   <%= render "layouts/sidebar" %>
 
   <main class="fable-main fable-ui" id="main">
-    <p class="text-sm uppercase tracking-widest text-cyan-300">Account access</p>
-    <h1 class="mt-2 text-4xl font-bold">Trial &amp; subscription</h1>
+    <p class="text-sm uppercase tracking-widest text-cyan-300"><%= t("settings.eyebrow") %></p>
+    <h1 class="mt-2 text-4xl font-bold"><%= t("settings.title") %></h1>
 
     <section class="mt-8 max-w-2xl rounded-xl border border-white/20 bg-black/20 p-6" aria-labelledby="trial-heading">
-      <h2 id="trial-heading" class="text-2xl font-semibold">Your access</h2>
+      <h2 id="trial-heading" class="text-2xl font-semibold"><%= t("settings.access.title") %></h2>
 
       <% if current_user.admin? %>
-        <p class="mt-4 text-lg" data-trial-status="admin">Administrator</p>
-        <p class="mt-2 text-gray-300">Administrator accounts are not subject to trial limits.</p>
+        <p class="mt-4 text-lg" data-trial-status="admin"><%= t("settings.access.administrator") %></p>
+        <p class="mt-2 text-gray-300"><%= t("settings.access.administrator_hint") %></p>
       <% elsif current_user.paid? %>
         <% if @subscription&.status == "active" %>
-          <p class="mt-4 text-lg" data-subscription-status="active">Monthly subscription active</p>
+          <p class="mt-4 text-lg" data-subscription-status="active"><%= t("settings.access.subscription_active") %></p>
           <% if @subscription.current_period_end %>
-            <p class="mt-2 text-gray-300"><%= @subscription.cancel_at_period_end? ? "Subscription ends" : "Current month ends" %> <%= l(@subscription.current_period_end, format: :long) %>.</p>
+            <p class="mt-2 text-gray-300"><%= t(@subscription.cancel_at_period_end? ? "settings.access.subscription_ends" : "settings.access.month_ends") %> <%= l(@subscription.current_period_end, format: :long) %>.</p>
           <% end %>
         <% else %>
-          <p class="mt-4 text-lg" data-trial-status="paid">Basic access</p>
+          <p class="mt-4 text-lg" data-trial-status="paid"><%= t("settings.access.basic") %></p>
         <% end %>
-        <p class="mt-2 text-gray-300">Your reading access does not expire.</p>
+        <p class="mt-2 text-gray-300"><%= t("settings.access.no_expiry") %></p>
         <p class="mt-4 text-xl" data-book-credits="<%= current_user.available_book_credits %>">
-          <strong><%= pluralize(current_user.available_book_credits, "book credit") %></strong> available
+          <strong><%= t("settings.access.book_credits", count: current_user.available_book_credits) %></strong> <%= t("settings.access.available") %>
         </p>
         <% if @has_subscription_history %>
           <p class="mt-2 text-xl" data-character-credits="<%= current_user.available_character_credits %>">
-            <strong><%= pluralize(current_user.available_character_credits, "character credit") %></strong> available
+            <strong><%= t("settings.access.character_credits", count: current_user.available_character_credits) %></strong> <%= t("settings.access.available") %>
           </p>
         <% end %>
         <% if @subscription && @subscription.status != "pending" %>
-          <p class="mt-3 text-sm text-gray-400">Your monthly allowance is applied automatically. Only saved and purchased credits are shown here.</p>
-          <%= button_to "Manage subscription", settings_billing_portal_path, method: :post,
+          <p class="mt-3 text-sm text-gray-400"><%= t("settings.access.allowance_hint") %></p>
+          <%= button_to t("settings.access.manage"), settings_billing_portal_path, method: :post,
             class: "mt-4 min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-cyan-300" %>
         <% end %>
       <% else %>
-        <% status_labels = { "not_started" => "Not started", "active" => "Active", "expired" => "Expired" } %>
+        <% status_labels = { "not_started" => t("settings.trial.not_started"), "active" => t("settings.trial.active"), "expired" => t("settings.trial.expired") } %>
         <p class="mt-4 text-lg" data-trial-status="<%= current_user.trial_status %>">
-          Trial status: <strong><%= status_labels.fetch(current_user.trial_status) %></strong>
+          <%= t("settings.trial.status") %>: <strong><%= status_labels.fetch(current_user.trial_status) %></strong>
         </p>
         <p class="mt-2 text-gray-300" data-books-remaining="<%= current_user.trial_books_remaining %>">
-          <strong><%= current_user.trial_books_remaining %> books available</strong> of 3 trial books.
+          <strong><%= t("settings.trial.books_available", count: current_user.trial_books_remaining) %></strong> <%= t("settings.trial.of_three") %>
         </p>
 
         <% if current_user.trial_started_at.present? %>
-          <p class="mt-2 text-gray-300">Started <%= l(current_user.trial_started_at, format: :long) %>.</p>
-          <p class="mt-2 text-gray-300">Access <%= current_user.trial_expired? ? "ended" : "ends" %> <%= l(current_user.trial_expires_at, format: :long) %>.</p>
+          <p class="mt-2 text-gray-300"><%= t("settings.trial.started") %> <%= l(current_user.trial_started_at, format: :long) %>.</p>
+          <p class="mt-2 text-gray-300"><%= t(current_user.trial_expired? ? "settings.trial.ended" : "settings.trial.ends") %> <%= l(current_user.trial_expires_at, format: :long) %>.</p>
         <% else %>
-          <p class="mt-2 text-gray-300">Your one-month reading period begins when your first book finishes generating.</p>
+          <p class="mt-2 text-gray-300"><%= t("settings.trial.starts_with_book") %></p>
         <% end %>
       <% end %>
     </section>
 
     <% unless current_user.admin? %>
       <section class="mt-6 max-w-2xl rounded-xl border border-amber-300/30 bg-black/20 p-6" aria-labelledby="payment-heading">
-        <p class="text-sm uppercase tracking-widest text-amber-300">Payment options</p>
-        <h2 id="payment-heading" class="mt-2 text-2xl font-semibold">Buy your next book</h2>
-        <p class="mt-3 text-gray-200">Each purchase includes one book credit and five character generations.</p>
-        <%= button_to "Buy one book credit", settings_book_purchase_path, method: :post,
+        <p class="text-sm uppercase tracking-widest text-amber-300"><%= t("settings.payment.eyebrow") %></p>
+        <h2 id="payment-heading" class="mt-2 text-2xl font-semibold"><%= t("settings.payment.title") %></h2>
+        <p class="mt-3 text-gray-200"><%= t("settings.payment.purchase_includes") %></p>
+        <%= button_to t("settings.payment.buy"), settings_book_purchase_path, method: :post,
           class: "mt-5 min-h-11 rounded bg-amber-500 px-5 py-3 font-semibold text-gray-950 hover:bg-amber-400" %>
         <% if @subscription&.status == "pending" %>
-          <%= button_to "Resume subscription checkout", settings_subscription_path, method: :post,
+          <%= button_to t("settings.payment.resume"), settings_subscription_path, method: :post,
             class: "mt-5 min-h-11 rounded border border-cyan-300 px-5 py-3 font-semibold text-white hover:bg-cyan-300/10" %>
         <% elsif !@subscription %>
-          <p class="mt-5 text-gray-200">A subscription includes 50 books and 150 character generations each month.</p>
-          <%= button_to "Subscribe monthly", settings_subscription_path, method: :post,
+          <p class="mt-5 text-gray-200"><%= t("settings.payment.subscription_includes") %></p>
+          <%= button_to t("settings.payment.subscribe"), settings_subscription_path, method: :post,
             class: "mt-3 min-h-11 rounded border border-cyan-300 px-5 py-3 font-semibold text-white hover:bg-cyan-300/10" %>
         <% end %>
       </section>
 
       <% if @purchases.any? %>
         <section class="mt-6 max-w-2xl rounded-xl border border-white/20 bg-black/20 p-6" aria-labelledby="purchase-history-heading">
-          <h2 id="purchase-history-heading" class="text-2xl font-semibold">Purchase history</h2>
+          <h2 id="purchase-history-heading" class="text-2xl font-semibold"><%= t("settings.payment.history") %></h2>
           <ul class="mt-4 space-y-3">
             <% @purchases.each do |purchase| %>
               <li class="flex flex-wrap justify-between gap-3 border-b border-white/10 pb-3 last:border-0">

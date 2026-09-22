@@ -27,10 +27,12 @@ class Page < ApplicationRecord
 
   # Broadcast specifically to the book's stream, replacing only the castle
   after_create_commit -> {
-    broadcast_replace_to book,
-    target: "castle_construction",
-    partial: "books/castle",
-    locals: { book: book }
+    I18n.with_locale(book.user.language.presence_in(User::SUPPORTED_LANGUAGES.keys) || I18n.default_locale) do
+      broadcast_replace_to book,
+      target: "castle_construction",
+      partial: "books/castle",
+      locals: { book: book }
+    end
   }
 
   has_one :illustration, dependent: :destroy

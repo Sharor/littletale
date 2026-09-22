@@ -20,7 +20,8 @@ class BooksController < ApplicationController
   # GET /books/new
   def new
     characters = current_user.characters.where(id: params[:character_ids])
-    @book = Book.new(characters: characters, user: current_user)
+    @book = Book.new(characters: characters, user: current_user,
+      language: current_user.language, reader_age: current_user.reader_age)
     @tutorial = "name_book_tutorial" unless current_user.books.any?
   end
 
@@ -38,7 +39,7 @@ class BooksController < ApplicationController
       if save_with_generation_funding
         queued = @book.enqueue_generation!(reservation: @generation_reservation,
           release_on_failure: @generation_reservation_newly_acquired)
-        notice = queued ? "Book was successfully created." : @book.generation_failure["message"]
+        notice = queued ? I18n.t("notices.book.created") : @book.generation_failure["message"]
         format.html { redirect_to book_url(@book, format: :html), notice: notice }
         format.json { render :show, status: :created, location: @book }
       else
@@ -62,7 +63,7 @@ class BooksController < ApplicationController
             partial: "books/book_editor",
             locals: { book: @book })}
         format.html do
-          notice = queued ? "Book is being written!" : @book.generation_failure["message"]
+          notice = queued ? I18n.t("notices.book.writing") : @book.generation_failure["message"]
           redirect_to book_url(@book), notice: notice
         end
       else
@@ -78,7 +79,7 @@ class BooksController < ApplicationController
     @book.destroy
 
     respond_to do |format|
-      format.html { redirect_to books_url, notice: "Book was successfully destroyed." }
+      format.html { redirect_to books_url, notice: I18n.t("notices.book.destroyed") }
       format.json { head :no_content }
     end
   end
@@ -89,13 +90,13 @@ class BooksController < ApplicationController
       selected = if ids
         normalized = Array(ids).reject(&:blank?).map(&:to_s).uniq
         records = current_user.characters.where(id: normalized).to_a
-        return render plain: "Choose only your own ready character images.", status: :unprocessable_content if records.size != normalized.size
+        return render plain: I18n.t("notices.characters.own_ready_only"), status: :unprocessable_content if records.size != normalized.size
         records
       else
         @book ? @book.characters : []
       end
       unless selected.all?(&:image_ready_for_book?)
-        render plain: "One or more character images are not ready. Choose ready characters or wait for review and generation.", status: :unprocessable_content
+        render plain: I18n.t("notices.characters.not_ready"), status: :unprocessable_content
       end
     end
 
@@ -106,7 +107,7 @@ class BooksController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def book_params
-      params.require(:book).permit(:name, :plot, :total_pages, character_ids: [])
+      params.require(:book).permit(:name, :plot, :total_pages, :language, :reader_age, :art_style, character_ids: [])
     end
 
     def save_with_generation_funding
@@ -117,14 +118,14 @@ class BooksController < ApplicationController
       end
       true
     rescue TrialBookReservation::LimitReached
-      @book.errors.add(:base, "The trial includes three trial books. Subscribe to create another book.")
+      @book.errors.add(:base, I18n.t("notices.book.trial_limit_create"))
       false
     rescue TrialBookReservation::TrialExpired
-      @book.errors.add(:base, "The trial has expired. Subscribe to create another book.")
+      @book.errors.add(:base, I18n.t("notices.book.trial_expired_create"))
       false
     rescue BookCredit::LimitReached
       @funding_required = true
-      @book.errors.add(:base, "You need a book credit to generate another book.")
+      @book.errors.add(:base, I18n.t("notices.book.credit_required"))
       false
     rescue ActiveRecord::RecordInvalid
       false
@@ -138,14 +139,14 @@ class BooksController < ApplicationController
       end
       true
     rescue TrialBookReservation::LimitReached
-      @book.errors.add(:base, "The trial includes three trial books. Subscribe to continue.")
+      @book.errors.add(:base, I18n.t("notices.book.trial_limit_continue"))
       false
     rescue TrialBookReservation::TrialExpired
-      @book.errors.add(:base, "The trial has expired. Subscribe to continue.")
+      @book.errors.add(:base, I18n.t("notices.trial_ended"))
       false
     rescue BookCredit::LimitReached
       @funding_required = true
-      @book.errors.add(:base, "You need a book credit to generate another book.")
+      @book.errors.add(:base, I18n.t("notices.book.credit_required"))
       false
     rescue ActiveRecord::RecordInvalid
       false

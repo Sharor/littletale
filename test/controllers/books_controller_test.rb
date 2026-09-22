@@ -57,6 +57,32 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_select "strong", "5 pages"
   end
 
+  test "new books inherit the user's generation preferences" do
+    @user.update!(language: "da", reader_age: 6)
+
+    get new_book_url
+
+    assert_response :success
+    assert_select "select[name='book[language]'] option[value='da'][selected]"
+    assert_select "input[name='book[reader_age]'][value='6']"
+  end
+
+  test "new presents every art style with western book style selected" do
+    get new_book_url
+
+    assert_response :success
+    assert_select "section[data-controller='art-style-picker']" do
+      assert_select "h2#book-art-style-heading.fable-form-label", text: "Choose an art style"
+      assert_select "fieldset[aria-labelledby='book-art-style-heading']", count: 1
+      assert_select "input[type='radio'][name='book[art_style]']", count: 12
+      assert_select "input[type='radio'][name='book[art_style]'][value='western_book_style'][checked]", count: 1
+      assert_select "img[data-art-style-picker-target='preview']", count: 1
+      assert_select "img[alt*='Western Book Style']", minimum: 1
+      assert_select "label", text: /Claymation \/ Plasticine/
+      assert_select "label", text: /Superhero Comic/
+    end
+  end
+
   test "create clamps pages to the tier limit and queues generation" do
     assert_difference("Book.count", 1) do
       assert_enqueued_with(job: GenerateBookJob) do
@@ -68,6 +94,33 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 5, book.total_pages
     assert_equal book, @user.trial_book_reservations.held.find_by!(book: book).book
     assert_redirected_to book_url(book, format: :html)
+  end
+
+  test "create persists book generation preferences" do
+    post books_url, params: { book: { name: "Dansk eventyr", plot: "En skovtur", total_pages: 3,
+      language: "da", reader_age: 8 } }
+
+    book = @user.books.find_by!(name: "Dansk eventyr")
+    assert_equal "da", book.language
+    assert_equal 8, book.reader_age
+  end
+
+  test "create persists the selected art style" do
+    post books_url, params: { book: { name: "Ink adventure", plot: "A city rescue", total_pages: 3,
+      art_style: "comic_book" } }
+
+    assert_equal "comic_book", @user.books.find_by!(name: "Ink adventure").art_style
+  end
+
+  test "create rejects an unknown art style and renders the form safely" do
+    assert_no_difference("Book.count") do
+      post books_url, params: { book: { name: "Invalid style", plot: "A city rescue", total_pages: 3,
+        art_style: "unknown_style" } }
+    end
+
+    assert_response :unprocessable_content
+    assert_select "section[data-controller='art-style-picker']"
+    assert_select "input[type='radio'][value='western_book_style'][checked]"
   end
 
   test "create rejects a fourth held trial book without queueing generation" do

@@ -53,6 +53,18 @@ only to preserve old development data.
   Restart any already-running Rails process after a schema change so it reloads
   model column information.
 
+## Visual design consistency
+
+- Reuse the shared storybook design tokens and semantic component classes before
+  adding page-specific colors, fonts, or controls.
+- Use EB Garamond for display text such as headings, form labels, and card titles.
+  Use Inter for body copy, inputs, helper text, and actions.
+- Use `--fable-wine` for primary actions, selected and focus states, eyebrows, and
+  section accents. Use the ink color for content, the muted color for supporting
+  text, and the existing paper, gold, and line tokens for their named roles.
+- Compare affected pages with adjacent flows at phone and desktop widths. Confirm
+  that wider main-content layouts do not change the established sidebar styling.
+
 # Codex Agent Rules
 
 ## Feature Guardrails

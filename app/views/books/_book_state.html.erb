@@ -4,36 +4,36 @@
       <h1 class="text-3xl font-bold"><%= book.name %></h1>
       <div role="status" class="mt-6">
         <span aria-hidden="true" class="inline-block h-8 w-8 rounded-full border-4 border-yellow-200/20 border-t-yellow-300 motion-safe:animate-spin"></span>
-        <p class="mt-4 text-lg">Getting your book ready…</p>
-        <p class="mt-2 text-gray-300">Generation will begin shortly. This page will update automatically.</p>
+        <p class="mt-4 text-lg"><%= t("books.status.getting_ready") %></p>
+        <p class="mt-2 text-gray-300"><%= t("books.status.starts_shortly") %></p>
       </div>
     </div>
   <% elsif book.generation_status == "in_progress" %>
     <h1 class="fable-reader-title text-3xl font-bold text-center"><%= book.name %></h1>
     <% wardrobe = book.current_wardrobe_plan %>
     <% if wardrobe && !wardrobe.ready? %>
-      <p role="status" class="text-center mt-4">Preparing the story and character outfits…</p>
+      <p role="status" class="text-center mt-4"><%= t("books.status.preparing") %></p>
     <% end %>
     <%= render "books/castle", book: book %>
   <% elsif book.failed? && book.generation_failure["type"] == "character_image_not_ready" %>
-    <p role="status" class="fable-notice p-4 text-amber-100"><%= book.generation_failure["message"] %></p>
+    <p role="status" class="fable-notice p-4 text-amber-100"><%= generation_failure_message(book) %></p>
     <% if book.user.book_generation_available? || book.user.character_generation_available? %>
-      <%= link_to "Review character images", characters_path, class: "underline" %>
+      <%= link_to t("books.status.review_characters"), characters_path, class: "underline" %>
     <% else %>
-      <span data-character-route-disabled aria-disabled="true" title="Buy a book credit in Settings to continue.">
-        Review character images
+      <span data-character-route-disabled aria-disabled="true" title="<%= t("characters.index.character_credit_required") %>">
+        <%= t("books.status.review_characters") %>
       </span>
     <% end %>
   <% elsif book.failed? && book.generation_failure["type"].to_s.start_with?("wardrobe_") %>
-    <p role="status" class="fable-notice p-4 text-amber-100"><%= book.generation_failure["message"] %></p>
+    <p role="status" class="fable-notice p-4 text-amber-100"><%= generation_failure_message(book) %></p>
   <% elsif book.failed? %>
     <p role="status" class="fable-notice p-4 text-amber-100">
-      This book is incomplete. Generation stopped before all illustrations were ready.
+      <%= t("books.status.incomplete") %>
       <% if book.generation_failure["type"] == "openai_image_moderation_blocked" %>
-        The image provider declined an illustration request.
+        <%= t("books.status.image_declined") %>
       <% end %>
       <% if book.current_pages.any? %>
-        You can read the available story below. Missing illustrations are marked.
+        <%= t("books.status.available_pages") %>
       <% end %>
     </p>
     <% if book.current_pages.any? %>

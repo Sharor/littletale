@@ -38,6 +38,10 @@ class CharactersControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{characters_path}']"
     assert_select "button#tab-photo", "Photo Upload"
     assert_select "button#tab-form", "Descriptive Form"
+    %w[name age gender ethnicity hair_style hair_color eye_color].each do |field|
+      assert_select "label.fable-form-label[for='character_#{field}']", count: 1
+    end
+    assert_select "#character-roles fieldset legend.fable-form-legend", count: Character::ROLE_GROUPS.size
     assert_select "input[id^='character_roles_']", minimum: 1
   end
 

@@ -56,6 +56,31 @@ class IllustrationTest < ActiveSupport::TestCase
     assert_includes illustration.specifications, "A castle under the moon"
   end
 
+  test "uses the book art style in page image specifications" do
+    book = Book.create!(user: users(:one), name: "Graphic adventure", total_pages: 1,
+      art_style: "comic_book")
+    page = book.pages.create!(text: "A daring rescue")
+    illustration = Illustration.new(page: page, original_description: "A hero crosses the rooftops")
+
+    prompt = illustration.specifications
+
+    assert_includes prompt, "All-ages comic-book illustration"
+    assert_includes prompt, "controlled halftone texture"
+    assert_not_includes prompt, "Western children's book illustration"
+  end
+
+  test "uses superhero comic art direction throughout a page image" do
+    book = Book.create!(user: users(:one), name: "Hero adventure", total_pages: 1,
+      art_style: "superhero_comic")
+    page = book.pages.create!(text: "A heroic rescue")
+    illustration = Illustration.new(page: page, original_description: "A family races to help")
+
+    prompt = illustration.specifications
+
+    assert_includes prompt, "all-ages superhero comic"
+    assert_includes prompt, "dramatic action framing"
+  end
+
   test "sends the expected request to the image client" do
     response = { "data" => [ { "url" => "https://images.example.test/generated.png" } ] }
     received_parameters = nil

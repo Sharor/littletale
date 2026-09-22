@@ -4,27 +4,27 @@
 <div class="fable-ui fable-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="payment-required-title">
   <div class="fable-dialog-shell max-w-lg">
     <div class="fable-dialog-inner text-center">
-      <p class="text-sm uppercase tracking-widest text-amber-300">More stories await</p>
+      <p class="text-sm uppercase tracking-widest text-amber-300"><%= t("settings.modal.eyebrow") %></p>
       <h2 id="payment-required-title" class="mt-2 text-3xl font-bold">
-        <%= expired ? "Your trial has ended" : (character_only ? "Character credit required" : (advisory ? "You are out of book credits" : "Book credit required")) %>
+        <%= t(expired ? "settings.modal.expired" : (character_only ? "settings.modal.character_required" : (advisory ? "settings.modal.no_books" : "settings.modal.book_required"))) %>
       </h2>
       <p class="mt-4 text-gray-200">
-        One purchase includes one book credit and five character generations. Subscribe monthly for 50 books and 150 character generations.
+        <%= t("settings.modal.explanation") %>
       </p>
       <div class="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
-        <%= button_to "Buy one book credit", settings_book_purchase_path, method: :post,
+        <%= button_to t("settings.payment.buy"), settings_book_purchase_path, method: :post,
           class: "min-h-11 rounded bg-amber-500 px-5 py-3 font-semibold text-gray-950 hover:bg-amber-400" %>
         <% if @subscription.nil? || @subscription.status == "pending" %>
-          <% subscription_button_label = @subscription&.status == "pending" ? "Resume subscription checkout" : "Subscribe monthly" %>
+          <% subscription_button_label = t(@subscription&.status == "pending" ? "settings.payment.resume" : "settings.payment.subscribe") %>
           <%= button_to subscription_button_label,
             settings_subscription_path, method: :post,
             class: "min-h-11 rounded border border-cyan-300 px-5 py-3 font-semibold text-white hover:bg-cyan-300/10" %>
         <% end %>
         <% if advisory %>
-          <%= link_to "Continue to characters", continue_path,
+          <%= link_to t("settings.modal.continue"), continue_path,
             class: "min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-amber-300" %>
         <% else %>
-          <%= link_to "Back to library", books_path,
+          <%= link_to t("settings.modal.back"), books_path,
             class: "min-h-11 rounded border border-white/30 px-5 py-3 font-semibold text-white hover:border-amber-300" %>
         <% end %>
       </div>

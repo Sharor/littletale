@@ -6,8 +6,9 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   helper_method :browser
 
-  before_action :enforce_trial_access
+  around_action :switch_locale
   before_action :check_tutorial, except: %i[ track_user ]
+  before_action :enforce_trial_access
   skip_before_action :check_tutorial, if: -> { devise_controller? && action_name == "destroy"  }
 
 
@@ -21,7 +22,10 @@ class ApplicationController < ActionController::Base
     return unless user_signed_in?
 
 
-    redirect_to terms_url unless current_user.tutorial&.terms
+    return redirect_to terms_url unless current_user.tutorial&.terms
+    return if controller_path == "profiles"
+
+    redirect_to profile_url(onboarding: true) if current_user.language.blank?
     # @url = eula_url unless current_user.tutorial&.eula # Do we want a EULA?
     # redirect_to @url unless.. (didnt check this works so)
   end
@@ -43,12 +47,19 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def switch_locale(&action)
+    selected = current_user&.language.presence_in(User::SUPPORTED_LANGUAGES.keys)
+    cookies[:locale] = { value: selected, expires: 1.year.from_now, same_site: :lax } if selected
+    locale = selected || cookies[:locale].presence_in(User::SUPPORTED_LANGUAGES.keys) || I18n.default_locale
+    I18n.with_locale(locale, &action)
+  end
+
   def enforce_trial_access
     return unless user_signed_in? && current_user.trial_expired?
-    return if devise_controller? || %w[settings purchases subscriptions].include?(controller_path)
+    return if devise_controller? || %w[settings profiles purchases subscriptions].include?(controller_path)
 
     if request.format.html? || request.format.turbo_stream?
-      redirect_to settings_url, alert: "Your trial has ended. Subscribe to continue.",
+      redirect_to settings_url, alert: I18n.t("notices.trial_ended"),
         status: request.get? ? :found : :see_other
     else
       render json: { error: "trial_expired", settings_url: settings_url }, status: :payment_required

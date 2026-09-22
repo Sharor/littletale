@@ -84,9 +84,11 @@ class Character < ApplicationRecord
     end
 
     def broadcast_image_status
-        broadcast_replace_to(user, :characters,
-          target: "illustration_section_#{id}", partial: "illustrations/illustration",
-          locals: { character: self })
+        I18n.with_locale(user.language.presence_in(User::SUPPORTED_LANGUAGES.keys) || I18n.default_locale) do
+            broadcast_replace_to(user, :characters,
+              target: "illustration_section_#{id}", partial: "illustrations/illustration",
+              locals: { character: self })
+        end
     end
 
     def image_ready_for_book?

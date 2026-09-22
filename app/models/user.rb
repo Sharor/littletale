@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  SUPPORTED_LANGUAGES = { "en" => "English", "da" => "Dansk" }.freeze
+  GENERATION_LANGUAGE_NAMES = { "en" => "English", "da" => "Danish" }.freeze
+
   has_many :books, dependent: :nullify
   has_many :visits, class_name: "Visitor"
   has_many :events, through: :visits
@@ -17,6 +20,9 @@ class User < ApplicationRecord
   has_many :character_credit_reservations, dependent: :restrict_with_exception
   has_many :user_subscriptions, dependent: :restrict_with_exception
   has_one :tutorial
+
+  validates :language, inclusion: { in: SUPPORTED_LANGUAGES.keys }, allow_nil: true
+  validates :reader_age, numericality: { only_integer: true, in: 0..120 }, allow_nil: true
 
   TRIAL_BOOK_LIMIT = 3
 

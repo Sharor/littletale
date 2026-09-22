@@ -160,7 +160,9 @@ class Chatgpt < ApplicationRecord
   end
 
   def jsonify
-    { page_count: book.total_pages, characters: book.characters.map(&:book_generation_metadata), plot: book.plot }.to_json
+    { page_count: book.total_pages, characters: book.characters.map(&:book_generation_metadata), plot: book.plot,
+      language: User::GENERATION_LANGUAGE_NAMES.fetch(book.language, "English"), reader_age: book.reader_age,
+      art_style: book.art_style_prompt }.to_json
   end
 
   def prompt_structured
@@ -178,6 +180,9 @@ class Chatgpt < ApplicationRecord
     "If there are multiple characters you must be precise, when talking about which characters are present currently for the image"\
     "Use language and tone of voice that would be appropriate in a middle school classroom."\
     "Never use curse words or potentially sensitive or taboo words that may trigger strong emotional responses in some individuals. Use middle school-appropriate language, or avoid it entirely."\
+    " Write every \"story\" value in the requested language. Keep every \"image\" value in English for the image generator."\
+    " Use the supplied \"art_style\" for every \"image\" description while keeping scene content clear and concrete."\
+    " When reader_age is provided, adapt vocabulary, sentence length and complexity for that age."\
     " Prefer a coherent story that needs one outfit per character throughout, with clothing appropriate to the activities and setting."\
     " Honor explicitly requested activities, including mixed activities such as biking followed by swimming; do not remove an activity just to avoid a clothing change."\
     " When different clothing is necessary, include a natural clothing transition in the story and keep the new outfit consistent until another change is needed."\

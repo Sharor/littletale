@@ -30,6 +30,461 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
+  navigation:
+    brand: Book Tracker
+    home: Home Dashboard
+    settings: Settings
+    administration: Administration
+    subscription: Trial & subscription
+    profile: User profile
+  authentication:
+    welcome_back: Welcome back!
+    next_adventure: Ready for the next adventure?
+    google: Continue with Google
+    soon: Soon
+    new_user_html: New to LittleStories? <br>Simply sign in with another account (currently only supporting Gmail).
+    fantasy: Only your fantasy
+    limits: limits what you can do!
+    welcome: Welcome to Little Stories!
+    process: We'll take you through the process of making your very own fairytale.
+    how: Choose who should be in the story, then give us an outline of what should happen.
+    magic: Then our fairies and typewriters take care of the rest!
+    get_started: Log in with Google below to get started.
+    login_google: Login with Google
+  landing:
+    navigation: Main navigation
+    process: Process
+    our_story: Our Story
+    get_started: Get Started
+    title_html: Turn your child into a <span>Storybook Hero.</span>
+    introduction: Upload a photo, choose an adventure, and watch your child become the star of their very own cartoon-illustrated book.
+    create: Create Your Story
+    parents: Join 2,000+ happy parents
+    photo_alt: Photo of a small boy
+    cartoon_alt: Photo of the small boy as a cartoon
+    magic_title: How the magic happens
+    steps:
+      upload:
+        title: Upload & Plot
+        description: Add photos and describe your dream adventure.
+      illustration:
+        title: AI Illustration
+        description: Our engine transforms faces into consistent cartoon characters.
+      storybook:
+        title: Instant Storybook
+        description: A full-color, high-res PDF or physical book delivered to you.
+    watch: Watch the transformation
+    trusted: As seen on / Trusted by
+    testimonial:
+      quote: '"My daughter didn''t believe it was her until she saw her favorite teddy bear in the cartoon. She''s read it every night for a month!"'
+      author: — Sarah J., Proud Mom
+    founder_photo: Founder Photo
+    about:
+      title: Why we built LittleStories
+      origin_html: It started when I tried to find a book for my son where the hero looked like him. Not "kind of" like him, but <em>really</em> him.
+      mission: We realized that AI could be used for more than just data—it could be used for wonder. Our mission at LittleStories is to bridge the gap between a child's imagination and the physical world, making every bedtime a personal adventure.
+      signature: Personalized with love.
+  admin:
+    navigation:
+      label: Administration
+      home: Admin home
+      reviews: Character image reviews
+      failed_books: Failed books
+      jobs: Background jobs
+      console: Console
+      back: Back to books
+    dashboard:
+      eyebrow: Little Fables · Operations
+      title: Administration
+      introduction: Review character images, resolve generation failures, and inspect background work.
+      reviews: Character image reviews
+      reviews_description: "%{count} awaiting review. Inspect requests and retry character generation."
+      failures: Failed book generations
+      failures_description: "%{count} failed books. Review errors and retry images or stories."
+      jobs: Background jobs
+      jobs_description: Inspect queued, running, and failed background jobs.
+      console: Rails Console
+      console_description: Open the existing development console for technical investigation.
+      user_access: User access
+      user: User
+      status: Status
+      books_available: Books available
+      character_credits: Character credits
+      trial_allowance: Trial allowance
+    failed_books:
+      title: Failed book generations
+      owner: Owner
+      failed: Failed
+      account: Account when failed
+      paid_reserved_retry: Paid credit reserved · An illustration retry is in progress, so this credit cannot be released.
+      trial_reserved_retry: Trial slot reserved · An illustration retry is in progress, so this credit cannot be released.
+      paid_reserved: "Paid credit reserved · %{count} book credits available"
+      trial_reserved: "Trial slot reserved · %{count} books available"
+      release_credit: Release book credit
+      release_slot: Release trial slot
+      slot_released: Trial slot released
+      page_unavailable: "Page %{page} · Illustration unavailable"
+      attempt_history: Illustration attempt history
+      none: No failed book generations.
+    reviews:
+      title: Character image reviews
+      status: Status
+      needs_review: Needs review
+      rejected: Rejected
+      approved: Approved
+      unavailable: Screening unavailable
+      owner_id: Owner ID
+      filter: Filter
+      assessment: "Assessment #%{id}"
+      provider_rejected: Provider rejected
+      photo_request: Photo request
+      description_request: Description request
+      none: No character image assessments match these filters.
+    assessment:
+      back: Back to character image reviews
+      title: "Character image assessment #%{id}"
+      submitted: Submitted input
+      source_alt: "Source photo submitted for assessment %{id}"
+      no_photo: Description request; no source photo was submitted.
+      prompt: Exact generation prompt
+      model: Generation model
+      policy: Policy version
+      internal_reason: Internal reason
+      public_reason: Public reason
+      none: None
+      metadata: Screening metadata
+      retry_screening: Retry screening
+      resolve: Resolve review
+      approve: Approve
+      internal_note: Internal note
+      approve_image: Approve image
+      reject: Reject
+      reject_image: Reject image
+      requests: Requests and generation outcomes
+      request: Request
+      character: Character
+      outcome: Screening outcome
+      generation: Generation
+      actions: Actions
+      evidence: Attempt history and evidence
+      time: Time
+      source: Source
+      reviewer: Reviewer
+      not_reserved: Not reserved
+      credit_reserved: Character credit reserved
+      release_credit: Release character credit
+      funding: Funding
+      current: Current assessment
+      confirm_charge: I understand the previous request may have been charged and this starts another paid request.
+      regenerate: Regenerate image
+      retry_generation: Retry generation
+      no_requests: No requests reference this assessment.
+      history: Decision history
+      shared: Shared assessment
+      no_decisions: No decisions have been recorded.
+      deleted_character: "Deleted character #%{id}"
+    notices:
+      screening_available: Screening is no longer unavailable.
+      screening_requested: Screening retry requested.
+      screening_failed: Screening could not be queued. The character credit was released.
+      no_character_credits: This user has no character credits available.
+      generation_queued: Character generation queued.
+      generation_failed: Generation was not queued. Refresh and check the request status and confirmation.
+      character_credit_released: The character credit was released.
+      character_credit_active: The credit cannot be released while screening or generation is active.
+      character_credit_unavailable: This request has no releasable character credit.
+      image_approved: Character image approved.
+      already_resolved: This assessment has already been resolved.
+      reason_required: Enter a public reason before rejecting this image.
+      image_rejected: Character image rejected.
+      book_not_failed: This book is no longer in a failed state.
+      book_restarted: Book generation restarted.
+      no_trial_slots: This user has no trial book slots available. Release another failed book slot first.
+      user_trial_expired: This user's trial has expired.
+      no_book_credits: This user has no book credits available.
+      generation_credit_released: The reserved generation credit was released.
+      slot_retrying: This slot cannot be released while an illustration retry is in progress.
+      no_releasable_credit: This book does not hold a releasable generation credit.
+      illustration_queued: Illustration retry queued with a revised prompt.
+  profile:
+    eyebrow: Reading preferences
+    title: User profile
+    introduction: Choose the language for the app and new books. You can also set the intended reader's age.
+    updated: Your profile was updated.
+    continue: Continue
+    save: Save preferences
+    language:
+      label: Language
+      hint: This language is used by the app and for new books.
+      choose: Choose a language
+    reader_age:
+      label: Intended reader age (optional)
+      hint: This helps us choose suitable vocabulary and sentence length.
+  books:
+    new:
+      title: New Book
+    edit:
+      title: The plot of your story
+    index:
+      eyebrow: Little Fables
+      title: Current Library
+      create: Make a new book
+      credit_required: Buy a book credit in Settings to make another book.
+      read: Read
+      read_named: "Read %{name}"
+    reader:
+      chronicles: The Chronicles of
+      illustration_unavailable: Illustration unavailable
+      the_end: THE END
+      back_to_library: Back to Library Overview
+      instructions: Click a page to turn it. Click the left side to go back and the right side to go forward.
+      previous: Previous
+      next: Next
+    form:
+      language: Story language
+      reader_age: Intended reader age (optional)
+      art_style:
+        title: Choose an art style
+        hint: This look will guide every illustration in your book. Select a sample to see it larger.
+        selected: Your book will look like
+        preview_alt: "%{style} art style preview"
+      length: Length of the Tale
+      maximum: Max
+      pages:
+        one: 1 page
+        other: "%{count} pages"
+      tier: "%{tier} Tier"
+      want_more: Want more?
+      upgrade: Upgrade for up to 20 pages!
+      create: Create Book
+    status:
+      getting_ready: Getting your book ready…
+      starts_shortly: Generation will begin shortly. This page will update automatically.
+      preparing: Preparing the story and character outfits…
+      review_characters: Review character images
+      incomplete: This book is incomplete. Generation stopped before all illustrations were ready.
+      image_declined: The image provider declined an illustration request.
+      available_pages: You can read the available story below. Missing illustrations are marked.
+      written: ✨ Book written, just a moment! ✨
+      progress: "Making your book: %{progress}%"
+      writing: Writing your book!
+      preparing_new: Preparing your new book
+      make: Make book
+    illustration:
+      regenerate: Regenerate illustration
+      retrying: Illustration retry in progress.
+      outdated: This page is no longer current.
+      attempts: "%{used} of %{total} attempts used"
+  characters:
+    index:
+      eyebrow: Your storybook cast
+      title: Characters
+      introduction: Choose the characters who should join your next adventure.
+      new: New Character
+      existing: Existing characters
+      book_credit_required: Buy a book credit in Settings to make another book.
+      character_credit_required: Buy a book credit in Settings to add more characters.
+      select_named: "Select %{name}"
+      edit_named: "Edit %{name}"
+      delete_named: "Delete %{name}"
+    form:
+      edit_title: Edit Character
+      new_title: New Character Creation
+      name: Character Name (Required)
+      name_placeholder: Name (e.g., Elara)
+      roles_optional: Character Role(s) / Distinctive Traits (Optional)
+      select_all: Select all that apply.
+      photo_tab: Photo Upload
+      description_tab: Descriptive Form
+      upload_title: Upload Character Photo
+      upload_hint: Upload an image for generation.
+      choose_photo: Choose Photo
+      no_file: No file chosen.
+      preview_here: Your photo preview will appear here.
+      appearance: Character Appearance
+      appearance_hint: Provide details for character generation.
+      detailed_description: Appearance / Traits (Detailed Description)
+      description_placeholder: Describe their unique appearance, personality traits, and primary motivation.
+      roles_all: Roles / Distinctive Traits (Select all that apply)
+      age: Age
+      gender: Gender
+      ethnicity: Ethnicity / Appearance
+      hair_style: Hair Style
+      hair_color: Hair Color
+      eye_color: Eye Color
+      select: -- Select --
+      generating_preview: Generating preview...
+      preview_failed: Failed to load preview.
+      preview_alt: Character Photo Preview
+      preview_error: Error loading image preview.
+      image_failed: "Error: Image failed to generate."
+      photo_error: "Photo upload %{error}"
+    roles:
+      title: Roles & traits — optional
+      hint: Give your stories a little more character. Choose any appearance traits, and up to one family role and one story role. You can leave them all blank.
+    role_groups:
+      family: Family
+      appearance: Appearance
+      story: Story
+    select:
+      title: Choose characters
+    delete:
+      title: Confirm Deletion
+      confirm_html: "Are you sure you want to delete %{name}? This action is permanent."
+    show:
+      edit: Edit this character
+      back: Back to characters
+      destroy: Destroy this character
+      no_image: No image
+    options:
+      white: White
+      black: Black
+      asian: Asian
+      latino: Latino
+      indigenous: Indigenous
+      long: Long
+      loose: Loose
+      short: Short
+      bald: Bald
+      ponytail: Ponytail
+      braids: Braids
+      brown: Brown
+      blond: Blond
+      red: Red
+      blue: Blue
+      green: Green
+      grey: Grey
+      boy: Boy
+      girl: Girl
+      man: Man
+      woman: Woman
+      father: Father
+      mother: Mother
+      big_sibling: Big sibling
+      middle_sibling: Middle sibling
+      younger_sibling: Younger sibling
+      tattoos: Tattoos
+      piercings: Piercings
+      freckles: Freckles
+      hero: Hero
+      villain: Villain
+      supporting: Supporting
+  illustrations:
+    rejected: "Your character image was rejected: %{reason}"
+    edit: Edit or replace image
+    needs_review: Your character image is waiting for an administrator to review it.
+    unavailable: Image screening is temporarily unavailable. Your photo has not been reviewed yet.
+    checking: Checking your character image…
+    outcome_unknown: Generation could not be confirmed. We stopped to avoid another charge.
+    failed: Your character image could not be completed. An administrator can inspect the failure.
+    generating: Generating your character…
+    allowance_reached: Your image is approved, but your generation allowance has been reached.
+    waiting: Waiting to start…
+  settings:
+    eyebrow: Account access
+    title: Trial & subscription
+    access:
+      title: Your access
+      administrator: Administrator
+      administrator_hint: Administrator accounts are not subject to trial limits.
+      subscription_active: Monthly subscription active
+      subscription_ends: Subscription ends
+      month_ends: Current month ends
+      basic: Basic access
+      no_expiry: Your reading access does not expire.
+      book_credits:
+        one: 1 book credit
+        other: "%{count} book credits"
+      character_credits:
+        one: 1 character credit
+        other: "%{count} character credits"
+      available: available
+      allowance_hint: Your monthly allowance is applied automatically. Only saved and purchased credits are shown here.
+      manage: Manage subscription
+    trial:
+      status: Trial status
+      not_started: Not started
+      active: Active
+      expired: Expired
+      books_available:
+        one: 1 book available
+        other: "%{count} books available"
+      of_three: of 3 trial books.
+      started: Started
+      ended: Access ended
+      ends: Access ends
+      starts_with_book: Your one-month reading period begins when your first book finishes generating.
+    payment:
+      eyebrow: Payment options
+      title: Buy your next book
+      purchase_includes: Each purchase includes one book credit and five character generations.
+      buy: Buy one book credit
+      resume: Resume subscription checkout
+      subscription_includes: A subscription includes 50 books and 150 character generations each month.
+      subscribe: Subscribe monthly
+      history: Purchase history
+    modal:
+      eyebrow: More stories await
+      expired: Your trial has ended
+      character_required: Character credit required
+      no_books: You are out of book credits
+      book_required: Book credit required
+      explanation: One purchase includes one book credit and five character generations. Subscribe monthly for 50 books and 150 character generations.
+      continue: Continue to characters
+      back: Back to library
+  common:
+    back: Back
+    save: Save
+    close: Close
+    cancel: Cancel
+    delete: Delete
+  notices:
+    trial_ended: Your trial has ended. Subscribe to continue.
+    book:
+      created: Book was successfully created.
+      writing: Book is being written!
+      destroyed: Book was successfully destroyed.
+      trial_limit_create: The trial includes three trial books. Subscribe to create another book.
+      trial_expired_create: The trial has expired. Subscribe to create another book.
+      trial_limit_continue: The trial includes three trial books. Subscribe to continue.
+      credit_required: You need a book credit to generate another book.
+    characters:
+      own_ready_only: Choose only your own ready character images.
+      not_ready: One or more character images are not ready. Choose ready characters or wait for review and generation.
+      added:
+        one: 1 character added to the book!
+        other: "%{count} characters added to the book!"
+      credit_required: You need a character credit to regenerate this character.
+      updated: Character was successfully updated.
+      destroyed: Character was successfully destroyed.
+    illustration:
+      queued: Illustration retry queued.
+      unavailable: This illustration cannot be retried or already has a retry in progress.
+      trial_slots: All three trial book slots are currently reserved.
+      credit_required: You need a book credit before retrying this illustration.
+    payment:
+      unavailable: Payment is temporarily unavailable. Please try again.
+      received: Payment received. Your book credit is ready.
+      processing: Your payment is still processing. Credits appear after Stripe confirms payment.
+    subscription:
+      active: Your subscription is already active.
+      unavailable: Subscriptions are temporarily unavailable. Please try again.
+      management_unavailable: Subscription management is temporarily unavailable. Please try again.
+  generation_failures:
+    character_image_not_ready: One or more selected character images are not ready. Choose ready characters before starting this book.
+    wardrobe_preparation_failed: We couldn't prepare the story's outfits. No page images were generated.
+    wardrobe_image_failed: We couldn't finish preparing a character's outfit. Page generation has stopped.
+    wardrobe_image_rejected: The image service declined this outfit request.
+    wardrobe_provider_quota: Book generation is unavailable because the AI provider's credit or usage limit has been reached. Please contact support.
+    wardrobe_provider_rate_limit: The AI service is receiving too many requests. Book preparation could not finish; please try again later.
+    page_image_generation_failed: An illustration could not be generated.
+    book_enqueue_failed: Book generation could not be queued.
+    openai_image_moderation_blocked: The image provider declined an illustration request.
+  errors:
+    messages:
+      form_invalid:
+        one: "1 error prohibited this book from being saved:"
+        other: "%{count} errors prohibited this book from being saved:"
   tutorial: 
     next: Next
     back: Back
@@ -87,6 +542,12 @@ en:
     character: 
       index: 'All your characters'
   activerecord:
+    errors:
+      models:
+        book:
+          attributes:
+            total_pages:
+              tier_limit: "cannot exceed %{limit} pages for the %{tier} tier"
     attributes:
       book: 
         user_prompt: 'Outline the story'

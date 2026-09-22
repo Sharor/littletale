@@ -1,8 +1,8 @@
 <main class="max-w-6xl mx-auto space-y-6 text-white">
   <div>
-    <p class="mb-2 text-sm text-gray-300"><%= link_to "Back to character image reviews", admin_character_image_assessments_path, class: "underline hover:text-white" %></p>
-    <h1 class="text-3xl font-bold">Character image assessment #<%= @assessment.id %></h1>
-    <p class="mt-2 text-gray-300">Owner: <%= @assessment.user.email %> (ID <%= @assessment.user_id %>) · Status: <%= @assessment.status.humanize %></p>
+    <p class="mb-2 text-sm text-gray-300"><%= link_to t("admin.assessment.back"), admin_character_image_assessments_path, class: "underline hover:text-white" %></p>
+    <h1 class="text-3xl font-bold"><%= t("admin.assessment.title", id: @assessment.id) %></h1>
+    <p class="mt-2 text-gray-300"><%= t("admin.failed_books.owner") %>: <%= @assessment.user.email %> (ID <%= @assessment.user_id %>) · <%= t("admin.reviews.status") %>: <%= t("admin.reviews.#{@assessment.status}", default: @assessment.status.humanize) %></p>
   </div>
 
   <% if notice %>
@@ -13,101 +13,101 @@
   <% end %>
 
   <section aria-labelledby="submitted-input-heading" class="rounded-lg border border-white/20 bg-black/20 p-5">
-    <h2 id="submitted-input-heading" class="text-xl font-semibold">Submitted input</h2>
+    <h2 id="submitted-input-heading" class="text-xl font-semibold"><%= t("admin.assessment.submitted") %></h2>
     <% if @assessment.photo.attached? %>
       <%= image_tag photo_admin_character_image_assessment_path(@assessment),
-        alt: "Source photo submitted for assessment #{@assessment.id}",
+        alt: t("admin.assessment.source_alt", id: @assessment.id),
         class: "mt-4 max-h-96 max-w-full rounded object-contain" %>
     <% else %>
-      <p class="mt-3 text-gray-300">Description request; no source photo was submitted.</p>
+      <p class="mt-3 text-gray-300"><%= t("admin.assessment.no_photo") %></p>
     <% end %>
-    <h3 class="mt-5 font-semibold">Exact generation prompt</h3>
+    <h3 class="mt-5 font-semibold"><%= t("admin.assessment.prompt") %></h3>
     <pre class="mt-2 overflow-x-auto whitespace-pre-wrap rounded bg-black/30 p-3 text-sm"><%= @assessment.prompt %></pre>
     <dl class="mt-4 grid gap-3 sm:grid-cols-2">
-      <div><dt class="text-sm text-gray-300">Generation model</dt><dd><%= @assessment.generation_model %></dd></div>
-      <div><dt class="text-sm text-gray-300">Policy version</dt><dd><%= @assessment.policy_version %></dd></div>
-      <div><dt class="text-sm text-gray-300">Internal reason</dt><dd><%= @assessment.internal_reason.presence || "None" %></dd></div>
-      <div><dt class="text-sm text-gray-300">Public reason</dt><dd><%= @assessment.public_reason.presence || "None" %></dd></div>
+      <div><dt class="text-sm text-gray-300"><%= t("admin.assessment.model") %></dt><dd><%= @assessment.generation_model %></dd></div>
+      <div><dt class="text-sm text-gray-300"><%= t("admin.assessment.policy") %></dt><dd><%= @assessment.policy_version %></dd></div>
+      <div><dt class="text-sm text-gray-300"><%= t("admin.assessment.internal_reason") %></dt><dd><%= @assessment.internal_reason.presence || t("admin.assessment.none") %></dd></div>
+      <div><dt class="text-sm text-gray-300"><%= t("admin.assessment.public_reason") %></dt><dd><%= @assessment.public_reason.presence || t("admin.assessment.none") %></dd></div>
     </dl>
-    <h3 class="mt-5 font-semibold">Screening metadata</h3>
+    <h3 class="mt-5 font-semibold"><%= t("admin.assessment.metadata") %></h3>
     <pre class="mt-2 overflow-x-auto whitespace-pre-wrap rounded bg-black/30 p-3 text-sm"><%= JSON.pretty_generate(@assessment.metadata || {}) %></pre>
   </section>
 
   <% if @assessment.status == "unavailable" %>
-    <%= button_to "Retry screening", retry_screening_admin_character_image_assessment_path(@assessment), method: :post, class: "rounded bg-cyan-700 p-3 text-white" %>
+    <%= button_to t("admin.assessment.retry_screening"), retry_screening_admin_character_image_assessment_path(@assessment), method: :post, class: "rounded bg-cyan-700 p-3 text-white" %>
   <% end %>
   <% if @assessment.status == "needs_review" %>
     <section aria-labelledby="decision-heading" class="rounded-lg border border-amber-300/30 bg-black/20 p-5">
-      <h2 id="decision-heading" class="text-xl font-semibold">Resolve review</h2>
+      <h2 id="decision-heading" class="text-xl font-semibold"><%= t("admin.assessment.resolve") %></h2>
       <div class="mt-4 grid gap-6 md:grid-cols-2">
         <%= form_with url: approve_admin_character_image_assessment_path(@assessment), method: :post, scope: :decision, class: "space-y-3" do |form| %>
-          <h3 class="font-semibold">Approve</h3>
+          <h3 class="font-semibold"><%= t("admin.assessment.approve") %></h3>
           <div>
-            <%= form.label :internal_reason, "Internal note", class: "block text-sm text-gray-200" %>
+            <%= form.label :internal_reason, t("admin.assessment.internal_note"), class: "block text-sm text-gray-200" %>
             <%= form.text_area :internal_reason, rows: 3, class: "mt-1 w-full rounded border border-white/20 bg-gray-900 p-2 text-white" %>
           </div>
-          <%= form.submit "Approve image", class: "rounded bg-green-700 px-4 py-2 font-semibold text-white hover:bg-green-600" %>
+          <%= form.submit t("admin.assessment.approve_image"), class: "rounded bg-green-700 px-4 py-2 font-semibold text-white hover:bg-green-600" %>
         <% end %>
 
         <%= form_with url: reject_admin_character_image_assessment_path(@assessment), method: :post, scope: :decision, class: "space-y-3" do |form| %>
-          <h3 class="font-semibold">Reject</h3>
+          <h3 class="font-semibold"><%= t("admin.assessment.reject") %></h3>
           <div>
-            <%= form.label :public_reason, "Public reason", class: "block text-sm text-gray-200" %>
+            <%= form.label :public_reason, t("admin.assessment.public_reason"), class: "block text-sm text-gray-200" %>
             <%= form.text_area :public_reason, value: params.dig(:decision, :public_reason), rows: 3, required: true,
               class: "mt-1 w-full rounded border border-white/20 bg-gray-900 p-2 text-white" %>
           </div>
           <div>
-            <%= form.label :internal_reason, "Internal note", class: "block text-sm text-gray-200" %>
+            <%= form.label :internal_reason, t("admin.assessment.internal_note"), class: "block text-sm text-gray-200" %>
             <%= form.text_area :internal_reason, value: params.dig(:decision, :internal_reason), rows: 3,
               class: "mt-1 w-full rounded border border-white/20 bg-gray-900 p-2 text-white" %>
           </div>
-          <%= form.submit "Reject image", class: "rounded bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-600" %>
+          <%= form.submit t("admin.assessment.reject_image"), class: "rounded bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-600" %>
         <% end %>
       </div>
     </section>
   <% end %>
 
   <section aria-labelledby="requests-heading" class="rounded-lg border border-white/20 bg-black/20 p-5">
-    <h2 id="requests-heading" class="text-xl font-semibold">Requests and generation outcomes</h2>
+    <h2 id="requests-heading" class="text-xl font-semibold"><%= t("admin.assessment.requests") %></h2>
     <% if @requests.any? %>
       <div class="mt-4 overflow-x-auto">
         <table class="w-full border-collapse text-left text-sm">
-          <thead><tr class="border-b border-white/20"><th class="p-2">Request</th><th class="p-2">Character</th><th class="p-2">Screening outcome</th><th class="p-2">Generation</th><th class="p-2">Actions</th><th class="p-2">Attempt history and evidence</th></tr></thead>
+          <thead><tr class="border-b border-white/20"><% %w[request character outcome generation actions evidence].each do |heading| %><th class="p-2"><%= t("admin.assessment.#{heading}") %></th><% end %></tr></thead>
           <tbody>
             <% @requests.each do |request| %>
               <tr class="border-b border-white/10 align-top">
                 <td class="p-2">#<%= request.id %></td>
-                <td class="p-2"><%= request.character&.name || "Deleted character ##{request.original_character_id}" %></td>
+                <td class="p-2"><%= request.character&.name || t("admin.assessment.deleted_character", id: request.original_character_id) %></td>
                 <td class="p-2"><%= request.screening_status.humanize %><% if request.public_reason.present? %><br><span class="text-gray-300"><%= request.public_reason %></span><% end %></td>
-                <td class="p-2"><%= request.generation_attempt&.status || "Not reserved" %></td>
+                <td class="p-2"><%= request.generation_attempt&.status || t("admin.assessment.not_reserved") %></td>
                 <td class="p-2">
                   <% character_reservation = request.character_credit_reservations.held.order(:id).last %>
                   <% if character_reservation %>
                     <div class="mb-3" data-character-funding="held">
-                      <p class="text-amber-200">Character credit reserved</p>
+                      <p class="text-amber-200"><%= t("admin.assessment.credit_reserved") %></p>
                       <% if CharacterFunding.admin_releasable?(request) %>
                         <%= form_with url: release_character_credit_admin_character_image_assessment_path(@assessment), method: :post do %>
                           <%= hidden_field_tag :request_id, request.id %>
-                          <%= submit_tag "Release character credit", class: "mt-2 rounded border border-amber-300/50 px-3 py-2 text-amber-100" %>
+                          <%= submit_tag t("admin.assessment.release_credit"), class: "mt-2 rounded border border-amber-300/50 px-3 py-2 text-amber-100" %>
                         <% end %>
                       <% end %>
                     </div>
                   <% elsif request.funding_source.present? %>
-                    <p class="mb-3 text-gray-300" data-character-funding="<%= request.funding_source %>">Funding: <%= request.funding_source.humanize %></p>
+                    <p class="mb-3 text-gray-300" data-character-funding="<%= request.funding_source %>"><%= t("admin.assessment.funding") %>: <%= request.funding_source.humanize %></p>
                   <% end %>
                   <% if (reason = request.admin_retry_unavailable_reason) %>
                     <p class="text-gray-300"><%= reason %></p>
                     <% if request.character&.current_image_request && request.character.current_image_request_id != request.id %>
-                      <%= link_to "Current assessment", admin_character_image_assessment_path(request.character.current_image_request.assessment_id), class: "underline" %>
+                      <%= link_to t("admin.assessment.current"), admin_character_image_assessment_path(request.character.current_image_request.assessment_id), class: "underline" %>
                     <% end %>
                   <% else %>
                     <%= form_with url: retry_generation_admin_character_image_assessment_path(@assessment), method: :post do |form| %>
                       <%= hidden_field_tag :request_id, request.id %>
                       <%= hidden_field_tag :attempt_version, request.generation_attempt&.updated_at&.iso8601(6) || "none" %>
                       <% if request.generation_attempt&.status == "outcome_unknown" %>
-                        <label class="mb-3 block"><%= check_box_tag :confirm_unknown, "1", false, required: true %> I understand the previous request may have been charged and this starts another paid request.</label>
+                        <label class="mb-3 block"><%= check_box_tag :confirm_unknown, "1", false, required: true %> <%= t("admin.assessment.confirm_charge") %></label>
                       <% end %>
-                      <%= form.submit request.generation_attempt&.status == "completed" ? "Regenerate image" : "Retry generation", class: "rounded bg-cyan-700 px-4 py-2 text-white hover:bg-cyan-600" %>
+                      <%= form.submit t(request.generation_attempt&.status == "completed" ? "admin.assessment.regenerate" : "admin.assessment.retry_generation"), class: "rounded bg-cyan-700 px-4 py-2 text-white hover:bg-cyan-600" %>
                     <% end %>
                   <% end %>
                 </td>
@@ -118,21 +118,21 @@
         </table>
       </div>
     <% else %>
-      <p class="mt-3">No requests reference this assessment.</p>
+      <p class="mt-3"><%= t("admin.assessment.no_requests") %></p>
     <% end %>
   </section>
 
   <section aria-labelledby="history-heading" class="rounded-lg border border-white/20 bg-black/20 p-5">
-    <h2 id="history-heading" class="text-xl font-semibold">Decision history</h2>
+    <h2 id="history-heading" class="text-xl font-semibold"><%= t("admin.assessment.history") %></h2>
     <% if @decisions.any? %>
       <div class="mt-4 overflow-x-auto">
         <table class="w-full border-collapse text-left text-sm">
-          <thead><tr class="border-b border-white/20"><th class="p-2">Time</th><th class="p-2">Request</th><th class="p-2">Outcome</th><th class="p-2">Source</th><th class="p-2">Reviewer</th><th class="p-2">Internal reason</th><th class="p-2">Public reason</th></tr></thead>
+          <thead><tr class="border-b border-white/20"><% %w[time request outcome source reviewer internal_reason public_reason].each do |heading| %><th class="p-2"><%= t("admin.assessment.#{heading}") %></th><% end %></tr></thead>
           <tbody>
             <% @decisions.each do |decision| %>
               <tr class="border-b border-white/10 align-top">
                 <td class="p-2"><%= decision.created_at %></td>
-                <td class="p-2"><%= decision.request_id ? "##{decision.request_id}" : "Shared assessment" %></td>
+                <td class="p-2"><%= decision.request_id ? "##{decision.request_id}" : t("admin.assessment.shared") %></td>
                 <td class="p-2"><%= decision.outcome %></td>
                 <td class="p-2"><%= decision.source %></td>
                 <td class="p-2"><%= decision.reviewer&.email || "—" %></td>
@@ -144,7 +144,7 @@
         </table>
       </div>
     <% else %>
-      <p class="mt-3">No decisions have been recorded.</p>
+      <p class="mt-3"><%= t("admin.assessment.no_decisions") %></p>
     <% end %>
   </section>
 </main>

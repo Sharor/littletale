@@ -1,0 +1,581 @@
+da:
+  navigation:
+    brand: Bogsamling
+    home: Startside
+    settings: Indstillinger
+    administration: Administration
+    subscription: Prøveperiode og abonnement
+    profile: Brugerprofil
+  authentication:
+    welcome_back: Velkommen tilbage!
+    next_adventure: Klar til det næste eventyr?
+    google: Fortsæt med Google
+    soon: Kommer snart
+    new_user_html: Ny hos LittleStories? <br>Log blot ind med en anden konto (vi understøtter i øjeblikket kun Gmail).
+    fantasy: Kun fantasien
+    limits: sætter grænser for, hvad du kan!
+    welcome: Velkommen til Little Stories!
+    process: Vi hjælper dig med at lave dit helt eget eventyr.
+    how: Vælg, hvem der skal med i historien, og giv os derefter et oplæg til handlingen.
+    magic: Så klarer vores feer og skrivemaskiner resten!
+    get_started: Log ind med Google nedenfor for at komme i gang.
+    login_google: Log ind med Google
+  landing:
+    navigation: Hovednavigation
+    process: Sådan virker det
+    our_story: Vores historie
+    get_started: Kom i gang
+    title_html: Gør dit barn til <span>helten i en eventyrbog.</span>
+    introduction: Upload et billede, vælg et eventyr, og se dit barn blive hovedpersonen i sin helt egen illustrerede bog.
+    create: Lav din historie
+    parents: Slut dig til mere end 2.000 glade forældre
+    photo_alt: Billede af en lille dreng
+    cartoon_alt: Den lille dreng som tegnefilmsfigur
+    magic_title: Sådan sker magien
+    steps:
+      upload:
+        title: Upload og handling
+        description: Tilføj billeder, og beskriv dit drømmeeventyr.
+      illustration:
+        title: AI-illustration
+        description: Vores teknologi forvandler ansigter til genkendelige tegnefilmsfigurer.
+      storybook:
+        title: En eventyrbog med det samme
+        description: En flot bog i høj opløsning, klar til dig.
+    watch: Se forvandlingen
+    trusted: Omtalt af / Anbefalet af
+    testimonial:
+      quote: '"Min datter troede ikke, at det var hende, før hun så sin yndlingsbamse på tegningen. Hun har læst bogen hver aften i en måned!"'
+      author: — Sarah J., stolt mor
+    founder_photo: Billede af grundlæggeren
+    about:
+      title: Derfor skabte vi LittleStories
+      origin_html: Det begyndte, da jeg ledte efter en bog til min søn, hvor helten lignede ham. Ikke bare lidt, men <em>virkelig</em> lignede ham.
+      mission: Vi opdagede, at AI kan bruges til mere end data — den kan skabe forundring. LittleStories bygger bro mellem et barns fantasi og den fysiske verden, så hver godnathistorie bliver et personligt eventyr.
+      signature: Personliggjort med kærlighed.
+  admin:
+    navigation:
+      label: Administration
+      home: Administrationsforside
+      reviews: Gennemgang af figurbilleder
+      failed_books: Mislykkede bøger
+      jobs: Baggrundsjob
+      console: Konsol
+      back: Tilbage til bøger
+    dashboard:
+      eyebrow: Little Fables · Drift
+      title: Administration
+      introduction: Gennemgå figurbilleder, løs generationsfejl, og undersøg baggrundsarbejde.
+      reviews: Gennemgang af figurbilleder
+      reviews_description: "%{count} afventer gennemgang. Undersøg anmodninger, og prøv figurgenerering igen."
+      failures: Mislykkede boggenereringer
+      failures_description: "%{count} bøger mislykkedes. Gennemgå fejl, og prøv billeder eller historier igen."
+      jobs: Baggrundsjob
+      jobs_description: Undersøg job, der venter, kører eller er mislykket.
+      console: Rails-konsol
+      console_description: Åbn udviklingskonsollen til teknisk undersøgelse.
+      user_access: Brugeradgang
+      user: Bruger
+      status: Status
+      books_available: Tilgængelige bøger
+      character_credits: Figurkreditter
+      trial_allowance: Prøvekvote
+    failed_books:
+      title: Mislykkede boggenereringer
+      owner: Ejer
+      failed: Mislykkedes
+      account: Konto ved fejlen
+      paid_reserved_retry: Betalt kredit reserveret · En illustration laves igen, så kreditten kan ikke frigives.
+      trial_reserved_retry: Prøveplads reserveret · En illustration laves igen, så pladsen kan ikke frigives.
+      paid_reserved: "Betalt kredit reserveret · %{count} bogkreditter tilgængelige"
+      trial_reserved: "Prøveplads reserveret · %{count} bøger tilgængelige"
+      release_credit: Frigiv bogkredit
+      release_slot: Frigiv prøveplads
+      slot_released: Prøveplads frigivet
+      page_unavailable: "Side %{page} · Illustrationen er ikke tilgængelig"
+      attempt_history: Historik for illustrationsforsøg
+      none: Ingen mislykkede boggenereringer.
+    reviews:
+      title: Gennemgang af figurbilleder
+      status: Status
+      needs_review: Kræver gennemgang
+      rejected: Afvist
+      approved: Godkendt
+      unavailable: Kontrol utilgængelig
+      owner_id: Ejer-ID
+      filter: Filtrer
+      assessment: "Vurdering #%{id}"
+      provider_rejected: Afvist af udbyder
+      photo_request: Billedanmodning
+      description_request: Beskrivelsesanmodning
+      none: Ingen vurderinger passer til filtrene.
+    assessment:
+      back: Tilbage til gennemgang af figurbilleder
+      title: "Vurdering af figurbillede #%{id}"
+      submitted: Indsendt materiale
+      source_alt: "Kildebillede til vurdering %{id}"
+      no_photo: Beskrivelsesanmodning; der blev ikke indsendt et kildebillede.
+      prompt: Præcis generationsinstruks
+      model: Generationsmodel
+      policy: Politikversion
+      internal_reason: Intern årsag
+      public_reason: Offentlig årsag
+      none: Ingen
+      metadata: Kontrolmetadata
+      retry_screening: Prøv kontrollen igen
+      resolve: Afgør gennemgang
+      approve: Godkend
+      internal_note: Intern note
+      approve_image: Godkend billede
+      reject: Afvis
+      reject_image: Afvis billede
+      requests: Anmodninger og generationsresultater
+      request: Anmodning
+      character: Figur
+      outcome: Kontrolresultat
+      generation: Generering
+      actions: Handlinger
+      evidence: Forsøgshistorik og dokumentation
+      time: Tidspunkt
+      source: Kilde
+      reviewer: Kontrollant
+      not_reserved: Ikke reserveret
+      credit_reserved: Figurkredit reserveret
+      release_credit: Frigiv figurkredit
+      funding: Finansiering
+      current: Aktuel vurdering
+      confirm_charge: Jeg forstår, at den tidligere anmodning kan være blevet opkrævet, og at dette starter en ny betalt anmodning.
+      regenerate: Lav billedet igen
+      retry_generation: Prøv genereringen igen
+      no_requests: Ingen anmodninger henviser til denne vurdering.
+      history: Afgørelseshistorik
+      shared: Delt vurdering
+      no_decisions: Der er ikke registreret nogen afgørelser.
+      deleted_character: "Slettet figur #%{id}"
+    notices:
+      screening_available: Kontrollen er ikke længere utilgængelig.
+      screening_requested: En ny kontrol er anmodet.
+      screening_failed: Kontrollen kunne ikke sættes i kø. Figurkreditten blev frigivet.
+      no_character_credits: Brugeren har ingen tilgængelige figurkreditter.
+      generation_queued: Figurgenereringen er sat i kø.
+      generation_failed: Genereringen blev ikke sat i kø. Opdater siden, og kontrollér anmodningens status og bekræftelse.
+      character_credit_released: Figurkreditten blev frigivet.
+      character_credit_active: Kreditten kan ikke frigives, mens kontrol eller generering er aktiv.
+      character_credit_unavailable: Anmodningen har ingen figurkredit, der kan frigives.
+      image_approved: Figurbilledet blev godkendt.
+      already_resolved: Vurderingen er allerede afgjort.
+      reason_required: Angiv en offentlig årsag, før billedet afvises.
+      image_rejected: Figurbilledet blev afvist.
+      book_not_failed: Bogen har ikke længere fejlstatus.
+      book_restarted: Boggenereringen er genstartet.
+      no_trial_slots: Brugeren har ingen ledige pladser til prøvebøger. Frigiv først en anden mislykket bogplads.
+      user_trial_expired: Brugerens prøveperiode er udløbet.
+      no_book_credits: Brugeren har ingen tilgængelige bogkreditter.
+      generation_credit_released: Den reserverede generationskredit blev frigivet.
+      slot_retrying: Pladsen kan ikke frigives, mens en illustration laves igen.
+      no_releasable_credit: Bogen har ingen generationskredit, der kan frigives.
+      illustration_queued: Illustrationen sættes i gang igen med en revideret instruks.
+  profile:
+    eyebrow: Læseindstillinger
+    title: Brugerprofil
+    introduction: Vælg sproget for appen og nye bøger. Du kan også angive den tiltænkte læsers alder.
+    updated: Din profil er blevet opdateret.
+    continue: Fortsæt
+    save: Gem indstillinger
+    language:
+      label: Sprog
+      hint: Dette sprog bruges i appen og til nye bøger.
+      choose: Vælg et sprog
+    reader_age:
+      label: Tiltænkt læsers alder (valgfrit)
+      hint: Det hjælper os med at vælge passende ord og sætningslængde.
+  books:
+    new:
+      title: Ny bog
+    edit:
+      title: Handlingen i din historie
+    index:
+      eyebrow: Små fabler
+      title: Nuværende bibliotek
+      create: Lav en ny bog
+      credit_required: Køb en bogkredit under Indstillinger for at lave en ny bog.
+      read: Læs
+      read_named: "Læs %{name}"
+    reader:
+      chronicles: Fortællingerne om
+      illustration_unavailable: Illustrationen er ikke tilgængelig
+      the_end: SLUT
+      back_to_library: Tilbage til biblioteket
+      instructions: Klik på en side for at bladre. Klik i venstre side for at gå tilbage og i højre side for at gå frem.
+      previous: Forrige
+      next: Næste
+    form:
+      language: Historiens sprog
+      reader_age: Tiltænkt læsers alder (valgfrit)
+      art_style:
+        title: Vælg en tegnestil
+        hint: Dette udtryk bruges i alle bogens illustrationer. Vælg et eksempel for at se det større.
+        selected: Din bog får stilen
+        preview_alt: "Forhåndsvisning af tegnestilen %{style}"
+      length: Historiens længde
+      maximum: Maks.
+      pages:
+        one: 1 side
+        other: "%{count} sider"
+      tier: "%{tier}-niveau"
+      want_more: Vil du have mere?
+      upgrade: Opgrader og få op til 20 sider!
+      create: Opret bog
+    status:
+      getting_ready: Vi gør din bog klar…
+      starts_shortly: Genereringen begynder snart. Siden opdateres automatisk.
+      preparing: Vi forbereder historien og figurernes tøj…
+      review_characters: Gennemgå figurbilleder
+      incomplete: Bogen er ikke færdig. Genereringen stoppede, før alle illustrationer var klar.
+      image_declined: Billedudbyderen afviste en illustration.
+      available_pages: Du kan læse den tilgængelige del af historien nedenfor. Manglende illustrationer er markeret.
+      written: ✨ Bogen er skrevet, bare et øjeblik! ✨
+      progress: "Vi laver din bog: %{progress}%"
+      writing: Vi skriver din bog!
+      preparing_new: Vi gør din nye bog klar
+      make: Lav bog
+    illustration:
+      regenerate: Lav illustrationen igen
+      retrying: Illustrationen laves igen.
+      outdated: Denne side er ikke længere aktuel.
+      attempts: "%{used} af %{total} forsøg brugt"
+  characters:
+    index:
+      eyebrow: Figurerne i din bog
+      title: Figurer
+      introduction: Vælg de figurer, der skal med på dit næste eventyr.
+      new: Ny figur
+      existing: Eksisterende figurer
+      book_credit_required: Køb en bogkredit under Indstillinger for at lave en ny bog.
+      character_credit_required: Køb en bogkredit under Indstillinger for at tilføje flere figurer.
+      select_named: "Vælg %{name}"
+      edit_named: "Rediger %{name}"
+      delete_named: "Slet %{name}"
+    form:
+      edit_title: Rediger figur
+      new_title: Opret ny figur
+      name: Figurnavn (påkrævet)
+      name_placeholder: Navn (fx Elara)
+      roles_optional: Figurroller / særlige kendetegn (valgfrit)
+      select_all: Vælg alle relevante.
+      photo_tab: Upload billede
+      description_tab: Beskriv figuren
+      upload_title: Upload et billede af figuren
+      upload_hint: Upload et billede til generering.
+      choose_photo: Vælg billede
+      no_file: Ingen fil valgt.
+      preview_here: Dit billede vises her.
+      appearance: Figurens udseende
+      appearance_hint: Beskriv figuren, så billedet kan oprettes.
+      detailed_description: Udseende / kendetegn (detaljeret beskrivelse)
+      description_placeholder: Beskriv figurens særlige udseende, personlighed og vigtigste motivation.
+      roles_all: Roller / særlige kendetegn (vælg alle relevante)
+      age: Alder
+      gender: Køn
+      ethnicity: Etnicitet / udseende
+      hair_style: Frisure
+      hair_color: Hårfarve
+      eye_color: Øjenfarve
+      select: -- Vælg --
+      generating_preview: Opretter forhåndsvisning...
+      preview_failed: Forhåndsvisningen kunne ikke indlæses.
+      preview_alt: Forhåndsvisning af figurbillede
+      preview_error: Billedet kunne ikke indlæses.
+      image_failed: "Fejl: Billedet kunne ikke oprettes."
+      photo_error: "Billedupload %{error}"
+    roles:
+      title: Roller og kendetegn — valgfrit
+      hint: Giv historierne mere personlighed. Vælg de kendetegn, du ønsker, og højst én familierolle og én historierolle. Du kan også lade alle felter stå tomme.
+    role_groups:
+      family: Familie
+      appearance: Udseende
+      story: Historie
+    select:
+      title: Vælg figurer
+    delete:
+      title: Bekræft sletning
+      confirm_html: "Er du sikker på, at du vil slette %{name}? Handlingen kan ikke fortrydes."
+    show:
+      edit: Rediger denne figur
+      back: Tilbage til figurer
+      destroy: Slet denne figur
+      no_image: Intet billede
+    options:
+      white: Hvid
+      black: Sort
+      asian: Asiatisk
+      latino: Latinamerikansk
+      indigenous: Oprindelig
+      long: Langt
+      loose: Løst
+      short: Kort
+      bald: Skaldet
+      ponytail: Hestehale
+      braids: Fletninger
+      brown: Brun
+      blond: Blond
+      red: Rød
+      blue: Blå
+      green: Grøn
+      grey: Grå
+      boy: Dreng
+      girl: Pige
+      man: Mand
+      woman: Kvinde
+      father: Far
+      mother: Mor
+      big_sibling: Storesøskende
+      middle_sibling: Mellemste søskende
+      younger_sibling: Yngre søskende
+      tattoos: Tatoveringer
+      piercings: Piercinger
+      freckles: Fregner
+      hero: Helt
+      villain: Skurk
+      supporting: Birolle
+  illustrations:
+    rejected: "Dit figurbillede blev afvist: %{reason}"
+    edit: Rediger eller udskift billedet
+    needs_review: Dit figurbillede venter på at blive gennemgået af en administrator.
+    unavailable: Billedkontrollen er midlertidigt utilgængelig. Dit billede er endnu ikke gennemgået.
+    checking: Kontrollerer dit figurbillede…
+    outcome_unknown: Genereringen kunne ikke bekræftes. Vi stoppede for at undgå endnu en opkrævning.
+    failed: Dit figurbillede kunne ikke færdiggøres. En administrator kan undersøge fejlen.
+    generating: Opretter din figur…
+    allowance_reached: Dit billede er godkendt, men du har brugt din generationskvote.
+    waiting: Venter på at starte…
+  settings:
+    eyebrow: Kontoadgang
+    title: Prøveperiode og abonnement
+    access:
+      title: Din adgang
+      administrator: Administrator
+      administrator_hint: Administratorkonti er ikke omfattet af prøvebegrænsninger.
+      subscription_active: Månedsabonnement aktivt
+      subscription_ends: Abonnementet slutter
+      month_ends: Den aktuelle måned slutter
+      basic: Basisadgang
+      no_expiry: Din læseadgang udløber ikke.
+      book_credits:
+        one: 1 bogkredit
+        other: "%{count} bogkreditter"
+      character_credits:
+        one: 1 figurkredit
+        other: "%{count} figurkreditter"
+      available: tilgængelig
+      allowance_hint: Din månedlige kvote anvendes automatisk. Her vises kun gemte og købte kreditter.
+      manage: Administrer abonnement
+    trial:
+      status: Status for prøveperiode
+      not_started: Ikke startet
+      active: Aktiv
+      expired: Udløbet
+      books_available:
+        one: 1 bog tilgængelig
+        other: "%{count} bøger tilgængelige"
+      of_three: ud af 3 prøvebøger.
+      started: Startede
+      ended: Adgangen sluttede
+      ends: Adgangen slutter
+      starts_with_book: Din læseperiode på en måned begynder, når din første bog er færdig.
+    payment:
+      eyebrow: Betalingsmuligheder
+      title: Køb din næste bog
+      purchase_includes: Hvert køb indeholder én bogkredit og fem figurgenereringer.
+      buy: Køb én bogkredit
+      resume: Fortsæt abonnementskøb
+      subscription_includes: Et abonnement indeholder 50 bøger og 150 figurgenereringer hver måned.
+      subscribe: Abonner månedligt
+      history: Købshistorik
+    modal:
+      eyebrow: Flere historier venter
+      expired: Din prøveperiode er slut
+      character_required: Der kræves en figurkredit
+      no_books: Du har ikke flere bogkreditter
+      book_required: Der kræves en bogkredit
+      explanation: Ét køb indeholder én bogkredit og fem figurgenereringer. Abonner månedligt og få 50 bøger og 150 figurgenereringer.
+      continue: Fortsæt til figurer
+      back: Tilbage til biblioteket
+  common:
+    back: Tilbage
+    save: Gem
+    close: Luk
+    cancel: Annuller
+    delete: Slet
+  notices:
+    trial_ended: Din prøveperiode er slut. Abonner for at fortsætte.
+    book:
+      created: Bogen blev oprettet.
+      writing: Bogen bliver skrevet!
+      destroyed: Bogen blev slettet.
+      trial_limit_create: Prøveperioden omfatter tre bøger. Abonner for at oprette en ny bog.
+      trial_expired_create: Prøveperioden er udløbet. Abonner for at oprette en ny bog.
+      trial_limit_continue: Prøveperioden omfatter tre bøger. Abonner for at fortsætte.
+      credit_required: Du skal bruge en bogkredit for at oprette en ny bog.
+    characters:
+      own_ready_only: Vælg kun dine egne figurbilleder, der er klar.
+      not_ready: Et eller flere figurbilleder er ikke klar. Vælg figurer, der er klar, eller vent på gennemgang og generering.
+      added:
+        one: 1 figur blev tilføjet til bogen!
+        other: "%{count} figurer blev tilføjet til bogen!"
+      credit_required: Du skal bruge en figurkredit for at lave figuren igen.
+      updated: Figuren blev opdateret.
+      destroyed: Figuren blev slettet.
+    illustration:
+      queued: Illustrationen sættes i gang igen.
+      unavailable: Illustrationen kan ikke laves igen, eller et nyt forsøg er allerede i gang.
+      trial_slots: Alle tre pladser til prøvebøger er reserveret.
+      credit_required: Du skal bruge en bogkredit for at lave illustrationen igen.
+    payment:
+      unavailable: Betaling er midlertidigt utilgængelig. Prøv igen.
+      received: Betalingen er modtaget. Din bogkredit er klar.
+      processing: Din betaling behandles stadig. Kreditterne vises, når Stripe har bekræftet betalingen.
+    subscription:
+      active: Dit abonnement er allerede aktivt.
+      unavailable: Abonnementer er midlertidigt utilgængelige. Prøv igen.
+      management_unavailable: Abonnementsstyring er midlertidigt utilgængelig. Prøv igen.
+  generation_failures:
+    character_image_not_ready: Et eller flere valgte figurbilleder er ikke klar. Vælg figurer, der er klar, før bogen startes.
+    wardrobe_preparation_failed: Vi kunne ikke forberede figurernes tøj. Der blev ikke oprettet nogen sideillustrationer.
+    wardrobe_image_failed: Vi kunne ikke færdiggøre en figurs tøj. Sidegenereringen er stoppet.
+    wardrobe_image_rejected: Billedtjenesten afviste anmodningen om tøjet.
+    wardrobe_provider_quota: Boggenerering er utilgængelig, fordi AI-udbyderens kredit- eller forbrugsgrænse er nået. Kontakt support.
+    wardrobe_provider_rate_limit: AI-tjenesten modtager for mange anmodninger. Bogen kunne ikke færdiggøres; prøv igen senere.
+    page_image_generation_failed: En illustration kunne ikke oprettes.
+    book_enqueue_failed: Boggenereringen kunne ikke sættes i kø.
+    openai_image_moderation_blocked: Billedudbyderen afviste en illustration.
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: skal udfyldes
+      required: skal findes
+      taken: er allerede i brug
+      inclusion: er ikke gyldigt
+      in: skal være mellem 0 og 120
+      not_a_number: er ikke et tal
+      not_an_integer: skal være et helt tal
+      form_invalid:
+        one: "1 fejl forhindrede bogen i at blive gemt:"
+        other: "%{count} fejl forhindrede bogen i at blive gemt:"
+  tutorial:
+    next: Næste
+    back: Tilbage
+    done: Færdig
+    welcome: Velkommen! Lad os komme i gang med din første bog.
+    create_book: Skriv bogens navn. Det bliver bogens titel.
+    create_book_finish: Når du er tilfreds, kan du fortsætte og tilføje figurer til bogen.
+    create_character: Enhver god historie har brug for helte og skurke! Opret historiens første figur...
+    reuse_character: ...eller genbrug en figur fra en tidligere historie.
+    character_generation: Når figuren er oprettet, vises den her og bliver tegnet efter et øjeblik.<br/><br/>Du kan også lave billedet igen, hvis du ikke er tilfreds.
+    ready: Når du er tilfreds med bogens figurer, klikker du her og beskriver handlingen.<br/><br/>Så skriver og illustrerer vi bogen for dig.
+    character_creation: Det er nemt at oprette en figur. Du vælger et navn og et udseende.
+    character_looks: For eksempel alder, køn, hår og øjne...
+    character_attributes: ...og nogle kendetegn, der gør udseendet mere præcist.
+    character_ready: Når du er tilfreds med figuren, illustrerer vi den. Du kan lave billedet igen, hvis du ikke kan lide det.
+    character_select: Det er nemmere at vælge eksisterende figurer end at oprette dem igen.<br><br>Klik på de figurer, du vil tilføje. Klik igen for at fjerne dem.
+    character_select_ready: Klik her for at gemme de valgte figurer.
+    book_plot: Nu skal du blot fortælle, hvad historien skal handle om.
+    book_ready: Klik her, når vi skal skrive og illustrere din bog.
+  helpers:
+    submit:
+      chatgpt:
+        create: Opret din historie!
+      character:
+        create: Opret
+        update: Lav igen
+        new: Ny
+        existing: Eksisterende
+        add: Lav en bog med disse figurer
+    label:
+      story:
+        name: Historiens navn
+      chatgpt:
+        prompt: Hvad skal historien handle om? Alle dine figurer kommer med i historien.
+        audience: Hvor gammel er den person, historien er til?
+    placeholder:
+      story:
+        name: Skriv historiens navn
+  getting_started:
+    drama: Enhver god historie har brug for helte og skurke!
+    create: Opret historiens første figur, eller genbrug en figur fra en tidligere historie.
+    cover:
+      title: Et spændende omslag gør bogen indbydende.
+      explanation: Beskriv omslaget, og vælg de figurer, der skal være med.
+      continue: Fortsæt uden et billede
+  book:
+    pick_image: Vælg et billede
+  illustration:
+    loading: Laver din figur!
+    error: Noget gik galt.
+    regenerate: Lav figuren igen.
+    click: Klik her, rediger, og lav den igen.
+  views:
+    character:
+      index: Alle dine figurer
+  activerecord:
+    errors:
+      models:
+        book:
+          attributes:
+            total_pages:
+              tier_limit: "må ikke overstige %{limit} sider på %{tier}-niveauet"
+    attributes:
+      book:
+        name: Titel
+        plot: Handling
+        total_pages: Antal sider
+        user_prompt: Beskriv historien
+        create: Fortsæt
+        update: Lav bogen!
+        language: Sprog
+        reader_age: Tiltænkt læsers alder
+      character:
+        name: Navn
+        age: Alder
+        gender: Køn
+        ethnicity: Etnicitet
+        hair_color: Hårfarve
+        hair_style: Frisure
+        eye_color: Øjenfarve
+        photo: Billede
+        roles: Roller
+        role: Figurens kendetegn
+        placeholder:
+          name: Vælg et navn til din figur
+          age: Alder
+          role: Fx "Helt", "Far", "Skurk"
+      tutorial:
+        terms: Terms of Use
+        eula: End User License Agreement
+        tutorial: Introduktion
+        continue: Fortsæt
+        accept: Accept
+        decline: Decline
+      user:
+        language: Sprog
+        reader_age: Tiltænkt læsers alder
+  date:
+    formats:
+      long: "%e. %B %Y"
+    month_names:
+      -
+      - januar
+      - februar
+      - marts
+      - april
+      - maj
+      - juni
+      - juli
+      - august
+      - september
+      - oktober
+      - november
+      - december
+  time:
+    formats:
+      long: "%e. %B %Y kl. %H.%M"

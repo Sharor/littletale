@@ -1,8 +1,22 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 class CharacterTest < ActiveSupport::TestCase
+  test "broadcasts character status in the owner's language" do
+    character = characters(:hernandes)
+    character.user.update!(language: "da")
+    rendered_locale = nil
+
+    character.stub :broadcast_replace_to, ->(*) { rendered_locale = I18n.locale } do
+      character.broadcast_image_status
+    end
+
+    assert_equal :da, rendered_locale
+    assert_equal :en, I18n.locale
+  end
+
   test "roles are optional and persist as an empty list" do
     character = characters(:hernandes)
     [ [], nil, [ "", " " ] ].each do |roles|

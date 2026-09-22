@@ -1,7 +1,7 @@
 <section id="character-roles" class="space-y-5 border-t border-white/10 pt-6" aria-labelledby="character-roles-heading">
   <div class="space-y-1">
-    <h2 id="character-roles-heading" class="text-xl font-semibold text-white">Roles &amp; traits — optional</h2>
-    <p class="text-sm text-gray-300">Give your stories a little more character. Choose any appearance traits, and up to one family role and one story role. You can leave them all blank.</p>
+    <h2 id="character-roles-heading" class="text-xl font-semibold text-white"><%= t("characters.roles.title") %></h2>
+    <p class="text-sm text-gray-300"><%= t("characters.roles.hint") %></p>
   </div>
 
   <%= hidden_field_tag "character[roles][]", "", id: nil %>
@@ -15,7 +15,7 @@
 
   <% Character::ROLE_GROUPS.each do |group, roles| %>
     <fieldset class="space-y-2">
-      <legend class="text-sm font-semibold text-gray-300"><%= group %></legend>
+      <legend class="fable-form-legend"><%= t("characters.role_groups.#{group.downcase}") %></legend>
       <div class="flex flex-wrap gap-2">
         <% roles.each do |role| %>
           <% role_id = "character_roles_#{role.parameterize(separator: '_')}" %>
@@ -24,7 +24,7 @@
                 class: "sr-only peer", aria: { invalid: form.object.errors[:roles].any?,
                   describedby: ("character-roles-errors" if form.object.errors[:roles].any?) } }, role, nil %>
             <span class="inline-flex rounded-lg border border-white/20 px-4 py-3 text-sm font-semibold transition-colors hover:bg-white/10 peer-checked:bg-cyan-900 peer-checked:border-cyan-500 peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400">
-              <%= role %>
+              <%= format_option_for_display(role) %>
             </span>
           </label>
         <% end %>

@@ -9,6 +9,6 @@ class BillingPortalController < ApplicationController
     redirect_to url, allow_other_host: true, status: :see_other
   rescue Payments::BillingPortal::Unavailable, Stripe::StripeError => error
     Rails.logger.error("Stripe billing portal could not start: #{error.class}")
-    redirect_to settings_url, alert: "Subscription management is temporarily unavailable. Please try again."
+    redirect_to settings_url, alert: I18n.t("notices.subscription.management_unavailable")
   end
 end

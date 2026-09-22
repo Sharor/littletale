@@ -5,8 +5,8 @@
 
   <main class="library-main">
     <header class="library-heading">
-      <p class="library-eyebrow">Little Fables</p>
-      <h1>Current Library</h1>
+      <p class="library-eyebrow"><%= t("books.index.eyebrow") %></p>
+      <h1><%= t("books.index.title") %></h1>
       <div class="library-rule" aria-hidden="true"><span>✦</span></div>
     </header>
 
@@ -18,18 +18,18 @@
               <path d="M32 17C24 12 14 12 6 15v36c8-3 18-3 26 2 8-5 18-5 26-2V15c-8-3-18-3-26 2Zm0 0v36M12 21c5-1 10 0 14 2m-14 6c5-1 10 0 14 2m-14 6c5-1 10 0 14 2M45 24v16m-8-8h16" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </span>
-          <span class="library-create-label">Make a new book</span>
+          <span class="library-create-label"><%= t("books.index.create") %></span>
           <span class="library-create-plus" aria-hidden="true">+</span>
         <% end %>
       <% else %>
         <div class="library-create opacity-60" data-new-book-disabled aria-disabled="true"
-          title="Buy a book credit in Settings to make another book.">
+          title="<%= t("books.index.credit_required") %>">
         <span class="library-create-mark" aria-hidden="true">
           <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M32 17C24 12 14 12 6 15v36c8-3 18-3 26 2 8-5 18-5 26-2V15c-8-3-18-3-26 2Zm0 0v36M12 21c5-1 10 0 14 2m-14 6c5-1 10 0 14 2m-14 6c5-1 10 0 14 2M45 24v16m-8-8h16" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </span>
-        <span class="library-create-label">Make a new book</span>
+        <span class="library-create-label"><%= t("books.index.create") %></span>
         <span class="library-create-plus" aria-hidden="true">+</span>
         </div>
       <% end %>
@@ -38,7 +38,7 @@
         <article class="library-book">
           <%= link_to book, class: "library-cover" do %>
             <span class="library-ribbon" aria-hidden="true"></span>
-            <span class="library-cover-eyebrow" aria-hidden="true">The Chronicles of</span>
+            <span class="library-cover-eyebrow" aria-hidden="true"><%= t("books.reader.chronicles") %></span>
             <span class="library-artwork">
               <% cover_image = book.current_pages.last&.illustration&.original_image %>
               <% if cover_image.present? %>
@@ -50,7 +50,7 @@
             <h3><%= book.name %></h3>
             <span class="library-cover-flourish" aria-hidden="true">❧</span>
           <% end %>
-          <%= link_to "Read", book, class: "library-read", aria: { label: "Read #{book.name}" } %>
+          <%= link_to t("books.index.read"), book, class: "library-read", aria: { label: t("books.index.read_named", name: book.name) } %>
         </article>
       <% end %>
     </div>

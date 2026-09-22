@@ -1,0 +1,44 @@
+<% content_for :body_class, "library-page" %>
+
+<div class="<%= params[:onboarding].present? ? "profile-onboarding min-h-screen flex justify-center px-6 py-12" : "fable-layout" %>">
+  <%= render "layouts/sidebar" unless params[:onboarding].present? %>
+
+  <main class="fable-main fable-ui <%= "w-full max-w-3xl" if params[:onboarding].present? %>" id="main">
+    <p class="text-sm uppercase tracking-widest text-cyan-300"><%= t("profile.eyebrow") %></p>
+    <h1 class="mt-2 text-4xl font-bold"><%= t("profile.title") %></h1>
+    <p class="mt-3 max-w-2xl text-gray-300"><%= t("profile.introduction") %></p>
+
+    <%= form_with model: current_user, url: profile_path, method: :patch,
+      class: "mt-8 max-w-2xl rounded-xl border border-white/20 bg-black/20 p-6 space-y-6" do |form| %>
+      <%= hidden_field_tag :onboarding, true if params[:onboarding].present? %>
+
+      <% if current_user.errors.any? %>
+        <div role="alert" class="rounded border border-red-300/40 bg-red-950/40 p-3 text-red-100">
+          <ul>
+            <% current_user.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div>
+        <%= form.label :language, t("profile.language.label"), class: "block font-semibold" %>
+        <p class="mt-1 text-sm text-gray-400"><%= t("profile.language.hint") %></p>
+        <%= form.select :language, User::SUPPORTED_LANGUAGES.map { |code, name| [name, code] },
+          { include_blank: t("profile.language.choose") },
+          class: "mt-2 w-full rounded bg-gray-800 p-3 text-white" %>
+      </div>
+
+      <div>
+        <%= form.label :reader_age, t("profile.reader_age.label"), class: "block font-semibold" %>
+        <p class="mt-1 text-sm text-gray-400"><%= t("profile.reader_age.hint") %></p>
+        <%= form.number_field :reader_age, min: 0, max: 120,
+          class: "mt-2 w-full rounded bg-gray-800 p-3 text-white" %>
+      </div>
+
+      <%= form.submit t(params[:onboarding].present? ? "profile.continue" : "profile.save"),
+        class: "min-h-11 rounded bg-amber-500 px-5 py-3 font-semibold text-gray-950 hover:bg-amber-400" %>
+    <% end %>
+  </main>
+</div>

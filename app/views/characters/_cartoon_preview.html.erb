@@ -9,7 +9,7 @@
                           id: "char-#{char_id}-photo-preview", 
                           class: "w-full object-contain block" %>
         <% else %>
-            <span class="text-red-400">Error: Image failed to generate.</span>
+            <span class="text-red-400"><%= t("characters.form.image_failed") %></span>
         <% end %>
     </div>
 

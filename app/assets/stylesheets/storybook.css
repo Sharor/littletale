@@ -4,9 +4,9 @@
   width: 100%;
   padding: 2rem 1rem 3rem;
 }
-.fable-ui { color: var(--fable-ink); line-height: 1.6; }
+.fable-ui { color: var(--fable-ink); font-family: var(--fable-font-body); line-height: 1.6; }
 .fable-ui :is(h1, h2, h3), .fable-reader-title {
-  font-family: "EB Garamond", Georgia, serif;
+  font-family: var(--fable-font-display);
   color: var(--fable-ink);
   overflow-wrap: anywhere;
 }
@@ -34,7 +34,22 @@
   background: #fff9eb99;
   box-shadow: 0 8px 24px #4d38270d;
 }
-.fable-book-form { max-width: 52rem; margin-top: 2rem; }
+.fable-book-form { width: 100%; max-width: none; margin-top: 2rem; }
+.fable-ui .fable-form-label {
+  display: block;
+  margin: 0 0 .45rem;
+  color: var(--fable-wine);
+  font: 700 clamp(1.2rem, 2vw, 1.45rem)/1.2 var(--fable-font-display);
+}
+.fable-ui .fable-form-label.text-red-400 { color: #912e30; }
+.fable-ui .fable-form-legend {
+  margin-bottom: .5rem;
+  color: var(--fable-wine);
+  font-family: var(--fable-font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
 .fable-ui :is(input, textarea, select):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]) {
   min-height: 44px;
   max-width: 100%;
@@ -61,7 +76,7 @@
   border-radius: 3px;
   color: #fff5df;
   background: var(--fable-wine);
-  font: 600 .95rem/1.3 "Inter", sans-serif;
+  font: 600 .95rem/1.3 var(--fable-font-body);
   text-align: center;
   text-decoration: none;
   white-space: normal;
@@ -76,14 +91,14 @@
 .fable-ui :is(input[type="submit"], button):is(.bg-red-600, .bg-red-700) { background: #912e30; }
 .fable-ui :is(button, input):disabled { cursor: not-allowed; opacity: .5; }
 .fable-ui :is(a, button, input, textarea, select, summary):focus-visible {
-  outline: 3px solid #a7522d;
+  outline: 3px solid var(--fable-wine);
   outline-offset: 3px;
 }
-.fable-ui .peer:focus-visible + :is(div, span) { outline: 3px solid #a7522d; outline-offset: 3px; }
-.fable-ui .peer:checked + :is(div, span) { background: #ead5b3; color: var(--fable-ink); border-color: #742d38; box-shadow: 0 0 0 2px #742d38; }
+.fable-ui .peer:focus-visible + :is(div, span) { outline: 3px solid var(--fable-wine); outline-offset: 3px; }
+.fable-ui .peer:checked + :is(div, span) { background: #ead5b3; color: var(--fable-ink); border-color: var(--fable-wine); box-shadow: 0 0 0 2px var(--fable-wine); }
 .fable-ui .mode-tab { flex: 1; }
 .fable-ui #character-roles label > span { min-height: 44px; border-radius: 3px; }
-.fable-ui #character-roles legend { color: var(--fable-muted); }
+.fable-ui #character-roles legend { color: var(--fable-wine); }
 .fable-upload-choice { flex-wrap: wrap; gap: .75rem; }
 .fable-ui .fable-upload-choice > label { display: inline-flex; align-items: center; min-height: 44px; color: #fff5df; background: var(--fable-wine); }
 .fable-upload-choice > span { overflow-wrap: anywhere; margin: 0; }
@@ -203,6 +218,80 @@
 .fable-ui #book_plot { min-height: 7rem; }
 .fable-ui .fable-dialog-shell input.submit { margin: 0; }
 
+.art-style-picker {
+  container-type: inline-size;
+  min-width: 0;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  border: 1px solid #9f7e4f;
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, #fffaf0cc, #ecdbb9aa),
+    repeating-linear-gradient(0deg, transparent 0 4px, #6f4f2310 4px 5px);
+  box-shadow: inset 0 0 0 4px #fff8e780, 0 10px 28px #4d382712;
+}
+.art-style-section { min-width: 0; }
+.art-style-picker-intro { max-width: 62ch; margin: 0 0 1.25rem; color: var(--fable-muted); }
+.art-style-picker-layout { display: grid; gap: 1.25rem; min-width: 0; }
+.art-style-featured { min-width: 0; margin: 0; }
+.art-style-featured-frame {
+  position: relative;
+  aspect-ratio: 1;
+  padding: .55rem;
+  border: 1px solid #765a36;
+  background: #3f2e23;
+  box-shadow: 4px 6px 0 #c7ab79, 8px 12px 24px #4d38272e;
+}
+.art-style-featured-frame::after {
+  content: "";
+  position: absolute;
+  inset: .85rem;
+  border: 1px solid #f1d89c99;
+  pointer-events: none;
+}
+.art-style-featured-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.art-style-featured figcaption { display: grid; gap: .1rem; margin: 1rem .35rem 0; }
+.art-style-featured figcaption span { color: var(--fable-muted); font-size: .68rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.art-style-featured figcaption strong { font: 700 clamp(1.25rem, 2.8vw, 1.7rem)/1.2 var(--fable-font-display); }
+.art-style-options { display: grid; grid-template-columns: minmax(0, 1fr); gap: .7rem; align-content: start; min-width: 0; }
+.art-style-option { position: relative; min-width: 0; }
+.art-style-option-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.art-style-option-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr);
+  gap: .7rem;
+  align-items: center;
+  min-height: 4.6rem;
+  padding: .45rem 1.8rem .45rem .45rem;
+  overflow: hidden;
+  border: 1px solid #b6976377;
+  border-radius: 3px;
+  color: var(--fable-ink);
+  background: #fffaf0b3;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+.art-style-option-image { width: 3.4rem; aspect-ratio: 1; overflow: hidden; border: 1px solid #8d6c42; background: #dfc9a5; }
+.art-style-option-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.art-style-option-name { min-width: 0; font: 700 .95rem/1.15 var(--fable-font-display); overflow-wrap: anywhere; }
+.art-style-option-check {
+  position: absolute;
+  right: .45rem;
+  top: .45rem;
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid #9f7e4f;
+  border-radius: 50%;
+  color: transparent;
+  background: #f4e7cc;
+  font-size: .72rem;
+}
+.art-style-option-input:checked + .art-style-option-card { border-color: var(--fable-wine); background: #f2dfbd; box-shadow: 0 0 0 2px var(--fable-wine), 0 7px 18px #4d38271c; }
+.art-style-option-input:checked + .art-style-option-card .art-style-option-check { border-color: var(--fable-wine); color: #fff8e8; background: var(--fable-wine); }
+.art-style-option-input:focus-visible + .art-style-option-card { outline: 3px solid var(--fable-wine); outline-offset: 3px; }
+
 .fable-admin { overflow-wrap: anywhere; }
 .fable-admin > nav { margin-bottom: 2rem; background: #fff9eb80; border-color: #b6976377; gap: .5rem; }
 .fable-ui.fable-admin > nav a { color: var(--fable-ink); background: transparent; border-color: transparent; }
@@ -220,6 +309,10 @@
 @media (hover: hover) {
   .fable-ui :is(button, input[type="submit"]):not(:disabled):hover { filter: brightness(1.1); }
   .site-settings a:hover { color: var(--fable-gold); background: #e2c27512; }
+  .art-style-option-card:hover { transform: translateY(-2px); border-color: #765a36; box-shadow: 0 7px 18px #4d38271c; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-style-option-card { transition: none; }
 }
 @media (max-width: 479px) {
   .fable-character-add-card [class~="aspect-[3/3]"] { min-height: 10rem; aspect-ratio: auto; }
@@ -227,11 +320,26 @@
 }
 @media (min-width: 480px) {
   .fable-character-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .art-style-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 600px) {
   .fable-main { padding: 2.5rem 2rem 4rem; }
   .fable-character-grid, .fable-selection-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
   .fable-character-overview-header { grid-template-columns: minmax(0, 1fr) minmax(14rem, 22rem); }
+}
+@container (min-width: 48rem) {
+  .art-style-picker-layout { grid-template-columns: minmax(14rem, .68fr) minmax(30rem, 1.65fr); gap: clamp(1.25rem, 2.5vw, 2rem); }
+  .art-style-featured { position: sticky; top: 1rem; align-self: start; }
+  .art-style-options { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .art-style-option-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(2.35rem, auto);
+    gap: .4rem;
+    min-height: 0;
+    padding: .4rem .4rem .55rem;
+  }
+  .art-style-option-image { width: 100%; }
+  .art-style-option-name { align-self: center; padding-inline: .2rem; text-align: center; }
 }
 @media (min-width: 1024px) {
   .fable-main { padding: 3rem clamp(1.5rem, 3vw, 4rem) 4rem; }

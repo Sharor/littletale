@@ -44,7 +44,7 @@ class CharactersController < ApplicationController
     character_ids = params[:character_ids] || []
     characters = Character.where(id: character_ids, user: current_user)
     unless characters.size == Array(character_ids).reject(&:blank?).map(&:to_s).uniq.size && characters.all?(&:image_ready_for_book?)
-      return render plain: "Choose only your own ready character images.", status: :unprocessable_content
+      return render plain: I18n.t("notices.characters.own_ready_only"), status: :unprocessable_content
     end
     current_user.tutorial.update(tutorial_complete: true)
 
@@ -62,7 +62,7 @@ class CharactersController < ApplicationController
             "character_select_modal",
             helpers.turbo_frame_tag("character_select_modal")) ]
       end
-      format.html { redirect_to @book, notice: "#{characters.count} character(s) added to the book!" }
+      format.html { redirect_to @book, notice: I18n.t("notices.characters.added", count: characters.count) }
     end
   end
 
@@ -94,7 +94,7 @@ class CharactersController < ApplicationController
               # 1. Kick off the asynchronous job, passing the frontend ID for the later broadcast
               @character.setup_illustration(char_id_from_frontend)
               target_id = "character-#{char_id_from_frontend}"
-              format.html { redirect_to characters_url, notice: "Checking your character image…" }
+              format.html { redirect_to characters_url, notice: I18n.t("illustrations.checking") }
           else
               # 3. Handle validation errors
               target_id = "character-#{char_id_from_frontend}"
@@ -112,7 +112,7 @@ class CharactersController < ApplicationController
       @character.photo = nil if @character.creation_mode == "form"
       @character.photo.attach(photo_file) if photo_file.present? && @character.creation_mode != "form"
       if character_generation_credit_required?
-        @character.errors.add(:base, "You need a character credit to regenerate this character.")
+        @character.errors.add(:base, I18n.t("notices.characters.credit_required"))
         format.html { render_payment_required("character", redirect_status: :see_other) }
         format.json do
           render json: { error: "character_credit_required", settings_url: settings_url,
@@ -121,7 +121,7 @@ class CharactersController < ApplicationController
       elsif @character.save
         @character.setup_illustration
         format.turbo_stream { redirect_to(@book ? book_url(@book) : characters_url, status: :see_other) }
-        format.html { redirect_to(@book ? book_url(@book) : characters_url, notice: "Character was successfully updated.") }
+        format.html { redirect_to(@book ? book_url(@book) : characters_url, notice: I18n.t("notices.characters.updated")) }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @character.errors, status: :unprocessable_entity }
@@ -152,7 +152,7 @@ class CharactersController < ApplicationController
           turbo_stream.replace("modal", '<turbo-frame id="modal"></turbo-frame>')
         ]
       end
-      format.html { redirect_to characters_url, notice: "Character was successfully destroyed." }
+      format.html { redirect_to characters_url, notice: I18n.t("notices.characters.destroyed") }
     end
   end
 

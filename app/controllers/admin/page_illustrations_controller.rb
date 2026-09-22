@@ -9,15 +9,15 @@ class Admin::PageIllustrationsController < ApplicationController
     illustration = Illustration.joins(:page).find(params[:id])
     queued = illustration.page.book.enqueue_illustration_retry!(illustration, actor: current_user)
     redirect_back fallback_location: admin_failed_books_path,
-      notice: queued ? "Illustration retry queued with a revised prompt." : "This illustration cannot be retried or already has a retry in progress."
+      notice: queued ? I18n.t("admin.notices.illustration_queued") : I18n.t("notices.illustration.unavailable")
   rescue TrialBookReservation::LimitReached
     redirect_back fallback_location: admin_failed_books_path,
-      alert: "This user has no trial book slots available. Release another failed book slot first."
+      alert: I18n.t("admin.notices.no_trial_slots")
   rescue TrialBookReservation::TrialExpired
     redirect_back fallback_location: admin_failed_books_path,
-      alert: "This user's trial has expired."
+      alert: I18n.t("admin.notices.user_trial_expired")
   rescue BookCredit::LimitReached
     redirect_back fallback_location: admin_failed_books_path,
-      alert: "This user has no book credits available."
+      alert: I18n.t("admin.notices.no_book_credits")
   end
 end

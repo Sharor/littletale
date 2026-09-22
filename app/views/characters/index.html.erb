@@ -10,11 +10,11 @@
     <%= form_with url: new_book_path, method: :get, local: true, html: { class: "fable-character-picker" } do |form| %>
       <header class="fable-character-overview-header">
         <div>
-          <p class="fable-character-eyebrow">Your storybook cast</p>
-          <h1>Characters</h1>
-          <p class="fable-character-intro">Choose the characters who should join your next adventure.</p>
+          <p class="fable-character-eyebrow"><%= t("characters.index.eyebrow") %></p>
+          <h1><%= t("characters.index.title") %></h1>
+          <p class="fable-character-intro"><%= t("characters.index.introduction") %></p>
         </div>
-        <button type="submit" class="fable-character-book-cta" <%= "disabled aria-disabled=true title='Buy a book credit in Settings to make another book.'" unless current_user.book_generation_available? %>>
+        <button type="submit" class="fable-character-book-cta" <%= "disabled aria-disabled=true title='#{t("characters.index.book_credit_required")}'" unless current_user.book_generation_available? %>>
           <span><%= t("helpers.submit.character.add", default: "Create Book with Selected Characters") %></span>
           <span aria-hidden="true">→</span>
         </button>
@@ -31,14 +31,14 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
-                  <span class="text-sm font-medium text-cyan-400">New Character</span>
+                  <span class="text-sm font-medium text-cyan-400"><%= t("characters.index.new") %></span>
                 </div>
               </div>
             </div>
           <% end %>
         <% else %>
           <div class="fable-character-add opacity-60" data-new-character-disabled aria-disabled="true"
-            title="Buy a book credit in Settings to add more characters.">
+            title="<%= t("characters.index.character_credit_required") %>">
           <div class="fable-character-add-card rounded-xl p-4 frosted-glass flex flex-col items-center text-center border-2 border-dashed border-white/30 hover:border-cyan-400 transition hover:shadow-lg hover:shadow-cyan-500/30 cursor-pointer my-auto">
             <div class="flex flex-col items-center justify-center flex-grow w-full">
               <h2 class="text-sm md:text-base font-semibold truncate w-full px-1 invisible h-0 overflow-hidden">Placeholder</h2>
@@ -46,7 +46,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                <span class="text-sm font-medium text-cyan-400">New Character</span>
+                <span class="text-sm font-medium text-cyan-400"><%= t("characters.index.new") %></span>
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@
           <%# Wrapper div is important to ensure relationship for tailwind peer toggling the hidden checkbox. %>
           <div id="<%= dom_id(character) %>"> 
             <%# 1. Hidden Checkbox (The Peer) %>
-            <%= form.check_box :character_ids, { multiple: true, class: "peer sr-only", aria: { label: "Select #{character.name}" }, id: "character_checkbox_#{character.id}" }, character.id, nil %>
+            <%= form.check_box :character_ids, { multiple: true, class: "peer sr-only", aria: { label: t("characters.index.select_named", name: character.name) }, id: "character_checkbox_#{character.id}" }, character.id, nil %>
 
             <%# 2. Visual Card (The Adjacent Sibling) - Holds all styling and the manual click handler %>
             <div class="fable-character-card cursor-pointer group block rounded-xl border p-4 text-center transition-all duration-200 relative
@@ -76,7 +76,7 @@
 
               <%# EDIT ICON - Left side %>
               <%= link_to edit_character_path(character),
-                  aria: { label: "Edit #{character.name}" },
+                  aria: { label: t("characters.index.edit_named", name: character.name) },
                   class: "fable-character-action absolute left-0 top-0 transition duration-150 text-gray-400 hover:text-cyan-400 z-30 p-1",
                   onclick: "event.stopPropagation();" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,7 +86,7 @@
 
               <%# DELETE ICON - Right side %>
               <%= link_to confirm_delete_character_path(character),
-                  aria: { label: "Delete #{character.name}" },
+                  aria: { label: t("characters.index.delete_named", name: character.name) },
                   class: "fable-character-action absolute right-0 top-0 transition duration-150 text-gray-400 hover:text-red-500 z-30 p-1",
                   data: { turbo_frame: "modal" },
                   onclick: "event.stopPropagation();" do %>

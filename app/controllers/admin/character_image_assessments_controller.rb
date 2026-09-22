@@ -34,7 +34,7 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
   def retry_screening
     unless @assessment.status == "unavailable"
       redirect_to admin_character_image_assessment_path(@assessment),
-        alert: "Screening is no longer unavailable."
+        alert: I18n.t("admin.notices.screening_available")
       return
     end
 
@@ -45,10 +45,10 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
     end
     queued = @assessment.retry_screening!
     redirect_to admin_character_image_assessment_path(@assessment),
-      (queued ? { notice: "Screening retry requested." } : { alert: "Screening could not be queued. The character credit was released." })
+      (queued ? { notice: I18n.t("admin.notices.screening_requested") } : { alert: I18n.t("admin.notices.screening_failed") })
   rescue CharacterCredit::LimitReached
     redirect_to admin_character_image_assessment_path(@assessment),
-      alert: "This user has no character credits available."
+      alert: I18n.t("admin.notices.no_character_credits")
   end
 
   def retry_generation
@@ -56,16 +56,16 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
     queued = request.admin_retry_generation!(admin: current_user,
       expected_version: params[:attempt_version], confirm_unknown: params[:confirm_unknown] == "1")
     redirect_to admin_character_image_assessment_path(@assessment),
-      notice: queued ? "Character generation queued." : "Generation was not queued. Refresh and check the request status and confirmation."
+      notice: queued ? I18n.t("admin.notices.generation_queued") : I18n.t("admin.notices.generation_failed")
   end
 
   def release_character_credit
     request = @assessment.requests.find(params[:request_id])
     result = CharacterFunding.release_for_admin!(request, admin: current_user)
     message = case result
-    when :released then "The character credit was released."
-    when :active then "The credit cannot be released while screening or generation is active."
-    else "This request has no releasable character credit."
+    when :released then I18n.t("admin.notices.character_credit_released")
+    when :active then I18n.t("admin.notices.character_credit_active")
+    else I18n.t("admin.notices.character_credit_unavailable")
     end
     redirect_to admin_character_image_assessment_path(@assessment),
       (result == :released ? { notice: message } : { alert: message })
@@ -80,14 +80,14 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
     )
 
     redirect_to admin_character_image_assessment_path(@assessment),
-      notice: changed ? "Character image approved." : "This assessment has already been resolved."
+      notice: changed ? I18n.t("admin.notices.image_approved") : I18n.t("admin.notices.already_resolved")
   end
 
   def reject
     public_reason = decision_params[:public_reason].to_s.strip
     if public_reason.blank?
       load_detail
-      flash.now[:alert] = "Enter a public reason before rejecting this image."
+      flash.now[:alert] = I18n.t("admin.notices.reason_required")
       return render :show, status: :unprocessable_content
     end
 
@@ -100,7 +100,7 @@ class Admin::CharacterImageAssessmentsController < ApplicationController
     )
 
     redirect_to admin_character_image_assessment_path(@assessment),
-      notice: changed ? "Character image rejected." : "This assessment has already been resolved."
+      notice: changed ? I18n.t("admin.notices.image_rejected") : I18n.t("admin.notices.already_resolved")
   end
 
   private

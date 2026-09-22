@@ -1,32 +1,32 @@
 <div class="fable-public fable-landing">
-  <nav class="fable-public-nav" aria-label="Main navigation">
+  <nav class="fable-public-nav" aria-label="<%= t("landing.navigation") %>">
     <div class="fable-public-brand">
       <%= image_tag "logo_small.png", alt: "LittleStories Logo" %>
       <span>LittleStories</span>
     </div>
     <div class="fable-public-nav-links">
-      <a href="#how-it-works">Process</a>
-      <a href="#about">Our Story</a>
+      <a href="#how-it-works"><%= t("landing.process") %></a>
+      <a href="#about"><%= t("landing.our_story") %></a>
     </div>
-    <%= link_to "Get Started", new_user_session_path, class: "fable-public-button fable-public-button-outline" %>
+    <%= link_to t("landing.get_started"), new_user_session_path, class: "fable-public-button fable-public-button-outline" %>
   </nav>
 
   <main aria-labelledby="landing-title">
     <header class="fable-public-hero">
       <div class="fable-public-hero-copy">
-        <h1 id="landing-title">Turn your child into a <span>Storybook Hero.</span></h1>
-        <p class="fable-public-intro">Upload a photo, choose an adventure, and watch your child become the star of their very own cartoon-illustrated book.</p>
+        <h1 id="landing-title"><%= t("landing.title_html") %></h1>
+        <p class="fable-public-intro"><%= t("landing.introduction") %></p>
         <div class="fable-public-hero-actions">
-          <%= link_to "Create Your Story", new_user_session_path, class: "fable-public-button" %>
-          <span class="fable-public-parent-note">Join 2,000+ happy parents</span>
+          <%= link_to t("landing.create"), new_user_session_path, class: "fable-public-button" %>
+          <span class="fable-public-parent-note"><%= t("landing.parents") %></span>
         </div>
       </div>
 
       <div class="fable-public-story-cover">
         <span class="fable-public-cover-ribbon" aria-hidden="true"></span>
         <div class="fable-public-transformation">
-          <%= image_tag "landing-page-kid.png", alt: "Photo of a small boy" %>
-          <%= image_tag "landing-boy-cartoonified.png", alt: "Photo of the small boy as a cartoon" %>
+          <%= image_tag "landing-page-kid.png", alt: t("landing.photo_alt") %>
+          <%= image_tag "landing-boy-cartoonified.png", alt: t("landing.cartoon_alt") %>
         </div>
         <span class="fable-public-flourish" aria-hidden="true">❧</span>
       </div>
@@ -34,27 +34,27 @@
 
     <section id="how-it-works" class="fable-public-process">
       <div>
-        <h2>How the magic happens</h2>
+        <h2><%= t("landing.magic_title") %></h2>
         <div class="fable-public-steps">
           <div class="reveal-on-scroll fable-public-step">
             <span class="fable-public-step-number">1</span>
             <div>
-              <h3>Upload &amp; Plot</h3>
-              <p>Add photos and describe your dream adventure.</p>
+              <h3><%= t("landing.steps.upload.title") %></h3>
+              <p><%= t("landing.steps.upload.description") %></p>
             </div>
           </div>
           <div class="reveal-on-scroll fable-public-step" style="transition-delay: 100ms;">
             <span class="fable-public-step-number">2</span>
             <div>
-              <h3>AI Illustration</h3>
-              <p>Our engine transforms faces into consistent cartoon characters.</p>
+              <h3><%= t("landing.steps.illustration.title") %></h3>
+              <p><%= t("landing.steps.illustration.description") %></p>
             </div>
           </div>
           <div class="reveal-on-scroll fable-public-step" style="transition-delay: 200ms;">
             <span class="fable-public-step-number">3</span>
             <div>
-              <h3>Instant Storybook</h3>
-              <p>A full-color, high-res PDF or physical book delivered to you.</p>
+              <h3><%= t("landing.steps.storybook.title") %></h3>
+              <p><%= t("landing.steps.storybook.description") %></p>
             </div>
           </div>
         </div>
@@ -62,12 +62,12 @@
 
       <div class="fable-public-film">
         <span class="fable-public-play" aria-hidden="true">▷</span>
-        <p>Watch the transformation</p>
+        <p><%= t("landing.watch") %></p>
       </div>
     </section>
 
     <section class="fable-public-testimonial">
-      <p class="fable-public-eyebrow">As seen on / Trusted by</p>
+      <p class="fable-public-eyebrow"><%= t("landing.trusted") %></p>
       <div class="fable-public-publications">
         <span>ParentingHub</span>
         <span>TechKids</span>
@@ -75,20 +75,20 @@
         <span>MiniMinds</span>
       </div>
       <blockquote>
-        <p>"My daughter didn't believe it was her until she saw her favorite teddy bear in the cartoon. She's read it every night for a month!"</p>
-        <cite>— Sarah J., Proud Mom</cite>
+        <p><%= t("landing.testimonial.quote") %></p>
+        <cite><%= t("landing.testimonial.author") %></cite>
       </blockquote>
     </section>
 
     <section id="about" class="fable-public-about">
-      <div class="fable-public-founder"><span>Founder Photo</span></div>
+      <div class="fable-public-founder"><span><%= t("landing.founder_photo") %></span></div>
       <div>
-        <h2>Why we built LittleStories</h2>
+        <h2><%= t("landing.about.title") %></h2>
         <div class="fable-public-prose">
-          <p>It started when I tried to find a book for my son where the hero looked like him. Not "kind of" like him, but <em>really</em> him.</p>
-          <p>We realized that AI could be used for more than just data—it could be used for wonder. Our mission at LittleStories is to bridge the gap between a child's imagination and the physical world, making every bedtime a personal adventure.</p>
+          <p><%= t("landing.about.origin_html") %></p>
+          <p><%= t("landing.about.mission") %></p>
         </div>
-        <p class="fable-public-signature">Personalized with love.</p>
+        <p class="fable-public-signature"><%= t("landing.about.signature") %></p>
       </div>
     </section>
   </main>

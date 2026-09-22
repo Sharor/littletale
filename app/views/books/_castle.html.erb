@@ -19,7 +19,7 @@
   <div class="mt-6 text-center">
     <% progress = (book.pages.count.to_f / book.total_pages * 100).to_i %>
     <div class="text-xs font-mono text-gray-500 uppercase tracking-widest">
-      <%= progress == 100 ? "✨ Book written, just a moment! ✨" : "Making your book: #{progress}%" %>
+      <%= progress == 100 ? t("books.status.written") : t("books.status.progress", progress: progress) %>
     </div>
     <div class="h-1 w-48 bg-gray-800 rounded-full mt-2 overflow-hidden">
       <div class="h-full bg-yellow-500 transition-all duration-1000" 

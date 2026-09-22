@@ -2,8 +2,8 @@
   <div class="fable-public-sign-in-sheet">
     <header class="fable-public-centered-heading">
       <%= image_tag "logo_small.png", class: "fable-public-login-logo", alt: "LittleStories Logo" %>
-      <h1 id="sign-in-title">Welcome back!</h1>
-      <p>Ready for the next adventure?</p>
+      <h1 id="sign-in-title"><%= t("authentication.welcome_back") %></h1>
+      <p><%= t("authentication.next_adventure") %></p>
     </header>
 
     <div class="fable-public-social-options">
@@ -12,20 +12,20 @@
           data: { turbo: "false" },
           class: "fable-public-button fable-public-google" do %>
         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        Continue with Google
+        <%= t("authentication.google") %>
       <% end %>
 
       <div class="fable-public-provider-soon" aria-disabled="true">
         <svg aria-hidden="true" focusable="false" viewBox="0 0 23 23"><path fill="#f35325" d="M1 1h10v10H1z"/><path fill="#81bc06" d="M12 1h10v10H12z"/><path fill="#05a6f0" d="M1 12h10v10H1z"/><path fill="#ffba08" d="M12 12h10v10H12z"/></svg>
-        Microsoft <span>(Soon)</span>
+        Microsoft <span>(<%= t("authentication.soon") %>)</span>
       </div>
       <div class="fable-public-provider-soon" aria-disabled="true">
         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path fill="currentColor" d="M17.073 21.321c-.959.697-1.983.717-3.004.262-1.015-.456-1.918-.446-2.856.021-1.336.666-2.181.564-3.05-.147-3.804-3.15-3.064-9.358 1.402-9.527 1.258.047 2.051.72 2.811.751.76.031 1.831-.762 3.193-.637 1.512.139 2.613.71 3.26 1.637-3.235 1.942-2.73 6.221.411 7.64-.633 1.583-1.464 2.148-2.167 3zM12.03 8.313c-.07-2.31 1.772-4.249 3.996-4.313.195 2.535-2.247 4.542-3.996 4.313z"/></svg>
-        Apple <span>(Soon)</span>
+        Apple <span>(<%= t("authentication.soon") %>)</span>
       </div>
     </div>
     <div class="fable-public-sign-in-note">
-      <p>New to LittleStories? <br>Simply sign in with another account (currently only supporting gmail).</p>
+      <p><%= t("authentication.new_user_html") %></p>
     </div>
   </div>
 </main>

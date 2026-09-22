@@ -18,13 +18,23 @@ class NavigationTest < ActionDispatch::IntegrationTest
       assert_select "aside section[aria-label='Settings']" do
         assert_select "h4", "Settings"
         assert_select "a[href='#{settings_path}']", "Trial & subscription"
+        assert_select "a[href='#{profile_path}']", "User profile"
       end
       assert_select "header section[aria-label='Settings']" do
         assert_select "h4", "Settings"
         assert_select "a[href='#{settings_path}']", "Trial & subscription"
+        assert_select "a[href='#{profile_path}']", "User profile"
       end
       assert_select "a[href='#{admin_root_path}']", count: 0
     end
+  end
+
+  test "library navigation omits reading list and filters" do
+    get books_path
+
+    assert_response :success
+    assert_select "aside", text: /Reading List|Filters|Sci-Fi|Fantasy|History/, count: 0
+    assert_select "header", text: /Reading List|Filters|Sci-Fi|Fantasy|History/, count: 0
   end
 
   test "administration is available only under settings on app and admin screens" do
