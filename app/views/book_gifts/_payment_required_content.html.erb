@@ -1,0 +1,27 @@
+<div class="fable-dialog-inner">
+  <div class="fable-dialog-heading">
+    <div>
+      <p class="gift-dialog-eyebrow"><%= t("book_gifts.payment_required.eyebrow") %></p>
+      <h2 id="<%= title_id %>"><%= t("book_gifts.payment_required.title", title: book.name) %></h2>
+    </div>
+    <% if modal %>
+      <button type="button" class="fable-dialog-close" data-action="gift-modal#close"
+        aria-label="<%= t("book_gifts.modal.close") %>">×</button>
+    <% end %>
+  </div>
+  <div class="gift-purchase-copy">
+    <p><%= t("book_gifts.payment_required.explanation") %></p>
+    <p class="gift-purchase-detail"><%= t("book_gifts.payment_required.purchase_includes") %></p>
+  </div>
+  <div class="gift-form-actions">
+    <%= button_to t("book_gifts.payment_required.buy"), settings_book_purchase_path,
+      method: :post, params: { gift_book_id: book.id }, class: "fable-primary-action" %>
+    <% if modal %>
+      <button type="button" class="fable-secondary-action" data-action="gift-modal#close">
+        <%= t("book_gifts.modal.cancel") %>
+      </button>
+    <% else %>
+      <%= link_to t("book_gifts.payment_required.back"), books_path, class: "fable-secondary-action" %>
+    <% end %>
+  </div>
+</div>

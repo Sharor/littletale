@@ -162,6 +162,23 @@
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+#storybook .book-end-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+}
+
+#storybook .book-gift-copy-form {
+    max-width: 100%;
+    margin: 0;
+}
+
+#storybook .book-end-actions .book-back-button {
+    margin-top: 0;
+}
+
 #storybook .book-back-button {
     display: inline-block;
     max-width: 100%;

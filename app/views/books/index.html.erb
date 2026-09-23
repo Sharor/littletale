@@ -50,7 +50,17 @@
             <h3><%= book.name %></h3>
             <span class="library-cover-flourish" aria-hidden="true">❧</span>
           <% end %>
-          <%= link_to t("books.index.read"), book, class: "library-read", aria: { label: t("books.index.read_named", name: book.name) } %>
+          <div class="library-book-actions">
+            <%= link_to t("books.index.read"), book, class: "library-read", aria: { label: t("books.index.read_named", name: book.name) } %>
+            <% if book.gift_preparable? %>
+              <%= render "book_gifts/prepare_action",
+                book: book,
+                label: t("books.index.send_as_gift"),
+                form_class: "library-gift-form",
+                button_class: "library-gift-action",
+                aria_label: t("books.index.send_as_gift_named", name: book.name) %>
+            <% end %>
+          </div>
         </article>
       <% end %>
     </div>

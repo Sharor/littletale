@@ -114,12 +114,14 @@ body.storybook-theme {
   overflow-wrap: anywhere;
 }
 .library-cover-flourish { margin-top: auto; font-family: Georgia, serif; font-size: 1.4rem; }
-.library-read {
+.library-book-actions { display: grid; gap: .65rem; margin-top: 1rem; }
+.library-read,
+.library-gift-action {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   min-height: 44px;
-  margin-top: 1rem;
   padding: .5rem;
   border: 1px solid #927446;
   border-radius: 3px;
@@ -128,7 +130,15 @@ body.storybook-theme {
   font-family: var(--fable-font-display);
   font-size: 1.05rem;
   font-weight: 700;
+  line-height: 1.2;
   text-decoration: none;
+}
+.library-gift-form { margin: 0; }
+.library-gift-action {
+  color: var(--fable-wine);
+  border-color: var(--fable-wine);
+  background: transparent;
+  cursor: pointer;
 }
 .library-create {
   display: flex;
@@ -138,6 +148,7 @@ body.storybook-theme {
   gap: 1.25rem;
   min-width: 0;
   min-height: 19rem;
+  height: 100%;
   padding: 1.25rem .75rem;
   border: 1px dashed var(--fable-line);
   outline: 1px solid #b697632b;
@@ -182,7 +193,7 @@ body.storybook-theme {
 
 @media (hover: hover) {
   .library-cover:hover { transform: translateY(-4px); }
-  .library-read:hover { color: var(--fable-paper); background: var(--fable-wine); border-color: var(--fable-wine); }
+  .library-read:hover, .library-gift-action:hover { color: var(--fable-paper); background: var(--fable-wine); border-color: var(--fable-wine); }
   .library-create:hover { background: #fffaf080; border-color: var(--fable-wine); }
   :is(.library-layout, .fable-layout) .site-sidebar nav a:hover,
   :is(.library-layout, .fable-layout) .site-mobile-header nav a:hover,
@@ -191,7 +202,7 @@ body.storybook-theme {
 }
 @media (prefers-reduced-motion: no-preference) {
   .library-cover { transition: transform 180ms ease; }
-  .library-read, .library-create { transition: background-color 180ms ease, color 180ms ease; }
+  .library-read, .library-gift-action, .library-create { transition: background-color 180ms ease, color 180ms ease; }
 }
 @media (min-width: 600px) {
   .library-main { padding: 2.5rem 2rem 4rem; }

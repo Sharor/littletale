@@ -201,11 +201,14 @@ da:
       credit_required: Køb en bogkredit under Indstillinger for at lave en ny bog.
       read: Læs
       read_named: "Læs %{name}"
+      send_as_gift: Send som gave
+      send_as_gift_named: "Send %{name} som gave"
     reader:
       chronicles: Fortællingerne om
       illustration_unavailable: Illustrationen er ikke tilgængelig
       the_end: SLUT
       back_to_library: Tilbage til biblioteket
+      gift_copy: Giv en kopi af denne bog
       instructions: Klik på en side for at bladre. Klik i venstre side for at gå tilbage og i højre side for at gå frem.
       previous: Forrige
       next: Næste

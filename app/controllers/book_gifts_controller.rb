@@ -3,6 +3,27 @@
 class BookGiftsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_giftable_book, only: %i[new create]
+  before_action :set_owned_book, only: %i[prepare payment_required]
+
+  def prepare
+    already_paid = @book.giftable?
+    if current_user.trial? && !already_paid
+      return redirect_to payment_required_book_book_gifts_url(@book)
+    end
+
+    BookFunding.convert_trial_to_paid_for_gift!(@book)
+
+    redirect_options = {}
+    redirect_options[:notice] = I18n.t("book_gifts.trial_converted") unless already_paid
+    redirect_to new_book_book_gift_url(@book), redirect_options
+  rescue BookCredit::LimitReached
+    redirect_to payment_required_book_book_gifts_url(@book)
+  rescue BookFunding::IncompleteBook
+    head :not_found
+  end
+
+  def payment_required
+  end
 
   def new
     @book_gift = BookGift.new(
@@ -49,6 +70,10 @@ class BookGiftsController < ApplicationController
   end
 
   private
+
+  def set_owned_book
+    @book = current_user.books.completed.find(params[:book_id])
+  end
 
   def set_giftable_book
     @book = current_user.books.find(params[:book_id])

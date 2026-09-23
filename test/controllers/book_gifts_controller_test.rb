@@ -15,6 +15,85 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
     sign_in @sender
   end
 
+  test "preparing an already paid book opens the giftcard without spending another credit" do
+    assert_no_difference("@sender.book_credit_reservations.count") do
+      post prepare_book_book_gifts_url(@book)
+    end
+
+    assert_redirected_to new_book_book_gift_url(@book)
+    assert_predicate @book.reload, :giftable?
+  end
+
+  test "preparing a trial book consumes a paid credit and releases the trial slot" do
+    trial_book = @sender.books.create!(name: "Trial gift", total_pages: 1,
+      generation_status: :completed, language: "en")
+    trial_reservation = @sender.trial_book_reservations.create!(book: trial_book)
+    credit = create_available_credit(@sender)
+
+    assert_no_difference("Book.count") do
+      post prepare_book_book_gifts_url(trial_book)
+    end
+
+    assert_redirected_to new_book_book_gift_url(trial_book)
+    assert_equal "consumed", credit.reload.status
+    assert_equal "released", trial_reservation.reload.status
+    assert_predicate trial_book.reload, :giftable?
+    assert @sender.books.exists?(trial_book.id)
+  end
+
+  test "preparing an unpaid book without a credit opens the gift purchase explanation" do
+    trial_book = @sender.books.create!(name: "Trial gift", total_pages: 1,
+      generation_status: :completed, language: "en")
+    trial_reservation = @sender.trial_book_reservations.create!(book: trial_book)
+
+    assert_no_difference("BookCreditReservation.count") do
+      post prepare_book_book_gifts_url(trial_book)
+    end
+
+    assert_redirected_to "/books/#{trial_book.id}/book_gifts/payment_required"
+    assert_equal "held", trial_reservation.reload.status
+  end
+
+  test "trial account sees the purchase explanation even if an available credit exists" do
+    trial_book = @sender.books.create!(name: "Trial gift", total_pages: 1,
+      generation_status: :completed, language: "en")
+    trial_reservation = @sender.trial_book_reservations.create!(book: trial_book)
+    credit = create_available_credit(@sender)
+    @sender.update!(tier: "free")
+
+    post prepare_book_book_gifts_url(trial_book)
+
+    assert_redirected_to payment_required_book_book_gifts_url(trial_book)
+    assert_equal "available", credit.reload.status
+    assert_equal "held", trial_reservation.reload.status
+  end
+
+  test "gift purchase explanation offers to buy the selected book" do
+    trial_book = @sender.books.create!(name: "Trial gift", total_pages: 1,
+      generation_status: :completed, language: "en")
+
+    get payment_required_book_book_gifts_url(trial_book)
+
+    assert_response :success
+    assert_select "[role='dialog'][aria-modal='true']" do
+      assert_select "h2", text: "Buy the book \"Trial gift\" to send it as a gift"
+    end
+    assert_select "p", text: /original book stays in your library/i
+    assert_select "form[action='#{settings_book_purchase_path}']" do
+      assert_select "input[name='gift_book_id'][value='#{trial_book.id}']"
+      assert_select "button", text: "Buy the book"
+    end
+    assert_select "a[href='#{books_path}']", text: "Back to library"
+  end
+
+  test "gift purchase explanation is unavailable until the book is completed" do
+    pending_book = @sender.books.create!(name: "Still writing", total_pages: 1, language: "en")
+
+    get payment_required_book_book_gifts_url(pending_book)
+
+    assert_response :not_found
+  end
+
   test "owner can open the giftcard for a paid completed book" do
     get new_book_book_gift_url(@book)
 
@@ -245,6 +324,15 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
   def issue_gift
     gift = BookGift.issue!(source_book: @book, sender: @sender, attributes: valid_attributes)
     [ gift, gift.invitation_token ]
+  end
+
+  def create_available_credit(owner)
+    purchase = owner.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    purchase.fulfill!(checkout_session_id: "cs_#{SecureRandom.hex(8)}",
+      payment_intent_id: "pi_#{SecureRandom.hex(8)}", stripe_customer_id: "cus_#{SecureRandom.hex(8)}",
+      price_id: "price_test", amount_total: 2500, currency: "dkk")
+    purchase.book_credit
   end
 
   def create_paid_book(owner)

@@ -1,0 +1,30 @@
+<% credit_available = !book.user.trial? && book.user.book_credits.spendable.exists? %>
+<% title_id = "gift-funding-title-#{book.id}" %>
+
+<dialog class="fable-ui fable-dialog-shell gift-funding-dialog"
+  aria-labelledby="<%= title_id %>"
+  data-gift-modal-target="dialog"
+  data-action="click->gift-modal#closeOnBackdrop">
+  <% if credit_available %>
+    <div class="fable-dialog-inner">
+      <div class="fable-dialog-heading">
+        <div>
+          <p class="gift-dialog-eyebrow"><%= t("book_gifts.credit_confirmation.eyebrow") %></p>
+          <h2 id="<%= title_id %>"><%= t("book_gifts.credit_confirmation.title") %></h2>
+        </div>
+        <button type="button" class="fable-dialog-close" data-action="gift-modal#close"
+          aria-label="<%= t("book_gifts.modal.close") %>">×</button>
+      </div>
+      <p><%= t("book_gifts.credit_confirmation.explanation") %></p>
+      <div class="gift-form-actions">
+        <%= button_to t("book_gifts.credit_confirmation.confirm"), prepare_book_book_gifts_path(book),
+          method: :post, class: "fable-primary-action" %>
+        <button type="button" class="fable-secondary-action" data-action="gift-modal#close">
+          <%= t("book_gifts.modal.cancel") %>
+        </button>
+      </div>
+    </div>
+  <% else %>
+    <%= render "book_gifts/payment_required_content", book: book, title_id: title_id, modal: true %>
+  <% end %>
+</dialog>

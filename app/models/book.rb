@@ -70,6 +70,10 @@ class Book < ApplicationRecord
       end
   end
 
+  def gift_preparable?
+    completed?
+  end
+
   def total_pages_within_tier_limit
     return unless total_pages.present?
 

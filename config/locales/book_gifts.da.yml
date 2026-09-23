@@ -3,6 +3,23 @@ da:
     gifts: Gaver
   book_gifts:
     created: Din gave er klar til at blive delt.
+    trial_converted: Bogen er nu betalt og klar til at blive givet som gave. Din prøvebogsplads er givet tilbage.
+    confirm_trial_credit: Dette bruger én bogkredit og giver din prøvebogsplads tilbage. Vil du fortsætte?
+    credit_confirmation:
+      eyebrow: Prøvebog
+      title: Brug én bogkredit?
+      explanation: Dette bruger én bogkredit og giver din prøvebogsplads tilbage.
+      confirm: Brug kredit og fortsæt
+    modal:
+      cancel: Annuller
+      close: Luk
+    payment_required:
+      eyebrow: Der kræves en betalt bog
+      title: Køb %{title} for at sende den som gave
+      explanation: Prøvebøger skal betales, før de kan deles. Din oprindelige bog bliver i dit bibliotek, og en reserveret prøvebogsplads gives tilbage.
+      purchase_includes: Købet indeholder én bogkredit og fem figurgenereringer.
+      buy: Køb bogen
+      back: Tilbage til biblioteket
     claimed: Bogen er blevet føjet til dine gaver.
     delivery_retried: Gave-e-mailen er sat i kø igen.
     delivery_failed: Gave-e-mailen kunne ikke sættes i kø.

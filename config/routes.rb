@@ -39,7 +39,12 @@ Rails.application.routes.draw do
   get "settings/checkout/success", to: "purchases#success", as: :settings_checkout_success
   post "webhooks/stripe", to: "stripe_webhooks#create", as: :stripe_webhook
   resources :books do
-    resources :book_gifts, only: %i[new create]
+    resources :book_gifts, only: %i[new create] do
+      collection do
+        post :prepare
+        get :payment_required
+      end
+    end
   end
   get "gifts/:token", to: "gift_invitations#show", as: :gift_invitation
   post "gifts/:token/claim", to: "gift_invitations#claim", as: :claim_gift_invitation

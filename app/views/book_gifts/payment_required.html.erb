@@ -1,0 +1,8 @@
+<% content_for :body_class, "library-page" %>
+<% title_id = "gift-payment-required-title" %>
+
+<div class="fable-ui fable-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="<%= title_id %>">
+  <div class="fable-dialog-shell gift-funding-dialog">
+    <%= render "payment_required_content", book: @book, title_id: title_id, modal: false %>
+  </div>
+</div>

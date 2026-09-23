@@ -3,6 +3,23 @@ en:
     gifts: Gifts
   book_gifts:
     created: Your gift is ready to share.
+    trial_converted: This book is now paid for and ready to gift. Your trial book slot has been returned.
+    confirm_trial_credit: This will use one book credit and return your trial book slot. Continue?
+    credit_confirmation:
+      eyebrow: Trial book
+      title: Use one book credit?
+      explanation: This will use one book credit and return your trial book slot.
+      confirm: Use credit and continue
+    modal:
+      cancel: Cancel
+      close: Close
+    payment_required:
+      eyebrow: A paid book is required
+      title: Buy the book "%{title}" to send it as a gift
+      explanation: Trial books must be paid for before they can be shared. Your original book stays in your library, and any held trial book slot is returned.
+      purchase_includes: The purchase includes one book credit and five character generations.
+      buy: Buy the book
+      back: Back to library
     claimed: The book has been added to your gifts.
     delivery_retried: The gift email has been queued again.
     delivery_failed: The gift email could not be queued.

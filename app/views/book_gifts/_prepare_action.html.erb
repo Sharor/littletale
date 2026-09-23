@@ -1,0 +1,13 @@
+<% if book.giftable? %>
+  <%= button_to label, prepare_book_book_gifts_path(book),
+    method: :post, form_class: form_class, class: button_class,
+    aria: { label: aria_label } %>
+<% else %>
+  <div class="gift-modal-trigger" data-controller="gift-modal">
+    <%= button_to label, prepare_book_book_gifts_path(book),
+      method: :post, form_class: form_class, class: button_class,
+      form: { data: { action: "submit->gift-modal#open" } },
+      aria: { label: aria_label } %>
+    <%= render "book_gifts/funding_dialog", book: book %>
+  </div>
+<% end %>

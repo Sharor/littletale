@@ -23,7 +23,17 @@
     <div class="page page-cover page-cover-bottom" data-density="hard">
       <div class="page-content">
       <h2 class="mb-8"><%= t("books.reader.the_end") %></h2>
-      <%= link_to t("books.reader.back_to_library"), books_path, class: "book-back-button" %>
+      <div class="book-end-actions">
+        <%= link_to t("books.reader.back_to_library"), books_path, class: "book-back-button" %>
+        <% if book.gift_preparable? %>
+          <%= render "book_gifts/prepare_action",
+            book: book,
+            label: t("books.reader.gift_copy"),
+            form_class: "book-gift-copy-form",
+            button_class: "book-back-button book-gift-copy-button",
+            aria_label: t("books.reader.gift_copy") %>
+        <% end %>
+      </div>
       </div>
     </div>
   </div>

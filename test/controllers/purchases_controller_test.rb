@@ -28,6 +28,62 @@ class PurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_includes checkout_arguments.fetch(:success_url), "session_id={CHECKOUT_SESSION_ID}"
   end
 
+  test "gift purchase Checkout returns to the selected book flow" do
+    book = @user.books.create!(name: "Trial gift", total_pages: 1, generation_status: :completed, language: "en")
+    purchase = @user.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      price_id: "price_test", stripe_checkout_session_id: "cs_gift", idempotency_key: SecureRandom.uuid,
+      amount_total: 2500, currency: "dkk", livemode: false)
+    result = Payments::Checkout::Result.new(purchase: purchase, url: "https://checkout.stripe.test/gift")
+    checkout_arguments = nil
+
+    Payments::Checkout.stub :call, ->(**arguments) { checkout_arguments = arguments; result } do
+      post settings_book_purchase_url, params: { gift_book_id: book.id }
+    end
+
+    assert_redirected_to "https://checkout.stripe.test/gift"
+    assert_equal payment_required_book_book_gifts_url(book), checkout_arguments.fetch(:cancel_url)
+  end
+
+  test "successful gift purchase pays for the selected book and opens its giftcard" do
+    book = @user.books.create!(name: "Legacy trial gift", total_pages: 1,
+      generation_status: :completed, language: "en")
+    purchase = @user.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      price_id: "price_test", stripe_checkout_session_id: "cs_gift_success",
+      idempotency_key: SecureRandom.uuid, amount_total: 2500, currency: "dkk", livemode: false)
+    checkout = Payments::Checkout::Result.new(purchase: purchase, url: "https://checkout.stripe.test/gift-success")
+    Payments::Checkout.stub(:call, checkout) do
+      post settings_book_purchase_url, params: { gift_book_id: book.id }
+    end
+
+    stripe_session = paid_checkout_session(purchase)
+    gateway = Object.new
+    gateway.define_singleton_method(:retrieve_checkout_session) { |_id| stripe_session }
+
+    Payments::StripeGateway.stub(:new, gateway) do
+      get settings_checkout_success_url(session_id: purchase.stripe_checkout_session_id)
+    end
+
+    assert_redirected_to new_book_book_gift_url(book)
+    assert_predicate purchase.reload, :paid?
+    assert_equal "consumed", purchase.book_credit.status
+    assert_predicate book.reload, :giftable?
+    assert @user.books.exists?(book.id)
+  end
+
+  test "gift purchase Checkout rejects a book owned by another user" do
+    other = users(:two)
+    other_book = other.books.create!(name: "Someone else's book", total_pages: 1,
+      generation_status: :completed, language: "en")
+    checkout_called = false
+
+    Payments::Checkout.stub :call, ->(**) { checkout_called = true } do
+      post settings_book_purchase_url, params: { gift_book_id: other_book.id }
+    end
+
+    assert_response :not_found
+    assert_not checkout_called
+  end
+
   test "Checkout creation requires authentication" do
     sign_out @user
 
@@ -75,5 +131,31 @@ class PurchasesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to settings_url(checkout: "pending")
+  end
+
+  private
+
+  def paid_checkout_session(purchase)
+    {
+      "id" => purchase.stripe_checkout_session_id,
+      "mode" => "payment",
+      "payment_status" => "paid",
+      "livemode" => false,
+      "amount_total" => 2500,
+      "currency" => "dkk",
+      "metadata" => {
+        "purchase_id" => purchase.id.to_s,
+        "user_id" => @user.id.to_s,
+        "product_id" => BookPurchase::PRODUCT_ID
+      },
+      "line_items" => {
+        "data" => [ {
+          "quantity" => 1,
+          "price" => { "id" => "price_test", "product" => BookPurchase::PRODUCT_ID, "type" => "one_time" }
+        } ]
+      },
+      "customer" => "cus_gift",
+      "payment_intent" => "pi_gift"
+    }
   end
 end

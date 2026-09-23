@@ -232,11 +232,14 @@ en:
       credit_required: Buy a book credit in Settings to make another book.
       read: Read
       read_named: "Read %{name}"
+      send_as_gift: Send as gift
+      send_as_gift_named: "Send %{name} as a gift"
     reader:
       chronicles: The Chronicles of
       illustration_unavailable: Illustration unavailable
       the_end: THE END
       back_to_library: Back to Library Overview
+      gift_copy: Gift copy of this book
       instructions: Click a page to turn it. Click the left side to go back and the right side to go forward.
       previous: Previous
       next: Next
