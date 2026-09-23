@@ -35,6 +35,18 @@ class UserTest < ActiveSupport::TestCase
     assert user.admin?
   end
 
+  test "records Google verification for the account email" do
+    identity = Struct.new(:info, :extra).new(
+      { "email" => "verified@gmail.com", "name" => "Verified Reader" },
+      { "raw_info" => { "email_verified" => true } }
+    )
+
+    user = User.from_omniauth(identity)
+
+    assert_not_nil user.google_email_verified_at
+    assert_predicate user, :google_email_verified?
+  end
+
   test "admin access requires an explicit grant and can be revoked" do
     user = User.create!(email: "explicit-admin@example.com", admin: true)
     assert user.reload.admin?

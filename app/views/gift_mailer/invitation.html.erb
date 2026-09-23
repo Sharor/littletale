@@ -1,0 +1,7 @@
+<h1><%= t("book_gifts.mailer.greeting", name: @gift.recipient_name) %></h1>
+
+<%= simple_format(@gift.message) %>
+
+<p><%= link_to t("book_gifts.mailer.open_gift"), @invitation_url %></p>
+
+<p><%= t("book_gifts.mailer.closing", sender: @gift.sender_callname) %></p>

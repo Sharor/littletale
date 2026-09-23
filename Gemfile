@@ -48,6 +48,7 @@ gem "omniauth"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
 gem "open-uri"
+gem "resend"
 
 gem "rmagick"
 # linting, static analysis

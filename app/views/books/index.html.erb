@@ -54,5 +54,26 @@
         </article>
       <% end %>
     </div>
+
+    <% if @gifted_books.any? %>
+      <section class="gifted-library" aria-labelledby="gifted-library-title">
+        <header class="library-heading">
+          <h2 id="gifted-library-title"><%= t("book_gifts.received.title") %></h2>
+        </header>
+        <div class="library-grid">
+          <% @gifted_books.each do |gift| %>
+            <article class="library-book">
+              <%= link_to received_gift_path(gift), class: "library-cover" do %>
+                <span class="library-ribbon" aria-hidden="true"></span>
+                <span class="library-cover-eyebrow"><%= t("book_gifts.invitation.from", sender: gift.sender_callname) %></span>
+                <span class="library-artwork"><span class="library-cover-emblem" aria-hidden="true">✦</span></span>
+                <h3><%= gift.title %></h3>
+                <span class="library-cover-flourish" aria-hidden="true">❧</span>
+              <% end %>
+            </article>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
   </main>
 </div>

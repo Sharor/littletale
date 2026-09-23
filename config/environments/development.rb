@@ -39,6 +39,10 @@ Rails.application.configure do
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
+  if ENV["RESEND_DELIVERY_ENABLED"] == "true"
+    config.action_mailer.delivery_method = :resend
+    config.action_mailer.raise_delivery_errors = true
+  end
 
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false

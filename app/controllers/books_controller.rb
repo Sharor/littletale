@@ -7,6 +7,7 @@ class BooksController < ApplicationController
   # GET /books or /books.json
   def index
     @books = current_user.books.order(:id)
+    @gifted_books = current_user.received_book_gifts.where.not(claimed_at: nil).order(claimed_at: :desc)
     @book = Book.new  if current_user.books.none?
     @tutorial = "new_book_tutorial" unless current_user.books.any?
   end

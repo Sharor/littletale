@@ -19,6 +19,10 @@ class User < ApplicationRecord
   has_many :book_credit_reservations, dependent: :restrict_with_exception
   has_many :character_credit_reservations, dependent: :restrict_with_exception
   has_many :user_subscriptions, dependent: :restrict_with_exception
+  has_many :sent_book_gifts, class_name: "BookGift", foreign_key: :sender_id, dependent: :nullify,
+    inverse_of: :sender
+  has_many :received_book_gifts, class_name: "BookGift", foreign_key: :recipient_id, dependent: :nullify,
+    inverse_of: :recipient
   has_one :tutorial
 
   validates :language, inclusion: { in: SUPPORTED_LANGUAGES.keys }, allow_nil: true
@@ -39,6 +43,10 @@ class User < ApplicationRecord
 
   def self.from_omniauth(access_token)
     data = access_token.info
+    extra = access_token.respond_to?(:extra) ? access_token.extra : nil
+    raw_info = extra.respond_to?(:fetch) ? extra.fetch("raw_info", {}) : {}
+    email_verified = raw_info["email_verified"] == true || raw_info[:email_verified] == true
+
     user = User.where(email: data["email"]).first
 
     # Create user when they don't exist
@@ -48,7 +56,12 @@ class User < ApplicationRecord
       tier: "free",
       encrypted_password: Devise.friendly_token[0, 20]
     )
+    user.update!(google_email_verified_at: Time.current) if email_verified && user.google_email_verified_at.nil?
     user
+  end
+
+  def google_email_verified?
+    google_email_verified_at.present?
   end
 
   def time_on_site

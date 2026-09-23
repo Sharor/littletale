@@ -1,0 +1,31 @@
+<main class="fable-public gift-invitation" aria-labelledby="gift-title">
+  <section class="giftcard-preview">
+    <p class="library-eyebrow"><%= t("book_gifts.invitation.eyebrow") %></p>
+    <h1 id="gift-title"><%= t("book_gifts.invitation.title", title: @gift.title) %></h1>
+    <%= simple_format(@gift.message) %>
+    <p>— <%= t("book_gifts.invitation.from", sender: @gift.sender_callname) %></p>
+
+    <% if user_signed_in? && current_user.id == @gift.sender_id %>
+      <label for="gift-link"><%= t("book_gifts.invitation.share_label") %></label>
+      <input id="gift-link" type="url" value="<%= gift_invitation_url(params[:token]) %>" readonly>
+      <p data-delivery-status="<%= @gift.delivery_status %>">
+        <%= t("book_gifts.delivery_status.#{@gift.delivery_status}", error: @gift.delivery_error) %>
+      </p>
+      <%= button_to t("book_gifts.retry_delivery"), retry_delivery_book_gift_path(@gift), method: :post,
+        class: "fable-public-button" if @gift.delivery_status == "failed" %>
+    <% elsif !user_signed_in? %>
+      <%= link_to t("book_gifts.invitation.sign_in"), new_user_session_path, class: "fable-public-button" %>
+    <% elsif !current_user.email.to_s.casecmp?(@gift.recipient_email) %>
+      <p role="alert"><%= t("book_gifts.invitation.wrong_account") %></p>
+      <%= button_to t("book_gifts.invitation.switch_account"), switch_account_gift_invitation_path(params[:token]),
+        method: :post, class: "fable-public-button" %>
+    <% elsif !current_user.google_email_verified? %>
+      <p role="alert"><%= t("book_gifts.invitation.unverified") %></p>
+      <%= button_to t("book_gifts.invitation.switch_account"), switch_account_gift_invitation_path(params[:token]),
+        method: :post, class: "fable-public-button" %>
+    <% else %>
+      <%= button_to t("book_gifts.invitation.claim"), claim_gift_invitation_path(params[:token]),
+        method: :post, class: "fable-public-button" %>
+    <% end %>
+  </section>
+</main>

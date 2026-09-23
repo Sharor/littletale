@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
   helper_method :browser
 
   around_action :switch_locale
+  before_action :remember_pending_gift
   before_action :check_tutorial, except: %i[ track_user ]
   before_action :enforce_trial_access
   skip_before_action :check_tutorial, if: -> { devise_controller? && action_name == "destroy"  }
@@ -47,6 +48,16 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def remember_pending_gift
+    if controller_path == "gift_invitations" && params[:token].present?
+      session[:pending_gift_token] = params[:token]
+    end
+  end
+
+  def pending_gift_url
+    token = session[:pending_gift_token]
+    gift_invitation_url(token) if token.present? && BookGift.find_by_invitation_token(token)
+  end
   def switch_locale(&action)
     selected = current_user&.language.presence_in(User::SUPPORTED_LANGUAGES.keys)
     cookies[:locale] = { value: selected, expires: 1.year.from_now, same_site: :lax } if selected

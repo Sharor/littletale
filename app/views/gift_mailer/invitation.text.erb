@@ -1,0 +1,7 @@
+<%= t("book_gifts.mailer.greeting", name: @gift.recipient_name) %>
+
+<%= @gift.message %>
+
+<%= t("book_gifts.mailer.open_gift") %>: <%= @invitation_url %>
+
+<%= t("book_gifts.mailer.closing", sender: @gift.sender_callname) %>

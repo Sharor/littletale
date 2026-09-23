@@ -1,0 +1,40 @@
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+
+  <main class="fable-reader-main">
+    <div class="book-container">
+      <div id="storybook">
+        <div class="page page-cover page-cover-top" data-density="hard">
+          <div class="page-content">
+            <p class="library-eyebrow"><%= t("book_gifts.invitation.from", sender: @gift.sender_callname) %></p>
+            <h1><%= @gift.title %></h1>
+          </div>
+        </div>
+
+        <% @gift.gift_pages.each_with_index do |page, index| %>
+          <div class="page" data-density="hard">
+            <div class="page-content">
+              <div class="page-text">
+                <%= image_tag received_gift_page_image_path(@gift, page), class: "illustration" if page.image.attached? %>
+                <div class="story-body"><%= page.text %></div>
+              </div>
+              <div class="page-footer mt-auto text-xs text-center"><%= index + 1 %></div>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="page page-cover page-cover-bottom" data-density="hard">
+          <div class="page-content">
+            <h2><%= t("books.reader.the_end") %></h2>
+            <%= link_to t("book_gifts.received.back"), received_gifts_path, class: "book-back-button" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="book-controls flex justify-between items-center bg-stone-900 shadow-2xl">
+  <button id="prevPage" class="nav-arrow-btn flex-1 py-3 text-amber-200 uppercase tracking-tighter text-xs border-r border-amber-900/30"><%= t("books.reader.previous") %></button>
+  <button id="nextPage" class="nav-arrow-btn flex-1 py-3 text-amber-200 uppercase tracking-tighter text-xs"><%= t("books.reader.next") %></button>
+</div>

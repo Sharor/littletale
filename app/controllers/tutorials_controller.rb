@@ -12,17 +12,17 @@ class TutorialsController < ApplicationController
 
   def accept_terms
     @tutorial.update!(terms: true)
-    redirect_to current_user.language.present? ? books_url : profile_url(onboarding: true)
+    redirect_to current_user.language.present? ? (pending_gift_url || books_url) : profile_url(onboarding: true)
   end
 
   def tutorial
     return redirect_to terms_url unless @tutorial.terms?
-    return redirect_to profile_url(onboarding: true) if current_user.language.blank?
+    redirect_to profile_url(onboarding: true) if current_user.language.blank?
   end
 
   def complete
     @tutorial.update!(tutorial_complete: true)
-    redirect_to authenticated_root_url
+    redirect_to pending_gift_url || authenticated_root_url
   end
 
   private

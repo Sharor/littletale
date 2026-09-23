@@ -38,7 +38,18 @@ Rails.application.routes.draw do
   post "settings/billing_portal", to: "billing_portal#create", as: :settings_billing_portal
   get "settings/checkout/success", to: "purchases#success", as: :settings_checkout_success
   post "webhooks/stripe", to: "stripe_webhooks#create", as: :stripe_webhook
-  resources :books
+  resources :books do
+    resources :book_gifts, only: %i[new create]
+  end
+  get "gifts/:token", to: "gift_invitations#show", as: :gift_invitation
+  post "gifts/:token/claim", to: "gift_invitations#claim", as: :claim_gift_invitation
+  post "gifts/:token/switch_account", to: "gift_invitations#switch_account", as: :switch_account_gift_invitation
+  resources :received_gifts, only: %i[index show] do
+    get "pages/:id/image", to: "received_gift_images#show", as: :page_image
+  end
+  resources :book_gifts, only: [] do
+    post :retry_delivery, on: :member
+  end
   resources :characters do
     get :confirm_delete, on: :member
     collection do

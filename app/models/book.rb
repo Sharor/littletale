@@ -8,6 +8,7 @@ class Book < ApplicationRecord
 
   has_many :trial_book_reservations, dependent: :nullify
   has_many :book_credit_reservations, dependent: :nullify
+  has_many :book_gifts, foreign_key: :source_book_id, dependent: :nullify, inverse_of: :source_book
 
   has_many :book_wardrobe_plans, dependent: :destroy
 
@@ -57,6 +58,16 @@ class Book < ApplicationRecord
 
   def art_style_prompt
     art_style_definition.prompt
+  end
+
+  def giftable?
+    return false unless completed?
+
+    book_credit_reservations.where(status: "consumed").includes(book_credit: [ :book_purchase, :subscription_period ])
+      .any? do |reservation|
+        credit = reservation.book_credit
+        credit.book_purchase&.paid? || credit.subscription_period.present?
+      end
   end
 
   def total_pages_within_tier_limit

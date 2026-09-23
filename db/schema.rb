@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_22_133000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_23_122000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -84,6 +84,35 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_22_133000) do
     t.index ["user_id", "status"], name: "index_book_credits_on_user_id_and_status"
     t.index ["user_id", "visible", "status"], name: "index_book_credits_on_user_visibility_status"
     t.index ["user_id"], name: "index_book_credits_on_user_id"
+  end
+
+  create_table "book_gifts", force: :cascade do |t|
+    t.integer "source_book_id"
+    t.integer "sender_id"
+    t.integer "recipient_id"
+    t.string "recipient_name", null: false
+    t.string "recipient_email", null: false
+    t.string "sender_callname", null: false
+    t.text "message", null: false
+    t.string "language", null: false
+    t.string "title", null: false
+    t.string "token_digest", null: false
+    t.datetime "claimed_at"
+    t.string "delivery_status", default: "not_sent", null: false
+    t.text "delivery_error"
+    t.datetime "email_queued_at"
+    t.datetime "delivered_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "issuance_key", null: false
+    t.text "invitation_token_ciphertext", null: false
+    t.string "delivery_attempt_id"
+    t.index ["issuance_key"], name: "index_book_gifts_on_issuance_key", unique: true
+    t.index ["recipient_id", "claimed_at"], name: "index_book_gifts_on_recipient_id_and_claimed_at"
+    t.index ["recipient_id"], name: "index_book_gifts_on_recipient_id"
+    t.index ["sender_id"], name: "index_book_gifts_on_sender_id"
+    t.index ["source_book_id"], name: "index_book_gifts_on_source_book_id"
+    t.index ["token_digest"], name: "index_book_gifts_on_token_digest", unique: true
   end
 
   create_table "book_outfits", force: :cascade do |t|
@@ -318,6 +347,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_22_133000) do
     t.index ["visitor_id"], name: "index_events_on_visitor_id"
   end
 
+  create_table "gift_pages", force: :cascade do |t|
+    t.integer "book_gift_id", null: false
+    t.integer "position", null: false
+    t.text "text", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_gift_id", "position"], name: "index_gift_pages_on_book_gift_id_and_position", unique: true
+    t.index ["book_gift_id"], name: "index_gift_pages_on_book_gift_id"
+  end
+
   create_table "illustrations", force: :cascade do |t|
     t.string "prompt"
     t.string "image_url"
@@ -443,7 +482,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_22_133000) do
     t.string "stripe_customer_id"
     t.string "language"
     t.integer "reader_age"
+    t.datetime "google_email_verified_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["google_email_verified_at"], name: "index_users_on_google_email_verified_at"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["stripe_customer_id"], name: "index_users_on_stripe_customer_id", unique: true
   end
@@ -466,6 +507,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_22_133000) do
   add_foreign_key "book_credits", "book_purchases"
   add_foreign_key "book_credits", "subscription_periods"
   add_foreign_key "book_credits", "users"
+  add_foreign_key "book_gifts", "books", column: "source_book_id", on_delete: :nullify
+  add_foreign_key "book_gifts", "users", column: "recipient_id", on_delete: :nullify
+  add_foreign_key "book_gifts", "users", column: "sender_id", on_delete: :nullify
   add_foreign_key "book_outfits", "book_wardrobe_plans"
   add_foreign_key "book_purchases", "users"
   add_foreign_key "book_wardrobe_plans", "books"
@@ -492,6 +536,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_22_133000) do
   add_foreign_key "characters", "users", on_delete: :cascade
   add_foreign_key "chatgpts", "books", on_delete: :cascade
   add_foreign_key "events", "visitors", on_delete: :cascade
+  add_foreign_key "gift_pages", "book_gifts", on_delete: :cascade
   add_foreign_key "illustrations", "characters", on_delete: :cascade
   add_foreign_key "illustrations", "pages", on_delete: :cascade
   add_foreign_key "pages", "book_wardrobe_plans"

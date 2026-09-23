@@ -1,0 +1,49 @@
+en:
+  navigation:
+    gifts: Gifts
+  book_gifts:
+    created: Your gift is ready to share.
+    claimed: The book has been added to your gifts.
+    delivery_retried: The gift email has been queued again.
+    delivery_failed: The gift email could not be queued.
+    retry_delivery: Try sending the email again
+    delivery_status:
+      not_sent: The private link is ready to share.
+      queued: The gift email is queued.
+      sent: Resend accepted the gift email for delivery.
+      failed: "Email delivery failed: %{error}"
+    default_message: I made this adventure especially for you. I hope you love it!
+    new:
+      eyebrow: A story to treasure
+      title: Gift %{title}
+      introduction: Write a small giftcard and choose whether to send it now or copy the private link.
+      recipient_name: Recipient name
+      recipient_email: Recipient Gmail address
+      gmail_hint: Gmail only for now. Enter the exact address used for their Google account.
+      sender_callname: Your callname
+      language: Gift language
+      message: Giftcard message
+      preview: Giftcard preview
+      send: Send gift email
+      link: Create share link
+    invitation:
+      eyebrow: A gift for you
+      title: You received %{title}
+      from: From %{sender}
+      sign_in: Sign in with Google to open your gift
+      claim: Add this book to my gifts
+      switch_account: Sign in with a different Google account
+      wrong_account: Sign in with the invited Gmail account to open this gift.
+      unverified: Sign out and sign in with Google again so the invited email can be verified.
+      share_label: Private gift link
+    received:
+      eyebrow: Little gifts
+      title: Gifted to you
+      empty: No books have been gifted to this account yet.
+      read: Read
+      back: Back to your gifts
+    mailer:
+      subject: You got a gift from %{sender}!
+      greeting: Hello %{name}, You have a gift from LittleTale!
+      open_gift: Create an account or sign in to open your gift
+      closing: Hugs from your friends at LittleTale and %{sender}

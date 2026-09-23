@@ -6,8 +6,10 @@ import { application } from "./application"
 import ImageUploadController from "./image_upload_controller"
 import TabsController from "./tabs_controller"
 import ArtStylePickerController from "./art_style_picker_controller"
+import GiftMessageController from "./gift_message_controller"
 
 
 application.register("image-upload", ImageUploadController)
 application.register("tabs", TabsController)
 application.register("art-style-picker", ArtStylePickerController)
+application.register("gift-message", GiftMessageController)

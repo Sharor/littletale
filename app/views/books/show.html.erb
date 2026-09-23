@@ -3,6 +3,8 @@
 
   <main class="fable-reader-main">
     <%= turbo_stream_from @book %>
+    <%= link_to t("book_gifts.new.title", title: @book.name), new_book_book_gift_path(@book),
+      class: "fable-primary-action gift-book-action" if @book.giftable? %>
     <%= turbo_stream_from current_user, :characters %>
     <%= render @book %>
   </main>

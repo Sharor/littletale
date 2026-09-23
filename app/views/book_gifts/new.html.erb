@@ -1,0 +1,72 @@
+<% content_for :body_class, "library-page" %>
+
+<div class="library-layout">
+  <%= render "layouts/sidebar" %>
+
+  <main class="library-main gift-main">
+    <header class="library-heading">
+      <p class="library-eyebrow"><%= t("book_gifts.new.eyebrow") %></p>
+      <h1><%= t("book_gifts.new.title", title: @book.name) %></h1>
+      <p><%= t("book_gifts.new.introduction") %></p>
+      <div class="library-rule" aria-hidden="true"><span>✦</span></div>
+    </header>
+
+    <%= form_with model: [ @book, @book_gift ], class: "gift-form",
+      data: {
+        controller: "gift-message",
+        gift_message_en_value: I18n.t("book_gifts.default_message", locale: :en),
+        gift_message_da_value: I18n.t("book_gifts.default_message", locale: :da)
+      } do |form| %>
+      <%= form.hidden_field :issuance_key %>
+
+      <% if @book_gift.errors.any? %>
+        <div class="fable-notice" role="alert">
+          <ul>
+            <% @book_gift.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="gift-form-fields">
+        <div>
+          <%= form.label :recipient_name, t("book_gifts.new.recipient_name"), class: "fable-form-label" %>
+          <%= form.text_field :recipient_name, required: true, autocomplete: "name" %>
+        </div>
+        <div>
+          <%= form.label :recipient_email, t("book_gifts.new.recipient_email"), class: "fable-form-label" %>
+          <%= form.email_field :recipient_email, required: true, autocomplete: "email",
+            title: t("book_gifts.new.gmail_hint") %>
+          <p class="gift-hint"><%= t("book_gifts.new.gmail_hint") %></p>
+        </div>
+        <div>
+          <%= form.label :sender_callname, t("book_gifts.new.sender_callname"), class: "fable-form-label" %>
+          <%= form.text_field :sender_callname, required: true %>
+        </div>
+        <div>
+          <%= form.label :language, t("book_gifts.new.language"), class: "fable-form-label" %>
+          <%= form.select :language, User::SUPPORTED_LANGUAGES.map { |code, name| [ name, code ] }, {},
+            data: { gift_message_target: "language", action: "gift-message#changeLanguage" } %>
+        </div>
+        <div class="gift-message-field">
+          <%= form.label :message, t("book_gifts.new.message"), class: "fable-form-label" %>
+          <%= form.text_area :message, required: true, rows: 6,
+            data: { gift_message_target: "message", action: "input->gift-message#markCustomized" } %>
+        </div>
+      </div>
+
+      <aside class="giftcard-preview" aria-labelledby="giftcard-preview-title">
+        <p class="library-eyebrow" id="giftcard-preview-title"><%= t("book_gifts.new.preview") %></p>
+        <h2><%= @book.name %></h2>
+        <p data-gift-message-target="preview"><%= @book_gift.message %></p>
+        <p>— <%= @book_gift.sender_callname %></p>
+      </aside>
+
+      <div class="gift-form-actions">
+        <%= form.button t("book_gifts.new.send"), name: "delivery", value: "email", class: "fable-primary-action" %>
+        <%= form.button t("book_gifts.new.link"), name: "delivery", value: "link", class: "fable-secondary-action" %>
+      </div>
+    <% end %>
+  </main>
+</div>

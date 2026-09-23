@@ -1,0 +1,49 @@
+da:
+  navigation:
+    gifts: Gaver
+  book_gifts:
+    created: Din gave er klar til at blive delt.
+    claimed: Bogen er blevet føjet til dine gaver.
+    delivery_retried: Gave-e-mailen er sat i kø igen.
+    delivery_failed: Gave-e-mailen kunne ikke sættes i kø.
+    retry_delivery: Prøv at sende e-mailen igen
+    delivery_status:
+      not_sent: Det private link er klar til at blive delt.
+      queued: Gave-e-mailen venter på at blive sendt.
+      sent: Resend har modtaget gave-e-mailen til levering.
+      failed: "E-mailen kunne ikke leveres: %{error}"
+    default_message: Jeg har lavet dette eventyr særligt til dig. Jeg håber, du bliver glad for det!
+    new:
+      eyebrow: En historie at gemme
+      title: Giv %{title} som gave
+      introduction: Skriv et lille gavekort, og vælg, om du vil sende det nu eller kopiere det private link.
+      recipient_name: Modtagerens navn
+      recipient_email: Modtagerens Gmail-adresse
+      gmail_hint: Kun Gmail indtil videre. Skriv den præcise adresse, som bruges til Google-kontoen.
+      sender_callname: Dit kaldenavn
+      language: Gavens sprog
+      message: Gavekortets besked
+      preview: Forhåndsvisning af gavekort
+      send: Send gave på e-mail
+      link: Opret delelink
+    invitation:
+      eyebrow: En gave til dig
+      title: Du har fået %{title}
+      from: Fra %{sender}
+      sign_in: Log ind med Google for at åbne din gave
+      claim: Føj bogen til mine gaver
+      switch_account: Log ind med en anden Google-konto
+      wrong_account: Log ind med den inviterede Gmail-konto for at åbne denne gave.
+      unverified: Log ud og ind med Google igen, så den inviterede e-mail kan bekræftes.
+      share_label: Privat gavelink
+    received:
+      eyebrow: Små gaver
+      title: Gaver til dig
+      empty: Der er endnu ikke givet nogen bøger til denne konto.
+      read: Læs
+      back: Tilbage til dine gaver
+    mailer:
+      subject: Du har fået en gave fra %{sender}!
+      greeting: Hej %{name}, du har fået en gave fra LittleTale!
+      open_gift: Opret en konto eller log ind for at åbne din gave
+      closing: Kærlig hilsen fra dine venner hos LittleTale og %{sender}

@@ -1,0 +1,37 @@
+<% content_for :body_class, "library-page" %>
+
+<div class="library-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="library-main">
+    <header class="library-heading">
+      <p class="library-eyebrow"><%= t("book_gifts.received.eyebrow") %></p>
+      <h1><%= t("book_gifts.received.title") %></h1>
+      <div class="library-rule" aria-hidden="true"><span>✦</span></div>
+    </header>
+
+    <% if @gifts.any? %>
+      <div class="library-grid">
+        <% @gifts.each do |gift| %>
+          <article class="library-book">
+            <%= link_to received_gift_path(gift), class: "library-cover" do %>
+              <span class="library-ribbon" aria-hidden="true"></span>
+              <span class="library-cover-eyebrow"><%= t("book_gifts.invitation.from", sender: gift.sender_callname) %></span>
+              <span class="library-artwork">
+                <% if gift.gift_pages.last&.image&.attached? %>
+                  <%= image_tag received_gift_page_image_path(gift, gift.gift_pages.last), alt: "", loading: "lazy", decoding: "async" %>
+                <% else %>
+                  <span class="library-cover-emblem" aria-hidden="true">✦</span>
+                <% end %>
+              </span>
+              <h3><%= gift.title %></h3>
+              <span class="library-cover-flourish" aria-hidden="true">❧</span>
+            <% end %>
+            <%= link_to t("book_gifts.received.read"), received_gift_path(gift), class: "library-read" %>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p><%= t("book_gifts.received.empty") %></p>
+    <% end %>
+  </main>
+</div>
