@@ -32,4 +32,16 @@ class GiftMailerTest < ActionMailer::TestCase
     assert_match "Kærlig hilsen fra dine venner hos LittleTale og Onkel Alex", email.text_part.body.to_s
     assert_match invitation_url, email.text_part.body.to_s
   end
+
+  test "invitation supports Greek" do
+    @gift.update!(language: "el", message: "Αυτό το βιβλίο είναι μόνο για σένα.")
+
+    email = GiftMailer.with(gift: @gift, token: "invitation-token",
+      delivery_attempt_id: "attempt-two").invitation
+
+    assert_equal "Ένα δώρο από Onkel Alex σε περιμένει!", email.subject
+    assert_match "Γεια σου Maja, έχεις ένα δώρο από το LittleTale!", email.html_part.body.to_s
+    assert_match "Αυτό το βιβλίο είναι μόνο για σένα.", email.html_part.body.to_s
+    assert_match "Με αγάπη από το LittleTale και από Onkel Alex", email.text_part.body.to_s
+  end
 end

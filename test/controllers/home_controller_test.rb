@@ -30,7 +30,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the legacy login page hides Microsoft when OAuth is not configured" do
-    get login_url
+    without_microsoft_oauth_configured { get login_url }
 
     assert_response :success
     assert_select "form[action='#{user_microsoft_v2_auth_omniauth_authorize_path}']", count: 0
@@ -57,5 +57,12 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     else
       Devise.omniauth_configs.delete(:microsoft_v2_auth)
     end
+  end
+
+  def without_microsoft_oauth_configured
+    previous_config = Devise.omniauth_configs.delete(:microsoft_v2_auth)
+    yield
+  ensure
+    Devise.omniauth_configs[:microsoft_v2_auth] = previous_config if previous_config
   end
 end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
-  SUPPORTED_LANGUAGES = { "en" => "English", "da" => "Dansk" }.freeze
-  GENERATION_LANGUAGE_NAMES = { "en" => "English", "da" => "Danish" }.freeze
+  SUPPORTED_LANGUAGES = { "en" => "English", "da" => "Dansk", "el" => "Ελληνικά" }.freeze
+  GENERATION_LANGUAGE_NAMES = { "en" => "English", "da" => "Danish", "el" => "Greek" }.freeze
 
   has_many :books, dependent: :nullify
   has_many :visits, class_name: "Visitor"

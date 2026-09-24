@@ -17,7 +17,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the primary sign-in screen hides Microsoft when OAuth is not configured" do
-    get new_user_session_url
+    without_microsoft_oauth_configured { get new_user_session_url }
 
     assert_response :success
     assert_select "form[action='#{user_microsoft_v2_auth_omniauth_authorize_path}']", count: 0
@@ -35,5 +35,12 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     else
       Devise.omniauth_configs.delete(:microsoft_v2_auth)
     end
+  end
+
+  def without_microsoft_oauth_configured
+    previous_config = Devise.omniauth_configs.delete(:microsoft_v2_auth)
+    yield
+  ensure
+    Devise.omniauth_configs[:microsoft_v2_auth] = previous_config if previous_config
   end
 end

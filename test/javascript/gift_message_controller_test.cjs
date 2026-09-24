@@ -10,8 +10,14 @@ function controllerInstance(message = "English default") {
   const context = {}
   vm.runInNewContext(source, context)
   const controller = new context.GiftMessageController()
-  controller.enValue = "English default"
-  controller.daValue = "Dansk standard"
+  const messages = {
+    en: "English default",
+    da: "Dansk standard",
+    el: "Ελληνικό προεπιλεγμένο μήνυμα"
+  }
+  for (const locale of Object.keys(controller.constructor.values)) {
+    controller[`${locale}Value`] = messages[locale]
+  }
   controller.languageTarget = { value: "en" }
   controller.messageTarget = { value: message }
   controller.previewTarget = { textContent: message }
@@ -27,6 +33,16 @@ test("changing language replaces an untouched default message", () => {
 
   assert.equal(controller.messageTarget.value, "Dansk standard")
   assert.equal(controller.previewTarget.textContent, "Dansk standard")
+})
+
+test("changing language replaces an untouched default message with Greek", () => {
+  const controller = controllerInstance()
+  controller.languageTarget.value = "el"
+
+  controller.changeLanguage()
+
+  assert.equal(controller.messageTarget.value, "Ελληνικό προεπιλεγμένο μήνυμα")
+  assert.equal(controller.previewTarget.textContent, "Ελληνικό προεπιλεγμένο μήνυμα")
 })
 
 test("changing language preserves a customized message", () => {

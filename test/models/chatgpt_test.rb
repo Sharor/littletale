@@ -52,6 +52,14 @@ class ChatgptTest < ActiveSupport::TestCase
     assert_includes instructions, "reader_age"
   end
 
+  test "structured generation identifies Greek as the book language" do
+    @book.update!(language: "el")
+
+    input = JSON.parse(@chatgpt.jsonify)
+
+    assert_equal "Greek", input.fetch("language")
+  end
+
   test "structured generation tells image descriptions to use the saved art style" do
     @book.update_column(:art_style, "claymation_plasticine")
 

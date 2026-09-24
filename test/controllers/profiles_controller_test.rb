@@ -35,8 +35,22 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{profile_path}']" do
       assert_select "select[name='user[language]'] option[value='en']", "English"
       assert_select "select[name='user[language]'] option[value='da']", "Dansk"
+      assert_select "select[name='user[language]'] option[value='el']", "Ελληνικά"
       assert_select "input[name='user[reader_age]'][type='number']"
     end
+  end
+
+  test "the language placeholder is only offered before a language is chosen" do
+    @user.update_column(:language, nil)
+
+    get profile_url(onboarding: true)
+
+    assert_select "select[name='user[language]'] option[value='']", "Choose a language"
+
+    @user.update!(language: "en")
+    get profile_url
+
+    assert_select "select[name='user[language]'] option[value='']", count: 0
   end
 
   test "onboarding uses a full-width layout without the app sidebar" do

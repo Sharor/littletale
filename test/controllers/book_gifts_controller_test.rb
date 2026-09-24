@@ -99,6 +99,7 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "form[action='#{book_book_gifts_path(@book)}']" do
+      assert_select "[data-gift-message-el-value]", count: 1
       assert_select "input[name='book_gift[recipient_name]'][required]"
       assert_select "input[name='book_gift[recipient_email]'][type='email'][required]"
       assert_select "input[name='book_gift[recipient_email]'][pattern]", count: 0
@@ -106,6 +107,7 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
       assert_select "input[name='book_gift[sender_callname]'][value='Alex'][required]"
       assert_select "textarea[name='book_gift[message]'][required]", text: /adventure/i
       assert_select "select[name='book_gift[language]'] option[value='en'][selected]"
+      assert_select "select[name='book_gift[language]'] option[value='el']", "Ελληνικά"
       assert_select "button[name='delivery'][value='email']"
       assert_select "button[name='delivery'][value='link']"
     end

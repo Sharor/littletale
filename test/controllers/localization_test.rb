@@ -22,6 +22,18 @@ class LocalizationTest < ActionDispatch::IntegrationTest
     assert_select "aside section[aria-label='Indstillinger']", text: /Brugerprofil/
   end
 
+  test "the Greek preference localizes the library and shared navigation" do
+    @user.update!(language: "el")
+
+    get books_url
+
+    assert_response :success
+    assert_select "main h1", "Η βιβλιοθήκη σας"
+    assert_select "main", text: /Δημιουργήστε ένα νέο βιβλίο/
+    assert_select "aside", text: /Αρχική/
+    assert_select "aside section[aria-label='Ρυθμίσεις']", text: /Προφίλ χρήστη/
+  end
+
   test "the Danish preference localizes characters and account settings" do
     get characters_url
     assert_response :success
@@ -33,13 +45,16 @@ class LocalizationTest < ActionDispatch::IntegrationTest
     assert_select "main h1", "Prøveperiode og abonnement"
   end
 
-  test "legal terms stay in English for a Danish user" do
-    get terms_url
+  test "legal terms stay in English for localized users" do
+    %w[da el].each do |language|
+      @user.update!(language: language)
+      get terms_url
 
-    assert_response :success
-    assert_select "h1#terms-title", "Terms of Use"
-    assert_select "h2", "Copyright complaints"
-    assert_select "strong", "Governing law."
+      assert_response :success
+      assert_select "h1#terms-title", "Terms of Use"
+      assert_select "h2", "Copyright complaints"
+      assert_select "strong", "Governing law."
+    end
   end
 
   test "the selected language remains active on the sign-in screen after sign out" do
