@@ -46,6 +46,7 @@ gem "mini_magick"
 
 gem "omniauth"
 gem "omniauth-google-oauth2"
+gem "omniauth-microsoft_v2_auth", "~> 0.1.1"
 gem "omniauth-rails_csrf_protection"
 gem "open-uri"
 gem "resend"

@@ -1,4 +1,8 @@
 module ApplicationHelper
+  def omniauth_provider_configured?(provider)
+    Devise.omniauth_configs.key?(provider)
+  end
+
   def current_translations
     @translations ||= I18n.backend.send(:translations)
     @translations[I18n.locale].with_indifferent_access

@@ -36,7 +36,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "records Google verification for the account email" do
-    identity = Struct.new(:info, :extra).new(
+    identity = Struct.new(:provider, :info, :extra).new(
+      "google_oauth2",
       { "email" => "verified@gmail.com", "name" => "Verified Reader" },
       { "raw_info" => { "email_verified" => true } }
     )
@@ -45,6 +46,46 @@ class UserTest < ActiveSupport::TestCase
 
     assert_not_nil user.google_email_verified_at
     assert_predicate user, :google_email_verified?
+  end
+
+  test "uses the Microsoft principal name when the mail field is absent" do
+    identity = Struct.new(:provider, :info, :extra).new(
+      "microsoft_v2_auth",
+      { "email" => nil, "name" => "Outlook Reader" },
+      { "raw_info" => { "userPrincipalName" => "reader@outlook.com" } }
+    )
+
+    assert_difference("User.count", 1) do
+      user = User.from_omniauth(identity)
+
+      assert_equal "reader@outlook.com", user.email
+      assert_predicate user, :persisted?
+    end
+  end
+
+  test "reuses an existing account when Microsoft returns different email casing" do
+    existing_user = User.create!(email: "reader@outlook.com")
+    identity = Struct.new(:provider, :info, :extra).new(
+      "microsoft_v2_auth",
+      { "email" => " READER@OUTLOOK.COM ", "name" => "Outlook Reader" },
+      { "raw_info" => {} }
+    )
+
+    assert_no_difference("User.count") do
+      assert_equal existing_user, User.from_omniauth(identity)
+    end
+  end
+
+  test "does not record Google verification from a Microsoft identity" do
+    identity = Struct.new(:provider, :info, :extra).new(
+      "microsoft_v2_auth",
+      { "email" => "reader@outlook.com", "name" => "Outlook Reader" },
+      { "raw_info" => { "email_verified" => true } }
+    )
+
+    user = User.from_omniauth(identity)
+
+    assert_nil user.google_email_verified_at
   end
 
   test "admin access requires an explicit grant and can be revoked" do

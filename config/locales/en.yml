@@ -41,16 +41,18 @@ en:
     welcome_back: Welcome back!
     next_adventure: Ready for the next adventure?
     google: Continue with Google
+    microsoft: Continue with Microsoft
     soon: Soon
-    new_user_html: New to LittleStories? <br>Simply sign in with another account (currently only supporting Gmail).
+    new_user_html: New to LittleStories? <br>Simply sign in with Google or Microsoft.
     fantasy: Only your fantasy
     limits: limits what you can do!
     welcome: Welcome to Little Stories!
     process: We'll take you through the process of making your very own fairytale.
     how: Choose who should be in the story, then give us an outline of what should happen.
     magic: Then our fairies and typewriters take care of the rest!
-    get_started: Log in with Google below to get started.
+    get_started: Log in below to get started.
     login_google: Login with Google
+    login_microsoft: Login with Microsoft
   landing:
     navigation: Main navigation
     process: Process

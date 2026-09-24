@@ -33,7 +33,7 @@ class User < ApplicationRecord
   ADMINS = %w[ davchristensen90@gmail.com ]
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :trackable, :omniauthable, omniauth_providers: [ :google_oauth2 ]
+  devise :trackable, :omniauthable, omniauth_providers: [ :google_oauth2, :microsoft_v2_auth ]
 
   def admin?
     return true if ADMINS.include?(email)
@@ -45,14 +45,17 @@ class User < ApplicationRecord
     data = access_token.info
     extra = access_token.respond_to?(:extra) ? access_token.extra : nil
     raw_info = extra.respond_to?(:fetch) ? extra.fetch("raw_info", {}) : {}
-    email_verified = raw_info["email_verified"] == true || raw_info[:email_verified] == true
+    provider = access_token.respond_to?(:provider) ? access_token.provider : nil
+    email = (data["email"].presence || raw_info["userPrincipalName"].presence).to_s.strip.downcase.presence
+    email_verified = provider == "google_oauth2" &&
+      (raw_info["email_verified"] == true || raw_info[:email_verified] == true)
 
-    user = User.where(email: data["email"]).first
+    user = User.where(email: email).first
 
     # Create user when they don't exist
     user ||= User.create(
       name: data["name"],
-      email: data["email"],
+      email: email,
       tier: "free",
       encrypted_password: Devise.friendly_token[0, 20]
     )

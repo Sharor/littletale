@@ -5,46 +5,26 @@ module Users
     skip_forgery_protection
 
     def google_oauth2
-      # You need to implement the method below in your model (e.g. app/models/user.rb)
+      authenticate_with_omniauth("Google", "devise.google_data")
+    end
+
+    def microsoft_v2_auth
+      authenticate_with_omniauth("Microsoft", "devise.microsoft_data")
+    end
+
+    private
+
+    def authenticate_with_omniauth(provider_name, session_key)
       @user = User.from_omniauth(request.env["omniauth.auth"])
 
       if @user.persisted?
-        flash[:notice] = I18n.t "devise.omniauth_callbacks.success", kind: "Google"
+        flash[:notice] = I18n.t "devise.omniauth_callbacks.success", kind: provider_name
         Current.visitor.presence && Current.visitor.update!(user: @user)
         sign_in_and_redirect @user, event: :authentication
       else
-        session["devise.google_data"] = request.env["omniauth.auth"].except("extra") # Removing extra as it can overflow some session stores
+        session[session_key] = request.env["omniauth.auth"].except("extra")
         redirect_to new_user_registration_url, alert: @user.errors.full_messages.join("\n")
       end
     end
-
-    # If found in production, just delete below:
-    # Default configuration:
-    # You should configure your model like this:
-    # devise :omniauthable, omniauth_providers: [:twitter]
-
-    # You should also create an action method in this controller like this:
-    # def twitter
-    # end
-
-    # More info at:
-    # https://github.com/heartcombo/devise#omniauth
-
-    # GET|POST /resource/auth/twitter
-    # def passthru
-    #   super
-    # end
-
-    # GET|POST /users/auth/twitter/callback
-    # def failure
-    #   super
-    # end
-
-    # protected
-
-    # The path used when OmniAuth fails
-    # def after_omniauth_failure_path_for(scope)
-    #   super(scope)
-    # end
   end
 end

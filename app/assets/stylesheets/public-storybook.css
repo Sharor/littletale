@@ -108,9 +108,9 @@
 .fable-public-centered-heading p { margin-top: .65rem; color: var(--fable-muted, #786044); font-size: .9rem; }
 .fable-public-login-logo { display: block; width: 5rem; height: 5rem; margin: 0 auto 1.5rem; object-fit: contain; }
 .fable-public-social-options { display: grid; gap: .8rem; }
-.fable-public-google { width: 100%; }
-.fable-public-google svg, .fable-public-provider-soon svg { width: 1.2rem; height: 1.2rem; flex-shrink: 0; }
-.fable-public-sign-in .fable-public-google { color: var(--fable-ink, #3e2b21); border-color: #927446; background: #fffaf0; }
+.fable-public-google, .fable-public-microsoft { width: 100%; }
+.fable-public-google svg, .fable-public-microsoft svg, .fable-public-provider-soon svg { width: 1.2rem; height: 1.2rem; flex-shrink: 0; }
+.fable-public-sign-in .fable-public-google, .fable-public-sign-in .fable-public-microsoft { color: var(--fable-ink, #3e2b21); border-color: #927446; background: #fffaf0; }
 .fable-public-provider-soon { display: flex; align-items: center; justify-content: center; gap: .65rem; min-height: 48px; padding: .6rem 1rem; border: 1px solid #b6976359; border-radius: 3px; color: var(--fable-muted, #786044); background: #d1c4a621; font-size: .85rem; cursor: not-allowed; }
 .fable-public-provider-soon svg { filter: grayscale(1); opacity: .7; }
 .fable-public-provider-soon span { font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; }
@@ -145,7 +145,7 @@
 
 @media (hover: hover) {
   .fable-public-button:hover { border-color: #56202a; background: #56202a; color: #fff4dc; }
-  .fable-public-button-outline:hover, .fable-public-sign-in .fable-public-google:hover { border-color: var(--fable-wine, #742d38); background: var(--fable-wine, #742d38); color: #fff4dc; }
+  .fable-public-button-outline:hover, .fable-public-sign-in .fable-public-google:hover, .fable-public-sign-in .fable-public-microsoft:hover { border-color: var(--fable-wine, #742d38); background: var(--fable-wine, #742d38); color: #fff4dc; }
   .fable-public-nav-links a:hover { color: var(--fable-wine, #742d38); text-decoration: underline; text-underline-offset: 4px; }
 }
 @media (prefers-reduced-motion: no-preference) {

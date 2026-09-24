@@ -10,16 +10,18 @@ da:
     welcome_back: Velkommen tilbage!
     next_adventure: Klar til det næste eventyr?
     google: Fortsæt med Google
+    microsoft: Fortsæt med Microsoft
     soon: Kommer snart
-    new_user_html: Ny hos LittleStories? <br>Log blot ind med en anden konto (vi understøtter i øjeblikket kun Gmail).
+    new_user_html: Ny hos LittleStories? <br>Log blot ind med Google eller Microsoft.
     fantasy: Kun fantasien
     limits: sætter grænser for, hvad du kan!
     welcome: Velkommen til Little Stories!
     process: Vi hjælper dig med at lave dit helt eget eventyr.
     how: Vælg, hvem der skal med i historien, og giv os derefter et oplæg til handlingen.
     magic: Så klarer vores feer og skrivemaskiner resten!
-    get_started: Log ind med Google nedenfor for at komme i gang.
+    get_started: Log ind nedenfor for at komme i gang.
     login_google: Log ind med Google
+    login_microsoft: Log ind med Microsoft
   landing:
     navigation: Hovednavigation
     process: Sådan virker det

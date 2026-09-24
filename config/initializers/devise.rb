@@ -8,6 +8,14 @@
 #
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
+module MicrosoftOauth
+  CLIENT_OPTIONS = {
+    site: "https://login.microsoftonline.com",
+    authorize_url: "/consumers/oauth2/v2.0/authorize",
+    token_url: "/consumers/oauth2/v2.0/token"
+  }.freeze
+end
+
 Devise.setup do |config|
   # The secret key used by Devise. Devise uses this key to generate
   # random tokens. Changing this key will render invalid all existing
@@ -282,6 +290,16 @@ Devise.setup do |config|
       strategy_class: OmniAuth::Strategies::GoogleOauth2
   end
 
+  microsoft_client_id = Rails.application.credentials.dig(:microsoft, :client_id)
+  microsoft_client_secret = Rails.application.credentials.dig(:microsoft, :client_secret)
+
+  if microsoft_client_id.present? && microsoft_client_secret.present?
+    config.omniauth :microsoft_v2_auth,
+      microsoft_client_id,
+      microsoft_client_secret,
+      strategy_class: OmniAuth::Strategies::MicrosoftV2Auth,
+      client_options: MicrosoftOauth::CLIENT_OPTIONS
+  end
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or
