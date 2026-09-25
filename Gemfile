@@ -71,7 +71,7 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", "~> 7.1", require: false
-  gem "listen", "~> 3.9"
+  gem "listen", "~> 3.10"
   gem "rb-fsevent", require: false if Gem.win_platform? || RUBY_PLATFORM.include?("darwin")
   gem "rb-inotify", require: false if RUBY_PLATFORM.include?("linux")
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
