@@ -2,6 +2,7 @@ class Book < ApplicationRecord
   attr_reader :prepared_funding_reservation, :prepared_funding_newly_acquired
 
   before_validation :apply_generation_preferences, on: :create
+  before_validation :normalize_categories
 
   enum :generation_status, { pending: 0, in_progress: 1, completed: 2, failed: 3 }
   belongs_to :user
@@ -26,6 +27,7 @@ class Book < ApplicationRecord
   broadcasts_to ->(book) { book }, inserts_by: :replace
 
   after_update_commit :finalize_owner_funding, if: -> { saved_change_to_generation_status? && completed? }
+  after_update_commit :enqueue_categorization!, if: -> { saved_change_to_generation_status? && completed? }
 
   # after_update_commit -> {
   #   broadcast_replace_later_to self,
@@ -40,6 +42,7 @@ class Book < ApplicationRecord
   validates :art_style, inclusion: { in: BookArtStyle.keys }
   validate :total_pages_within_tier_limit
   validate :art_style_is_immutable, on: :update
+  validate :categories_are_known
 
   TIER_LIMITS = {
     "free"       => 5,
@@ -214,6 +217,20 @@ class Book < ApplicationRecord
     fail_generation_enqueue!(reservation, release_reservation: release_on_failure)
   end
 
+  def enqueue_categorization!
+    job = CategorizeBookJob.perform_later(id, generation_attempt)
+    unless job&.successfully_enqueued?
+      Rails.logger.error("Could not enqueue categorization for Book #{id}")
+      return false
+    end
+
+    update_column(:categorization_enqueued_at, Time.current)
+    true
+  rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError => error
+    Rails.logger.error("Could not enqueue categorization for Book #{id}: #{error.message}")
+    false
+  end
+
   def enqueue_illustration_retry!(illustration, actor:)
     reservation_details = with_lock do
       return false unless PageIllustrationGeneration.available?(illustration, admin: actor)
@@ -304,6 +321,14 @@ class Book < ApplicationRecord
 
   private
 
+  def normalize_categories
+    self.categories = Array(categories).filter_map { |category| category.to_s.strip.presence }.uniq
+  end
+
+  def categories_are_known
+    errors.add(:categories, "contains an unknown category") if categories.any? { |category| !BookCategory.include?(category) }
+  end
+
   def art_style_is_immutable
     errors.add(:art_style, "cannot be changed after the book is created") if will_save_change_to_art_style?
   end
@@ -345,6 +370,8 @@ class Book < ApplicationRecord
       generation_attempt: generation_attempt + 1,
       generation_status: :pending,
       generation_failure: {},
+      categories: [],
+      categorization_enqueued_at: nil,
       generation_failed_at: nil,
       generation_failure_history: history
     )

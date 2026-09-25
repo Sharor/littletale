@@ -236,6 +236,10 @@ en:
       read_named: "Read %{name}"
       send_as_gift: Send as gift
       send_as_gift_named: "Send %{name} as a gift"
+      category_heading: Browse books
+      category_label: Category
+      all_categories: All categories
+      filter_category: Browse
     reader:
       chronicles: The Chronicles of
       illustration_unavailable: Illustration unavailable

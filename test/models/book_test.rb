@@ -4,6 +4,66 @@ require "test_helper"
 require "minitest/mock"
 
 class BookTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
+  test "normalizes valid book categories" do
+    book = Book.new(user: users(:one), name: "Categorized tale", total_pages: 1,
+      categories: [ "Adventure", "Fantasy", "Adventure" ])
+
+    assert_predicate book, :valid?
+    assert_equal [ "Adventure", "Fantasy" ], book.categories
+  end
+
+  test "rejects categories outside the catalog" do
+    book = Book.new(user: users(:one), name: "Categorized tale", total_pages: 1,
+      categories: [ "Adventure", "Made up category" ])
+
+    assert_not book.valid?
+    assert_includes book.errors[:categories], "contains an unknown category"
+  end
+
+  test "completing a book queues independent categorization" do
+    book = Book.create!(user: users(:one), name: "Finished tale", total_pages: 1)
+
+    assert_enqueued_with(job: CategorizeBookJob, args: [ book.id, book.generation_attempt ]) do
+      book.update!(generation_status: :completed)
+    end
+    assert_not_nil book.reload.categorization_enqueued_at
+  end
+
+  test "categorization enqueue failure does not fail a completed book" do
+    book = Book.create!(user: users(:one), name: "Finished tale", total_pages: 1)
+    enqueue_error = ActiveJob::EnqueueError.new("queue unavailable")
+
+    CategorizeBookJob.stub(:perform_later, ->(*) { raise enqueue_error }) do
+      assert_nothing_raised { book.update!(generation_status: :completed) }
+    end
+
+    assert_predicate book.reload, :completed?
+    assert_nil book.reload.categorization_enqueued_at
+  end
+
+  test "unsuccessful categorization enqueue remains eligible for recovery" do
+    book = Book.create!(user: users(:one), name: "Finished tale", total_pages: 1)
+    failed_job = Struct.new(:successfully_enqueued?).new(false)
+
+    CategorizeBookJob.stub(:perform_later, failed_job) do
+      book.update!(generation_status: :completed)
+    end
+
+    assert_predicate book.reload, :completed?
+    assert_nil book.categorization_enqueued_at
+  end
+
+  test "regeneration clears categories from the previous story" do
+    book = Book.create!(user: users(:one), name: "Changing tale", total_pages: 1,
+      categories: [ "Adventure", "Dragons" ])
+
+    book.prepare_for_regeneration!
+
+    assert_empty book.reload.categories
+  end
+
   test "new books default to the western book style" do
     book = Book.new(user: users(:one), name: "New tale", total_pages: 1)
 

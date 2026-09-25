@@ -205,6 +205,10 @@ da:
       read_named: "Læs %{name}"
       send_as_gift: Send som gave
       send_as_gift_named: "Send %{name} som gave"
+      category_heading: Gennemse bøger
+      category_label: Kategori
+      all_categories: Alle kategorier
+      filter_category: Vis
     reader:
       chronicles: Fortællingerne om
       illustration_unavailable: Illustrationen er ikke tilgængelig

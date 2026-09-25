@@ -14,6 +14,9 @@
             <span><%= t("navigation.gifts") %></span>
         <% end %>
     </nav>
+    <% if @categories.present? %>
+      <%= render "layouts/category_filter", form_id: "desktop-category-filter", mobile: false %>
+    <% end %>
     <%= render "layouts/settings" %>
 </aside>
 
@@ -38,6 +41,9 @@
   </div>
   
   <div class="site-mobile-tools">
+  <% if @categories.present? %>
+    <%= render "layouts/category_filter", form_id: "mobile-category-filter", mobile: true %>
+  <% end %>
   <%= render "layouts/settings" %>
   </div>
 </header>

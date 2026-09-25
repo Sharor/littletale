@@ -6,10 +6,17 @@ class BooksController < ApplicationController
 
   # GET /books or /books.json
   def index
-    @books = current_user.books.order(:id)
+    all_books = current_user.books.order(:id).to_a
+    @categories = all_books.flat_map(&:categories).uniq.sort
+    @selected_category = params[:category].presence_in(@categories)
+    @books = if @selected_category
+      all_books.select { |book| book.categories.include?(@selected_category) }
+    else
+      all_books
+    end
     @gifted_books = current_user.received_book_gifts.where.not(claimed_at: nil).order(claimed_at: :desc)
-    @book = Book.new  if current_user.books.none?
-    @tutorial = "new_book_tutorial" unless current_user.books.any?
+    @book = Book.new if all_books.none?
+    @tutorial = "new_book_tutorial" if all_books.none?
   end
 
   # GET /books/1 or /books/1.json

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_23_122000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_25_121000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -187,6 +187,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_23_122000) do
     t.string "language"
     t.integer "reader_age"
     t.string "art_style", default: "western_book_style", null: false
+    t.json "categories", default: [], null: false
+    t.datetime "categorization_enqueued_at"
     t.index ["user_id"], name: "index_books_on_user_id"
   end
 

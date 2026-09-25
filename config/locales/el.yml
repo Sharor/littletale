@@ -205,6 +205,10 @@ el:
       read_named: "Διαβάστε το %{name}"
       send_as_gift: Αποστολή ως δώρο
       send_as_gift_named: "Στείλτε το %{name} ως δώρο"
+      category_heading: Περιήγηση βιβλίων
+      category_label: Κατηγορία
+      all_categories: Όλες οι κατηγορίες
+      filter_category: Προβολή
     reader:
       chronicles: Τα χρονικά του
       illustration_unavailable: Η εικονογράφηση δεν είναι διαθέσιμη

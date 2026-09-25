@@ -28,6 +28,58 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_select "main a[href='#{book_path(@book)}'][aria-label=?]", "Read #{@book.name}", text: "Read"
   end
 
+  test "index lists only categories populated by the signed-in user's books" do
+    @book.update_columns(categories: [ "Adventure" ])
+    @user.books.create!(name: "Magic school", total_pages: 1, categories: [ "Fantasy" ])
+    Book.create!(user: users(:two), name: "Private romance", total_pages: 1, categories: [ "Romance" ])
+
+    get books_url
+
+    assert_response :success
+    assert_select "form.library-category-filter" do
+      assert_select "option[value='']", text: "All categories"
+      assert_select "option[value='Adventure']", text: "Adventure"
+      assert_select "option[value='Fantasy']", text: "Fantasy"
+      assert_select "option[value='Romance']", count: 0
+    end
+  end
+
+  test "index filters owned books by category" do
+    @book.update_columns(categories: [ "Adventure", "Fantasy" ])
+    other_book = @user.books.create!(name: "Quiet birthday", total_pages: 1, categories: [ "Birthdays" ])
+
+    get books_url(category: "Adventure")
+
+    assert_response :success
+    assert_select "select[name='category'] option[value='Adventure'][selected]"
+    assert_select "main h3", text: @book.name
+    assert_select "main h3", text: other_book.name, count: 0
+  end
+
+  test "category filtering leaves claimed gifts visible" do
+    @book.update_columns(categories: [ "Adventure" ])
+    gift = BookGift.create!(
+      sender: users(:two),
+      recipient: @user,
+      recipient_name: "Reader",
+      recipient_email: "reader@gmail.com",
+      sender_callname: "Sender",
+      message: "Enjoy this story",
+      language: "en",
+      title: "Gifted forest",
+      token_digest: SecureRandom.hex(32),
+      issuance_key: SecureRandom.uuid,
+      invitation_token_ciphertext: "encrypted-token",
+      claimed_at: Time.current
+    )
+
+    get books_url(category: "Adventure")
+
+    assert_response :success
+    assert_select "main h3", text: @book.name
+    assert_select "main h3", text: gift.title
+  end
+
   test "empty library preserves the create book tutorial entry point" do
     @user.books.destroy_all
 

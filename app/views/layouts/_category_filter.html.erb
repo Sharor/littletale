@@ -1,0 +1,11 @@
+<section class="library-category-panel <%= "site-mobile-filters" if mobile %>" aria-labelledby="<%= "#{form_id}-heading" %>">
+  <h4 id="<%= "#{form_id}-heading" %>"><%= t("books.index.category_heading") %></h4>
+  <%= form_with url: books_path, method: :get, class: "library-category-filter" do %>
+    <%= label_tag "#{form_id}-category", t("books.index.category_label"), class: "library-category-label" %>
+    <%= select_tag :category,
+      options_for_select([[ t("books.index.all_categories"), "" ]] + @categories.map { |category| [ category, category ] }, @selected_category),
+      id: "#{form_id}-category",
+      class: "library-category-select" %>
+    <%= submit_tag t("books.index.filter_category"), name: nil, class: "library-category-submit" %>
+  <% end %>
+</section>
