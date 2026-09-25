@@ -1,0 +1,109 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+prometheus.remote_write "backend" {
+  endpoint {
+    url = sys.env("METRICS_WRITE_URL")
+    basic_auth {
+      username = sys.env("METRICS_USERNAME")
+      password = sys.env("OBSERVABILITY_WRITE_TOKEN")
+    }
+  }
+}
+
+loki.write "backend" {
+  endpoint {
+    url = sys.env("LOGS_WRITE_URL")
+    basic_auth {
+      username = sys.env("LOGS_USERNAME")
+      password = sys.env("OBSERVABILITY_WRITE_TOKEN")
+    }
+  }
+}
+
+prometheus.scrape "rails" {
+  targets = [{
+    __address__      = sys.env("RAILS_METRICS_HOST"),
+    __scheme__       = sys.env("RAILS_METRICS_SCHEME"),
+    __metrics_path__ = "/metrics",
+    instance         = "little-tale-production",
+    job              = "rails",
+  }]
+  scrape_interval = "15s"
+  authorization {
+    type        = "Bearer"
+    credentials = sys.env("METRICS_BEARER_TOKEN")
+  }
+  forward_to = [prometheus.relabel.allowlist.receiver]
+}
+
+prometheus.exporter.unix "host" {
+  rootfs_path = "/rootfs"
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+  set_collectors = ["cpu", "diskstats", "filesystem", "loadavg", "meminfo", "netdev", "time", "uname"]
+}
+
+prometheus.scrape "host" {
+  targets         = prometheus.exporter.unix.host.targets
+  scrape_interval = "30s"
+  forward_to      = [prometheus.relabel.allowlist.receiver]
+}
+
+prometheus.exporter.cadvisor "containers" {
+  docker_host      = "unix:///var/run/docker.sock"
+  storage_duration = "2m"
+}
+
+prometheus.scrape "containers" {
+  targets         = prometheus.exporter.cadvisor.containers.targets
+  scrape_interval = "30s"
+  forward_to      = [prometheus.relabel.allowlist.receiver]
+}
+
+prometheus.relabel "allowlist" {
+  forward_to = [prometheus.remote_write.backend.receiver]
+  rule {
+    action        = "keep"
+    source_labels = ["__name__"]
+    regex         = "(up|rails_http_.*|solid_queue_.*|node_cpu_seconds_total|node_load1|node_memory_MemAvailable_bytes|node_memory_MemTotal_bytes|node_filesystem_avail_bytes|node_filesystem_size_bytes|node_network_receive_bytes_total|node_network_transmit_bytes_total|node_boot_time_seconds|container_cpu_usage_seconds_total|container_memory_working_set_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|container_start_time_seconds|machine_memory_bytes)"
+  }
+  rule {
+    action = "labeldrop"
+    regex  = "(id|image|image_id)"
+  }
+}
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "container_logs" {
+  targets = discovery.docker.containers.targets
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_service"]
+    target_label  = "service"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.container_logs.output
+  labels     = { environment = "production", host = "little-tale" }
+  forward_to = [loki.process.redact.receiver]
+}
+
+loki.process "redact" {
+  stage.replace {
+    expression = "(/gifts/)([^ ?\\\"]+)"
+    replace    = "[FILTERED]"
+  }
+  forward_to = [loki.write.backend.receiver]
+}

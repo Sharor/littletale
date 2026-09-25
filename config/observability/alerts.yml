@@ -1,0 +1,58 @@
+groups:
+  - name: little-tale-production
+    interval: 1m
+    rules:
+      - alert: RailsMetricsMissing
+        expr: absent(up{job="rails"}) or up{job="rails"} == 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: Rails metrics are unavailable
+      - alert: HostMemoryLow
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.10
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: Less than 10% host memory is available
+      - alert: HostDiskLow
+        expr: node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} < 0.10
+        for: 10m
+        labels: { severity: critical }
+        annotations:
+          summary: Less than 10% disk space is available
+      - alert: RailsHttpErrorRateHigh
+        expr: sum(rate(rails_http_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(rails_http_requests_total[5m])), 0.001) > 0.05
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: Rails 5xx error rate is above 5%
+      - alert: RailsP95LatencyHigh
+        expr: histogram_quantile(0.95, sum by (le) (rate(rails_http_request_duration_seconds_bucket[10m]))) > 2
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: Rails p95 latency is above two seconds
+      - alert: SolidQueueFailures
+        expr: solid_queue_failed_jobs > 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: Solid Queue has jobs with exhausted retries
+      - alert: SolidQueueJobStuck
+        expr: solid_queue_stuck_running_jobs > 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: A Solid Queue job has run for more than 15 minutes
+      - alert: SolidQueueBacklogStalled
+        expr: solid_queue_oldest_ready_job_seconds > 300
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: A queued job has waited longer than five minutes
+      - alert: SolidQueueMetricsUnavailable
+        expr: solid_queue_metrics_available == 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: Rails cannot read the Solid Queue database

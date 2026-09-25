@@ -342,6 +342,8 @@ GEM
       prettyprint
     prettyprint (0.2.0)
     prism (1.4.0)
+    prometheus-client (4.2.5)
+      base64
     propshaft (1.2.1)
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
@@ -582,6 +584,7 @@ DEPENDENCIES
   omniauth-microsoft_v2_auth (~> 0.1.1)
   omniauth-rails_csrf_protection
   open-uri
+  prometheus-client (~> 4.2)
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.2)

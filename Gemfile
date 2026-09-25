@@ -93,3 +93,5 @@ gem "aws-sdk-core", "3.211"
 
 gem "fog-aws"
 gem "stripe", "~> 19.4"
+
+gem "prometheus-client", "~> 4.2"
