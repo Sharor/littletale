@@ -56,6 +56,7 @@ Rails.application.routes.draw do
   resources :received_gifts, only: %i[index show] do
     get "pages/:id/image", to: "received_gift_images#show", as: :page_image
   end
+  resources :print_orders, path: "orders", only: :index
   resources :book_gifts, only: [] do
     post :retry_delivery, on: :member
   end

@@ -1,0 +1,8 @@
+da:
+  navigation:
+    orders: Ordrer
+  print_orders:
+    index:
+      eyebrow: Lulu-sandkasse
+      title: Bogordrer
+      empty: Start en ordre ved at vælge en af dine færdige bøger.

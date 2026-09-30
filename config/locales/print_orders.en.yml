@@ -1,0 +1,8 @@
+en:
+  navigation:
+    orders: Orders
+  print_orders:
+    index:
+      eyebrow: Lulu sandbox
+      title: Book orders
+      empty: Start an order by choosing one of your completed books.
