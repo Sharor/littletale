@@ -1,0 +1,34 @@
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui print-orders-main">
+    <%= render "steps", current_step: 2 %>
+    <header class="print-orders-heading">
+      <p class="library-eyebrow"><%= t("print_orders.address.eyebrow") %></p>
+      <h1><%= t("print_orders.address.title") %></h1>
+      <p><%= t("print_orders.address.introduction") %></p>
+    </header>
+
+    <%= form_with model: @order, url: address_print_order_path(@order), method: :patch,
+      class: "fable-panel print-order-address-form" do |form| %>
+      <% if @order.errors.any? %>
+        <div class="fable-notice" role="alert">
+          <ul><% @order.errors.full_messages.each do |message| %><li><%= message %></li><% end %></ul>
+        </div>
+      <% end %>
+
+      <div class="print-order-fields">
+        <% %i[recipient_name street1 street2 city postcode country_code state_code recipient_email phone_number].each do |field| %>
+          <div class="<%= "is-wide" if field.in?(%i[recipient_name street1 street2 recipient_email]) %>">
+            <%= form.label field, t("print_orders.address.fields.#{field}"), class: "fable-form-label" %>
+            <%= form.text_field field, autocomplete: field == :recipient_email ? "email" : "shipping #{field}" %>
+          </div>
+        <% end %>
+      </div>
+      <p class="print-orders-help"><%= t("print_orders.address.state_help") %></p>
+      <div class="print-orders-actions">
+        <%= link_to t("print_orders.address.back"), print_order_path(@order), class: "print-orders-secondary" %>
+        <%= form.submit t("print_orders.address.continue"), class: "print-orders-primary" %>
+      </div>
+    <% end %>
+  </main>
+</div>

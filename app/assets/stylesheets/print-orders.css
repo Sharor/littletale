@@ -1,0 +1,42 @@
+.print-orders-main { max-width: 72rem; margin-inline: auto; }
+.print-orders-heading { max-width: 48rem; margin: 0 auto 2rem; text-align: center; }
+.print-orders-heading > p:last-child, .print-orders-intro { color: var(--fable-muted); }
+.print-order-steps { margin: 0 auto 2rem; max-width: 44rem; }
+.print-order-steps ol { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.print-order-steps li { display: grid; justify-items: center; gap: .35rem; color: var(--fable-muted); font-size: .78rem; text-align: center; }
+.print-order-steps li span { display: grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid var(--fable-line); border-radius: 50%; font-family: var(--fable-font-display); font-size: 1.15rem; }
+.print-order-steps li.is-current { color: var(--fable-wine); font-weight: 700; }
+.print-order-steps li.is-current span { color: #fff5df; background: var(--fable-wine); border-color: var(--fable-wine); }
+.print-order-steps li.is-complete span { color: var(--fable-wine); border-color: var(--fable-wine); }
+.print-orders-actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; justify-content: center; margin-top: 1.25rem; }
+.fable-ui :is(.print-orders-primary, .print-orders-secondary) { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .65rem 1.1rem; border: 1px solid var(--fable-wine); border-radius: 3px; text-decoration: none; }
+.fable-ui .print-orders-primary { color: #fff5df; background: var(--fable-wine); }
+.fable-ui .print-orders-secondary { color: var(--fable-wine); background: #fffaf0; }
+.print-orders-list { display: grid; gap: 1rem; margin-top: 2rem; }
+.print-order-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.print-order-row h2 { margin: 0; }
+.print-orders-empty { margin-top: 2rem; text-align: center; }
+.print-order-book-form { display: grid; gap: 1.5rem; }
+.print-order-book-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; }
+.print-order-book-card { display: grid; align-content: space-between; gap: 1rem; }
+.print-order-book-card label { display: grid; grid-template-columns: auto 1fr; gap: .35rem .65rem; cursor: pointer; }
+.print-order-book-card label strong { font: 700 1.3rem/1.2 var(--fable-font-display); }
+.print-order-book-card label span { grid-column: 2; color: var(--fable-muted); }
+.print-order-selection { max-width: 42rem; margin-inline: auto; text-align: center; }
+.print-order-address-form { max-width: 50rem; margin-inline: auto; }
+.print-order-address-form .fable-notice { margin-bottom: 1.25rem; padding: 1rem 1.25rem; }
+.print-order-fields { display: grid; gap: 1rem; }
+.print-order-fields input { width: 100%; }
+.print-orders-help { color: var(--fable-muted); font-size: .9rem; }
+.print-order-review-grid { display: grid; gap: 1rem; margin-bottom: 1rem; }
+.print-order-review-grid address { margin-bottom: 1rem; font-style: normal; }
+.print-order-format { margin-top: 1rem; }
+.print-order-format dl { display: grid; gap: .75rem; }
+.print-order-format dl div { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .6rem; border-bottom: 1px solid var(--fable-line); }
+.print-order-format dt { color: var(--fable-muted); }
+.print-order-format dd { font-weight: 600; text-align: right; }
+@media (min-width: 48rem) {
+  .print-order-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .print-order-fields .is-wide { grid-column: 1 / -1; }
+  .print-order-review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

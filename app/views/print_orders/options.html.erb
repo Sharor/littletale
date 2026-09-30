@@ -1,0 +1,41 @@
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui print-orders-main">
+    <%= render "steps", current_step: 3 %>
+    <header class="print-orders-heading">
+      <p class="library-eyebrow"><%= t("print_orders.options.eyebrow") %></p>
+      <h1><%= t("print_orders.options.title") %></h1>
+      <p><%= t("print_orders.options.introduction") %></p>
+    </header>
+
+    <div class="print-order-review-grid">
+      <section class="fable-panel">
+        <h2><%= @order.title %></h2>
+        <%= link_to t("print_orders.options.read"), read_print_order_path(@order), class: "print-orders-secondary" %>
+      </section>
+      <section class="fable-panel">
+        <h2><%= t("print_orders.options.delivery") %></h2>
+        <address>
+          <%= @order.recipient_name %><br>
+          <%= @order.street1 %><br>
+          <% if @order.street2.present? %><%= @order.street2 %><br><% end %>
+          <%= @order.postcode %> <%= @order.city %><br>
+          <%= @order.country_code %>
+        </address>
+        <%= link_to t("print_orders.options.edit_address"), address_print_order_path(@order), class: "print-orders-secondary" %>
+      </section>
+    </div>
+
+    <section class="fable-panel print-order-format" data-pod-package-id="<%= @order.pod_package_id %>">
+      <p class="library-eyebrow"><%= t("print_orders.options.only_format") %></p>
+      <h2><%= t("print_orders.options.format_title") %></h2>
+      <dl>
+        <div><dt><%= t("print_orders.options.size") %></dt><dd>5 × 8 <%= t("print_orders.options.inches") %></dd></div>
+        <div><dt><%= t("print_orders.options.quality") %></dt><dd><%= t("print_orders.options.premium_color") %></dd></div>
+        <div><dt><%= t("print_orders.options.binding") %></dt><dd><%= t("print_orders.options.saddle_stitch") %></dd></div>
+        <div><dt><%= t("print_orders.options.paper") %></dt><dd><%= t("print_orders.options.uncoated_white") %></dd></div>
+        <div><dt><%= t("print_orders.options.finish") %></dt><dd><%= t("print_orders.options.glossy") %></dd></div>
+      </dl>
+    </section>
+  </main>
+</div>

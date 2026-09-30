@@ -5,4 +5,73 @@ da:
     index:
       eyebrow: Lulu-sandkasse
       title: Bogordrer
+      introduction: Gør en af dine færdige historier til et trykt minde.
       empty: Start en ordre ved at vælge en af dine færdige bøger.
+      new: Start en bogordre
+      resume: Fortsæt ordre
+    steps:
+      label: Ordretrin
+      book: Vælg bog
+      delivery: Levering
+      print: Tryk og gennemgang
+    new:
+      eyebrow: Trin 1 af 3
+      title: Vælg din bog
+      introduction: Vælg en færdig, fuldt illustreret historie. Vi gemmer denne udgave, før du fortsætter.
+      pages:
+        one: 1 historieside
+        other: "%{count} historiesider"
+      read: Læs bog
+      choose: Gem valgt bog
+      empty: Der er ingen færdige, fuldt illustrerede bøger, som kan trykkes.
+    show:
+      eyebrow: Valgt udgave
+      introduction: Læs den gemte udgave, før du fortsætter, så du ved, at det er den rigtige historie.
+      pages:
+        one: 1 gemt historieside
+        other: "%{count} gemte historiesider"
+      read: Læs gemt bog
+      continue: Fortsæt til levering
+    address:
+      eyebrow: Trin 2 af 3
+      title: Leveringsadresse
+      introduction: Indtast den adresse, Lulu skal bruge til denne sandkasseordre.
+      fields:
+        recipient_name: Modtagers navn
+        street1: Adresselinje 1
+        street2: Adresselinje 2 (valgfri)
+        city: By
+        postcode: Postnummer
+        country_code: Landekode
+        state_code: Stat eller region
+        recipient_email: Modtagers e-mail
+        phone_number: Telefonnummer
+      state_help: Brug en landekode på to bogstaver. Stat eller region kræves for USA, Canada og Australien.
+      back: Tilbage til bogen
+      continue: Fortsæt til trykmuligheder
+    options:
+      eyebrow: Trin 3 af 3 · Lulu-sandkasse
+      title: Vælg trykformat
+      introduction: Gennemgå den gemte historie, leveringsadressen og det understøttede hæfteformat.
+      read: Læs gemt bog
+      delivery: Leveringsadresse
+      edit_address: Rediger adresse
+      only_format: Tilgængeligt format
+      format_title: Hæfte i premiumfarve
+      size: Størrelse
+      inches: tommer
+      quality: Kvalitet
+      premium_color: Premiumfarve
+      binding: Indbinding
+      saddle_stitch: Hæfteklammer
+      paper: Papir
+      uncoated_white: 60# ubestrøget hvidt
+      finish: Omslagets finish
+      glossy: Blank
+    reader:
+      back: Tilbage til ordren
+    status:
+      draft: Kladde
+    errors:
+      ineligible_book: Vælg en af dine færdige, fuldt illustrerede bøger.
+      complete_address: Udfyld leveringsadressen, før du vælger trykmuligheder.

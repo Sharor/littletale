@@ -1,0 +1,7 @@
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-reader-main">
+    <%= render "books/render_book", book: @order, reader_back_path: @reader_back_path,
+      reader_back_label: t("print_orders.reader.back") %>
+  </main>
+</div>

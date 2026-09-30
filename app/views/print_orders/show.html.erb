@@ -1,0 +1,18 @@
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui print-orders-main">
+    <%= render "steps", current_step: 1 %>
+    <header class="print-orders-heading">
+      <p class="library-eyebrow"><%= t("print_orders.show.eyebrow") %></p>
+      <h1><%= @order.title %></h1>
+      <p><%= t("print_orders.show.introduction") %></p>
+    </header>
+    <section class="fable-panel print-order-selection">
+      <p><%= t("print_orders.show.pages", count: @order.print_order_pages.count) %></p>
+      <div class="print-orders-actions">
+        <%= link_to t("print_orders.show.read"), read_print_order_path(@order), class: "print-orders-secondary" %>
+        <%= link_to t("print_orders.show.continue"), address_print_order_path(@order), class: "print-orders-primary" %>
+      </div>
+    </section>
+  </main>
+</div>

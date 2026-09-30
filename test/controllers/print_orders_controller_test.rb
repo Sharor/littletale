@@ -9,6 +9,7 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     @admin = users(:one)
     @admin.update!(admin: true)
     @admin.tutorial.update!(terms: true)
+    @book = create_eligible_book(@admin)
     sign_in @admin
   end
 
@@ -57,6 +58,111 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "an admin chooses a completed book and gets a retained draft" do
+    with_lulu_orders_enabled do
+      get "/orders/new"
+
+      assert_response :success
+      assert_select "form[action='/orders']" do
+        assert_select "input[type='radio'][name='book_id'][value='#{@book.id}']"
+        assert_select "a[href='#{book_path(@book)}']", text: "Read book"
+      end
+
+      assert_difference("PrintOrder.count", 1) do
+        post "/orders", params: { book_id: @book.id }
+      end
+    end
+
+    order = PrintOrder.order(:id).last
+    assert_redirected_to "/orders/#{order.id}"
+    assert_equal @book.name, order.title
+    assert_equal @book.current_pages.pluck(:text), order.print_order_pages.pluck(:text)
+
+    with_lulu_orders_enabled do
+      follow_redirect!
+    end
+    assert_select "a[href='/orders/#{order.id}/read']", text: "Read retained book"
+    assert_select "a[href='/orders/#{order.id}/address']", text: "Continue to delivery"
+  end
+
+  test "the retained reader returns to the saved order step" do
+    order = PrintOrder.start_for!(user: @admin, book: @book)
+
+    with_lulu_orders_enabled do
+      get "/orders/#{order.id}/read"
+    end
+
+    assert_response :success
+    assert_select "#storybook h1", order.title
+    assert_select ".story-body", "Once upon a print order."
+    assert_select "a[href='/orders/#{order.id}']", text: "Back to order"
+  end
+
+  test "the delivery step preserves errors and advances only with a complete address" do
+    order = PrintOrder.start_for!(user: @admin, book: @book)
+
+    with_lulu_orders_enabled do
+      patch "/orders/#{order.id}/address", params: {
+        print_order: { recipient_name: "A Reader", country_code: "DK" }
+      }
+    end
+
+    assert_response :unprocessable_content
+    assert_select "[role='alert']", text: /Street1 can't be blank/
+    assert_select "input[name='print_order[recipient_name]'][value='A Reader']"
+    assert_equal 1, order.reload.step
+
+    with_lulu_orders_enabled do
+      patch "/orders/#{order.id}/address", params: {
+        print_order: {
+          recipient_name: "A Reader",
+          street1: "Story Lane 4",
+          street2: "2nd floor",
+          city: "Copenhagen",
+          postcode: "2100",
+          country_code: "dk",
+          recipient_email: "reader@example.com",
+          phone_number: "+45 12345678"
+        }
+      }
+    end
+
+    assert_redirected_to "/orders/#{order.id}/options"
+    assert_equal 3, order.reload.step
+    assert_equal "DK", order.country_code
+    assert_equal "Story Lane 4", order.street1
+  end
+
+  test "the print step shows the retained book address and single booklet format" do
+    order = addressed_order
+
+    with_lulu_orders_enabled do
+      get "/orders/#{order.id}/options"
+    end
+
+    assert_response :success
+    assert_select "h1", "Choose print format"
+    assert_select "a[href='/orders/#{order.id}/read']", text: "Read retained book"
+    assert_select "[data-pod-package-id='#{PrintOrder::POD_PACKAGE_ID}']", text: /5 × 8.*Premium color.*Saddle stitch/m
+    assert_select "address", text: /Story Lane 4.*2100 Copenhagen/m
+  end
+
+  test "an admin cannot access another admin's order" do
+    other_admin = users(:two)
+    other_admin.update!(admin: true, encrypted_password: Devise.friendly_token[0, 20])
+    other_admin.tutorial.update!(terms: true)
+    order = PrintOrder.start_for!(user: other_admin, book: create_eligible_book(other_admin))
+    sign_in @admin
+
+    with_lulu_orders_enabled do
+      [ "/orders/#{order.id}/address", "/orders/#{order.id}/options", "/orders/#{order.id}/read" ].each do |path|
+        sign_in @admin
+        get path
+        assert_response :not_found
+      end
+    end
+  end
+
   private
 
   def with_lulu_orders_enabled
@@ -73,5 +179,32 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     yield
   ensure
     ENV["LULU_ORDERS_ENABLED"] = previous
+  end
+
+  def create_eligible_book(user)
+    book = user.books.create!(name: "Printable moon", total_pages: 1, language: "en",
+      generation_status: :completed)
+    page = book.pages.create!(text: "Once upon a print order.", story_position: 1)
+    illustration = page.create_illustration!(original_description: "A moon over a small house")
+    File.open(Rails.root.join("test/fixtures/files/character.png"), "rb") do |file|
+      illustration.original_image = file
+    end
+    illustration.save!
+    book
+  end
+
+  def addressed_order
+    PrintOrder.start_for!(user: @admin, book: @book).tap do |order|
+      order.update!(
+        recipient_name: "A Reader",
+        street1: "Story Lane 4",
+        city: "Copenhagen",
+        postcode: "2100",
+        country_code: "DK",
+        recipient_email: "reader@example.com",
+        phone_number: "+45 12345678",
+        step: 3
+      )
+    end
   end
 end

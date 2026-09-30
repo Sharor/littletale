@@ -21,6 +21,14 @@ class PrintOrderPage < ApplicationRecord
   end
 
   def original_image
-    image
+    self
+  end
+
+  def present?
+    image.attached?
+  end
+
+  def url
+    Rails.application.routes.url_helpers.rails_blob_path(image, only_path: true)
   end
 end

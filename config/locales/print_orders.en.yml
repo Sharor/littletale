@@ -5,4 +5,73 @@ en:
     index:
       eyebrow: Lulu sandbox
       title: Book orders
+      introduction: Turn one of your completed stories into a printed keepsake.
       empty: Start an order by choosing one of your completed books.
+      new: Start a book order
+      resume: Resume order
+    steps:
+      label: Order steps
+      book: Choose book
+      delivery: Delivery
+      print: Print and review
+    new:
+      eyebrow: Step 1 of 3
+      title: Choose your book
+      introduction: Choose a completed, fully illustrated story. We save this edition before you continue.
+      pages:
+        one: 1 story page
+        other: "%{count} story pages"
+      read: Read book
+      choose: Save selected book
+      empty: There are no completed, fully illustrated books available to print.
+    show:
+      eyebrow: Selected edition
+      introduction: Read the retained edition before continuing so you know it is the right story.
+      pages:
+        one: 1 retained story page
+        other: "%{count} retained story pages"
+      read: Read retained book
+      continue: Continue to delivery
+    address:
+      eyebrow: Step 2 of 3
+      title: Delivery address
+      introduction: Enter the address Lulu should use for this sandbox order.
+      fields:
+        recipient_name: Recipient name
+        street1: Address line 1
+        street2: Address line 2 (optional)
+        city: City
+        postcode: Postal code
+        country_code: Country code
+        state_code: State or region
+        recipient_email: Recipient email
+        phone_number: Phone number
+      state_help: Use a two-letter country code. State or region is required for the US, Canada, and Australia.
+      back: Back to book
+      continue: Continue to print options
+    options:
+      eyebrow: Step 3 of 3 · Lulu sandbox
+      title: Choose print format
+      introduction: Review the retained story, delivery address, and supported booklet format.
+      read: Read retained book
+      delivery: Delivery address
+      edit_address: Edit address
+      only_format: Available format
+      format_title: Premium color booklet
+      size: Size
+      inches: inches
+      quality: Quality
+      premium_color: Premium color
+      binding: Binding
+      saddle_stitch: Saddle stitch
+      paper: Paper
+      uncoated_white: 60# uncoated white
+      finish: Cover finish
+      glossy: Glossy
+    reader:
+      back: Back to order
+    status:
+      draft: Draft
+    errors:
+      ineligible_book: Choose one of your completed, fully illustrated books.
+      complete_address: Complete the delivery address before choosing print options.
