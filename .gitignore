@@ -39,5 +39,8 @@ devlog.md
 
 /node_modules
 
+# Keep local feature worktrees outside version control.
+/.worktrees/
+
 # Kamal secrets stay local. Copy the tracked example before first deployment.
 /.kamal/secrets
