@@ -31,5 +31,6 @@ class RecoverBookWardrobesJob < ApplicationJob
       next if plan.reload.status == "failed"
       BookWardrobePreparation.queue_outfits(plan)
     end
+    PageIllustrationGeneration.recover_interrupted!
   end
 end

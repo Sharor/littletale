@@ -47,7 +47,8 @@ en:
       eyebrow: A gift for you
       title: You received %{title}
       from: From %{sender}
-      sign_in: Sign in with Google to open your gift
+      sign_in: Sign in with the invited Google account to open your gift
+      sign_in_explanation: This private story was made for you. Use the invited Google account so LittleStories can place it safely in your gifts.
       claim: Add this book to my gifts
       switch_account: Sign in with a different Google account
       wrong_account: Sign in with the invited Gmail account to open this gift.

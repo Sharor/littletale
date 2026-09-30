@@ -1,95 +1,151 @@
+<% content_for :title, "Personalized stories for children | LittleStories" %>
+<% content_for :body_class, "marketing-page" %>
+<% content_for :head do %>
+  <meta name="description" content="Create an illustrated story starring your child. Choose the characters, plot, language, and art style, then read it together online.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<%= t("landing.title") %>">
+  <meta property="og:description" content="<%= t("landing.introduction") %>">
+  <meta property="og:image" content="<%= image_url(@story_samples.first.pages.first.image) %>">
+<% end %>
+
 <div class="fable-public fable-landing">
-  <nav class="fable-public-nav" aria-label="<%= t("landing.navigation") %>">
-    <div class="fable-public-brand">
-      <%= image_tag "logo_small.png", alt: "LittleStories Logo" %>
-      <span>LittleStories</span>
-    </div>
-    <div class="fable-public-nav-links">
-      <a href="#how-it-works"><%= t("landing.process") %></a>
-      <a href="#about"><%= t("landing.our_story") %></a>
-    </div>
-    <%= link_to t("landing.get_started"), new_user_session_path, class: "fable-public-button fable-public-button-outline" %>
-  </nav>
+  <%= render "shared/public_nav", anchor_prefix: "" %>
 
   <main aria-labelledby="landing-title">
-    <header class="fable-public-hero">
-      <div class="fable-public-hero-copy">
-        <h1 id="landing-title"><%= t("landing.title_html") %></h1>
-        <p class="fable-public-intro"><%= t("landing.introduction") %></p>
-        <div class="fable-public-hero-actions">
+    <header class="landing-hero">
+      <div class="landing-hero-copy">
+        <p class="section-kicker"><%= t("landing.eyebrow") %></p>
+        <h1 id="landing-title"><%= t("landing.title") %></h1>
+        <p class="landing-intro"><%= t("landing.introduction") %></p>
+        <div class="landing-actions">
           <%= link_to t("landing.create"), new_user_session_path, class: "fable-public-button" %>
-          <span class="fable-public-parent-note"><%= t("landing.parents") %></span>
+          <%= link_to t("landing.read_sample"), story_sample_path(@story_samples.first.slug), class: "landing-text-link" %>
         </div>
+        <p class="landing-trial-note"><%= t("landing.trial_short") %></p>
       </div>
 
-      <div class="fable-public-story-cover">
-        <span class="fable-public-cover-ribbon" aria-hidden="true"></span>
-        <div class="fable-public-transformation">
-          <%= image_tag "landing-page-kid.png", alt: t("landing.photo_alt") %>
-          <%= image_tag "landing-boy-cartoonified.png", alt: t("landing.cartoon_alt") %>
+      <div class="landing-hero-art" aria-label="An illustrated page from Nora and the Little Lost Star">
+        <div class="landing-hero-page">
+          <%= image_tag @story_samples.first.pages.first.image,
+                alt: @story_samples.first.pages.first.alt,
+                width: 1024,
+                height: 1024,
+                fetchpriority: "high" %>
+          <p>“Don’t be afraid.”</p>
         </div>
-        <span class="fable-public-flourish" aria-hidden="true">❧</span>
+        <div class="landing-hero-stamp" aria-hidden="true">
+          <span>Made for</span>
+          <strong>Nora</strong>
+        </div>
+        <p class="landing-hero-caption"><%= t("landing.hero_caption") %></p>
       </div>
     </header>
 
-    <section id="how-it-works" class="fable-public-process">
-      <div>
-        <h2><%= t("landing.magic_title") %></h2>
-        <div class="fable-public-steps">
-          <div class="reveal-on-scroll fable-public-step">
-            <span class="fable-public-step-number">1</span>
-            <div>
-              <h3><%= t("landing.steps.upload.title") %></h3>
-              <p><%= t("landing.steps.upload.description") %></p>
-            </div>
-          </div>
-          <div class="reveal-on-scroll fable-public-step" style="transition-delay: 100ms;">
-            <span class="fable-public-step-number">2</span>
-            <div>
-              <h3><%= t("landing.steps.illustration.title") %></h3>
-              <p><%= t("landing.steps.illustration.description") %></p>
-            </div>
-          </div>
-          <div class="reveal-on-scroll fable-public-step" style="transition-delay: 200ms;">
-            <span class="fable-public-step-number">3</span>
-            <div>
-              <h3><%= t("landing.steps.storybook.title") %></h3>
-              <p><%= t("landing.steps.storybook.description") %></p>
-            </div>
-          </div>
-        </div>
+    <section id="stories" class="landing-section landing-samples" aria-labelledby="samples-title">
+      <div class="landing-section-heading">
+        <p class="section-kicker"><%= t("landing.samples.eyebrow") %></p>
+        <h2 id="samples-title"><%= t("landing.samples.title") %></h2>
+        <p><%= t("landing.samples.introduction") %></p>
       </div>
 
-      <div class="fable-public-film">
-        <span class="fable-public-play" aria-hidden="true">▷</span>
-        <p><%= t("landing.watch") %></p>
+      <div class="landing-story-grid">
+        <% @story_samples.each_with_index do |story, index| %>
+          <article class="landing-story-card <%= "landing-story-card-featured" if index == 1 %>">
+            <%= link_to story_sample_path(story.slug), class: "landing-story-image", aria: { label: "Read #{story.title}" } do %>
+              <%= image_tag story.pages.first.image,
+                    alt: story.pages.first.alt,
+                    width: 1024,
+                    height: 1024,
+                    loading: "lazy" %>
+            <% end %>
+            <div class="landing-story-card-copy">
+              <p><%= t("landing.samples.age", age: story.reader_age) %> · <%= story.art_style %></p>
+              <h3><%= story.title %></h3>
+              <%= link_to t("landing.samples.read"), story_sample_path(story.slug), class: "landing-text-link" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+      <p class="landing-sample-style-note"><%= t("landing.samples.style_note") %></p>
+    </section>
+
+    <section id="how-it-works" class="landing-section landing-process" aria-labelledby="process-title">
+      <div class="landing-section-heading landing-section-heading-left">
+        <p class="section-kicker"><%= t("landing.steps.eyebrow") %></p>
+        <h2 id="process-title"><%= t("landing.steps.title") %></h2>
+      </div>
+      <ol class="landing-step-list">
+        <% %i[character adventure read].each_with_index do |step, index| %>
+          <li class="landing-step">
+            <span class="landing-step-number" aria-hidden="true">0<%= index + 1 %></span>
+            <div>
+              <h3><%= t("landing.steps.#{step}.title") %></h3>
+              <p><%= t("landing.steps.#{step}.description") %></p>
+            </div>
+          </li>
+        <% end %>
+      </ol>
+    </section>
+
+    <section class="landing-personal" aria-labelledby="personal-title">
+      <div class="landing-personal-intro">
+        <p class="section-kicker"><%= t("landing.personal.eyebrow") %></p>
+        <h2 id="personal-title"><%= t("landing.personal.title") %></h2>
+        <p><%= t("landing.personal.introduction") %></p>
+      </div>
+      <div class="landing-personal-points">
+        <% %i[recognizable guided varied].each do |point| %>
+          <article>
+            <span aria-hidden="true">✦</span>
+            <h3><%= t("landing.personal.#{point}.title") %></h3>
+            <p><%= t("landing.personal.#{point}.description") %></p>
+          </article>
+        <% end %>
       </div>
     </section>
 
-    <section class="fable-public-testimonial">
-      <p class="fable-public-eyebrow"><%= t("landing.trusted") %></p>
-      <div class="fable-public-publications">
-        <span>ParentingHub</span>
-        <span>TechKids</span>
-        <span>StoryDaily</span>
-        <span>MiniMinds</span>
+    <section class="landing-trial" aria-labelledby="trial-title">
+      <div>
+        <p class="section-kicker"><%= t("landing.trial.eyebrow") %></p>
+        <h2 id="trial-title"><%= t("landing.trial.title") %></h2>
+        <p><%= t("landing.trial.description") %></p>
       </div>
-      <blockquote>
-        <p><%= t("landing.testimonial.quote") %></p>
-        <cite><%= t("landing.testimonial.author") %></cite>
-      </blockquote>
+      <div class="landing-trial-action">
+        <p data-trial-terms><%= t("landing.trial.terms") %></p>
+        <%= link_to t("landing.trial.action"), new_user_session_path, class: "fable-public-button" %>
+        <small><%= t("landing.trial.sign_in_note") %></small>
+      </div>
     </section>
 
-    <section id="about" class="fable-public-about">
-      <div class="fable-public-founder"><span><%= t("landing.founder_photo") %></span></div>
-      <div>
-        <h2><%= t("landing.about.title") %></h2>
-        <div class="fable-public-prose">
-          <p><%= t("landing.about.origin_html") %></p>
-          <p><%= t("landing.about.mission") %></p>
-        </div>
-        <p class="fable-public-signature"><%= t("landing.about.signature") %></p>
+    <section id="questions" class="landing-section landing-faq" aria-labelledby="faq-title">
+      <div class="landing-section-heading">
+        <p class="section-kicker"><%= t("landing.faq.eyebrow") %></p>
+        <h2 id="faq-title"><%= t("landing.faq.title") %></h2>
       </div>
+      <div class="landing-faq-list">
+        <% %i[ai language photo child time reading trial].each do |item| %>
+          <details>
+            <summary><%= t("landing.faq.items.#{item}.question") %></summary>
+            <p><%= t("landing.faq.items.#{item}.answer") %></p>
+          </details>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="landing-final" aria-labelledby="final-title">
+      <p class="section-kicker"><%= t("landing.final.eyebrow") %></p>
+      <h2 id="final-title"><%= t("landing.final.title") %></h2>
+      <p><%= t("landing.final.description") %></p>
+      <%= link_to t("landing.final.action"), new_user_session_path, class: "fable-public-button" %>
     </section>
   </main>
+
+  <footer class="landing-footer">
+    <a class="fable-public-brand" href="/" aria-label="LittleStories home">
+      <%= image_tag "logo_small.png", alt: "", width: 38, height: 38, loading: "lazy" %>
+      <span>LittleStories</span>
+    </a>
+    <p><%= t("landing.footer.note") %></p>
+    <%= link_to t("landing.sign_in"), new_user_session_path %>
+  </footer>
 </div>

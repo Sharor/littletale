@@ -21,13 +21,13 @@ class BooksController < ApplicationController
 
   # GET /books/1 or /books/1.json
   def show
-    @characters = Character.where(user: current_user)
-    @tutorial = "character_overview_tutorial" unless current_user.characters.any?
+    @characters = Character.active.where(user: current_user)
+    @tutorial = "character_overview_tutorial" unless current_user.characters.active.any?
   end
 
   # GET /books/new
   def new
-    characters = current_user.characters.where(id: params[:character_ids])
+    characters = current_user.characters.active.where(id: params[:character_ids])
     @book = Book.new(characters: characters, user: current_user,
       language: current_user.language, reader_age: current_user.reader_age)
     @tutorial = "name_book_tutorial" unless current_user.books.any?
@@ -97,7 +97,7 @@ class BooksController < ApplicationController
       ids = params[:character_ids] || params.dig(:book, :character_ids)
       selected = if ids
         normalized = Array(ids).reject(&:blank?).map(&:to_s).uniq
-        records = current_user.characters.where(id: normalized).to_a
+        records = current_user.characters.active.where(id: normalized).to_a
         return render plain: I18n.t("notices.characters.own_ready_only"), status: :unprocessable_content if records.size != normalized.size
         records
       else

@@ -20,6 +20,9 @@ Rails.application.routes.draw do
         post :reject
       end
     end
+    resources :characters, only: :index do
+      post :restore, on: :member
+    end
     resources :failed_books, only: :index
     resources :books, only: [] do
       member do
@@ -29,6 +32,7 @@ Rails.application.routes.draw do
     end
   end
   get "login", to: "home#login"
+  get "stories/:id", to: "story_samples#show", as: :story_sample
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   resource :settings, only: :show

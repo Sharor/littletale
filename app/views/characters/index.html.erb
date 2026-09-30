@@ -64,7 +64,7 @@
             <%# 2. Visual Card (The Adjacent Sibling) - Holds all styling and the manual click handler %>
             <div class="fable-character-card cursor-pointer group block rounded-xl border p-4 text-center transition-all duration-200 relative
                     peer-checked:bg-blue-100 peer-checked:ring-2 peer-checked:ring-blue-500"
-              onclick="document.getElementById('character_checkbox_<%= character.id %>').click();"
+              onclick="if (!event.target.closest('a, button')) document.getElementById('character_checkbox_<%= character.id %>').click();"
             >
 
             <div class="fable-character-card-heading relative w-full">
@@ -88,8 +88,7 @@
               <%= link_to confirm_delete_character_path(character),
                   aria: { label: t("characters.index.delete_named", name: character.name) },
                   class: "fable-character-action absolute right-0 top-0 transition duration-150 text-gray-400 hover:text-red-500 z-30 p-1",
-                  data: { turbo_frame: "modal" },
-                  onclick: "event.stopPropagation();" do %>
+                  data: { turbo_frame: "modal" } do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>

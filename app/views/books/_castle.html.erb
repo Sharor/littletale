@@ -16,8 +16,14 @@
     <path class="castle-part flag" d="M100 25 L100 10 L125 17 L100 25" fill="#FACC15" />
   </svg>
 
-  <div class="mt-6 text-center">
-    <% progress = (book.pages.count.to_f / book.total_pages * 100).to_i %>
+  <div role="status" class="mt-6 text-center">
+    <% if book.pending? %>
+      <p><%= t("books.status.getting_ready") %></p>
+      <p><%= t("books.status.starts_shortly") %></p>
+    <% elsif (wardrobe = book.current_wardrobe_plan) && !wardrobe.ready? %>
+      <p><%= t("books.status.preparing") %></p>
+    <% end %>
+    <% progress = book.total_pages.to_i.positive? ? (book.current_pages.count.to_f / book.total_pages * 100).to_i.clamp(0, 100) : 0 %>
     <div class="text-xs font-mono text-gray-500 uppercase tracking-widest">
       <%= progress == 100 ? t("books.status.written") : t("books.status.progress", progress: progress) %>
     </div>

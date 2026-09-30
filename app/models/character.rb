@@ -1,5 +1,8 @@
 class Character < ApplicationRecord
     enum :generation_status, { pending: 0, in_progress: 1, completed: 2, failed: 3 }
+    scope :active, -> { where(deleted_at: nil) }
+    scope :deleted, -> { where.not(deleted_at: nil) }
+
     # Relations
     belongs_to :user
     has_and_belongs_to_many :books

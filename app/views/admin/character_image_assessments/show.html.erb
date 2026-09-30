@@ -5,12 +5,6 @@
     <p class="mt-2 text-gray-300"><%= t("admin.failed_books.owner") %>: <%= @assessment.user.email %> (ID <%= @assessment.user_id %>) · <%= t("admin.reviews.status") %>: <%= t("admin.reviews.#{@assessment.status}", default: @assessment.status.humanize) %></p>
   </div>
 
-  <% if notice %>
-    <p role="status" class="rounded border border-green-300/40 bg-green-950/40 p-3"><%= notice %></p>
-  <% end %>
-  <% if alert %>
-    <p role="alert" class="rounded border border-red-300/40 bg-red-950/40 p-3"><%= alert %></p>
-  <% end %>
 
   <section aria-labelledby="submitted-input-heading" class="rounded-lg border border-white/20 bg-black/20 p-5">
     <h2 id="submitted-input-heading" class="text-xl font-semibold"><%= t("admin.assessment.submitted") %></h2>

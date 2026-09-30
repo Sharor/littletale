@@ -1,7 +1,18 @@
+<% content_for :title, "Sign in | LittleStories" %>
+<% content_for :body_class, "public-sign-in-page" %>
+<% content_for :head do %>
+  <meta name="description" content="Sign in to LittleStories to create personalized illustrated stories for your child.">
+<% end %>
+
 <main class="fable-public fable-public-sign-in" aria-labelledby="sign-in-title">
   <div class="fable-public-sign-in-sheet">
+    <a href="/" class="sign-in-home-link">← LittleStories</a>
+
     <header class="fable-public-centered-heading">
-      <%= image_tag "logo_small.png", class: "fable-public-login-logo", alt: "LittleStories Logo" %>
+      <%= image_tag "logo_small.png", class: "fable-public-login-logo", alt: "", width: 80, height: 80 %>
+      <% if I18n.locale == :en %>
+        <p class="section-kicker">Your first story starts here</p>
+      <% end %>
       <h1 id="sign-in-title"><%= t("authentication.welcome_back") %></h1>
       <p><%= t("authentication.next_adventure") %></p>
     </header>
@@ -24,13 +35,13 @@
           <%= t("authentication.microsoft") %>
         <% end %>
       <% end %>
-      <div class="fable-public-provider-soon" aria-disabled="true">
-        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path fill="currentColor" d="M17.073 21.321c-.959.697-1.983.717-3.004.262-1.015-.456-1.918-.446-2.856.021-1.336.666-2.181.564-3.05-.147-3.804-3.15-3.064-9.358 1.402-9.527 1.258.047 2.051.72 2.811.751.76.031 1.831-.762 3.193-.637 1.512.139 2.613.71 3.26 1.637-3.235 1.942-2.73 6.221.411 7.64-.633 1.583-1.464 2.148-2.167 3zM12.03 8.313c-.07-2.31 1.772-4.249 3.996-4.313.195 2.535-2.247 4.542-3.996 4.313z"/></svg>
-        Apple <span>(<%= t("authentication.soon") %>)</span>
-      </div>
     </div>
+
     <div class="fable-public-sign-in-note">
       <p><%= t("authentication.new_user_html") %></p>
+      <% if I18n.locale == :en %>
+        <%= link_to "Read a sample story", story_sample_path("nora-and-the-little-lost-star"), class: "landing-text-link" %>
+      <% end %>
     </div>
   </div>
 </main>

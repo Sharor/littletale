@@ -8,12 +8,14 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "main[aria-labelledby='sign-in-title']", count: 1 do
-      assert_select "h1#sign-in-title", "Welcome back!"
+      assert_select "h1#sign-in-title", "Create the story only they could star in."
     end
     assert_select "form[action='#{user_google_oauth2_omniauth_authorize_path}'][method='post']"
     assert_select "button", "Continue with Google"
     assert_select "form[action='#{user_microsoft_v2_auth_omniauth_authorize_path}'][method='post']"
     assert_select "button", "Continue with Microsoft"
+    assert_select "a[href='/stories/nora-and-the-little-lost-star']", "Read a sample story"
+    assert_select "[aria-disabled='true']", count: 0
   end
 
   test "the primary sign-in screen hides Microsoft when OAuth is not configured" do

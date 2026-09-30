@@ -24,4 +24,39 @@ class CharactersTest < ApplicationSystemTestCase
     assert_selector "#content-form:not(.hidden)"
     assert_text "Character Appearance"
   end
+
+  test "delete dialog can be cancelled then confirmed without leaving the character list" do
+    character = characters(:hernandes)
+    page.current_window.resize_to(1440, 1000)
+    visit characters_url
+    find("a[aria-label=\"Delete #{character.name}\"]").click
+    assert_current_path characters_path
+    assert_selector "[role='dialog']", text: character.name
+    page.save_screenshot(Rails.root.join("tmp/screenshots/character-delete-desktop.png"))
+    click_on "Cancel"
+    assert_no_selector "[role='dialog']"
+    assert_selector "#character_#{character.id}"
+
+    find("a[aria-label=\"Delete #{character.name}\"]").click
+    within "[role='dialog']" do
+      find("button[aria-label='Close']").click
+    end
+    assert_no_selector "[role='dialog']"
+
+    page.current_window.resize_to(375, 900)
+    find("a[aria-label=\"Delete #{character.name}\"]").click
+    assert_selector "dialog[open]"
+    page.save_screenshot(Rails.root.join("tmp/screenshots/character-delete-mobile.png"))
+    page.send_keys :escape
+    assert_no_selector "[role='dialog']"
+    find("a[aria-label=\"Delete #{character.name}\"]").click
+    within "[role='dialog']" do
+      click_on "Delete", exact: true
+    end
+    assert_no_selector "[role='dialog']"
+    assert_no_selector "#character_#{character.id}"
+    assert_current_path characters_path
+    assert_not_nil character.reload.deleted_at
+  end
+
 end

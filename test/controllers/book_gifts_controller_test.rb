@@ -204,6 +204,8 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_nil gift.reload.claimed_at
+    assert_select "meta[name='robots'][content='noindex,nofollow']"
+    assert_select ".gift-sign-in-handoff", text: /invited Google account/i
     assert_select "a[href='#{new_user_session_path}']", text: /sign in/i
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_25_121000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_30_190000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -322,7 +322,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_25_121000) do
     t.json "roles", default: [], null: false
     t.integer "generation_status", default: 0
     t.integer "current_image_request_id"
+    t.datetime "deleted_at"
     t.index ["current_image_request_id"], name: "index_characters_on_current_image_request_id"
+    t.index ["deleted_at"], name: "index_characters_on_deleted_at"
     t.index ["user_id"], name: "index_characters_on_user_id"
   end
 

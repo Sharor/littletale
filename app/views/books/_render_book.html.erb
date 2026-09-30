@@ -1,3 +1,5 @@
+<% reader_back_path = local_assigns.fetch(:reader_back_path, books_path) %>
+<% reader_back_label = local_assigns.fetch(:reader_back_label, t("books.reader.back_to_library")) %>
 <div class="book-container">
   <div id="storybook">
     <div class="page page-cover page-cover-top" data-density="hard">
@@ -24,7 +26,7 @@
       <div class="page-content">
       <h2 class="mb-8"><%= t("books.reader.the_end") %></h2>
       <div class="book-end-actions">
-        <%= link_to t("books.reader.back_to_library"), books_path, class: "book-back-button" %>
+        <%= link_to reader_back_label, reader_back_path, class: "book-back-button" %>
         <% if book.gift_preparable? %>
           <%= render "book_gifts/prepare_action",
             book: book,

@@ -152,3 +152,28 @@
   .gift-form-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gift-form-actions { grid-column: 1 / -1; }
 }
+
+.gift-invitation-page {
+  background:
+    radial-gradient(circle at 85% 12%, #e2c2752b 0 8rem, transparent 28rem),
+    var(--fable-paper);
+}
+.gift-invitation-home {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  margin-bottom: .8rem;
+  color: var(--fable-wine);
+  font-family: var(--fable-font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.gift-invitation-home:hover { text-decoration: underline; text-underline-offset: 4px; }
+.gift-sign-in-handoff {
+  max-width: 34rem;
+  margin: 1.5rem 0 1rem;
+  color: var(--fable-muted) !important;
+  font-size: .88rem;
+  line-height: 1.7;
+}

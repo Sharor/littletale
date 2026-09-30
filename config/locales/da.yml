@@ -15,7 +15,7 @@ da:
     new_user_html: Ny hos LittleStories? <br>Log blot ind med Google eller Microsoft.
     fantasy: Kun fantasien
     limits: sætter grænser for, hvad du kan!
-    welcome: Velkommen til Little Stories!
+    welcome: Velkommen til Little Tales!
     process: Vi hjælper dig med at lave dit helt eget eventyr.
     how: Vælg, hvem der skal med i historien, og giv os derefter et oplæg til handlingen.
     magic: Så klarer vores feer og skrivemaskiner resten!
@@ -308,7 +308,7 @@ da:
       title: Vælg figurer
     delete:
       title: Bekræft sletning
-      confirm_html: "Er du sikker på, at du vil slette %{name}? Handlingen kan ikke fortrydes."
+      confirm_html: "Er du sikker på, at du vil slette %{name}?"
     show:
       edit: Rediger denne figur
       back: Tilbage til figurer

@@ -1,19 +1,6 @@
 <div id="<%= dom_id(book, :state) %>">
-  <% if book.pending? %>
-    <div class="fable-ui fable-book-status flex flex-col items-center py-10 text-center">
-      <h1 class="text-3xl font-bold"><%= book.name %></h1>
-      <div role="status" class="mt-6">
-        <span aria-hidden="true" class="inline-block h-8 w-8 rounded-full border-4 border-yellow-200/20 border-t-yellow-300 motion-safe:animate-spin"></span>
-        <p class="mt-4 text-lg"><%= t("books.status.getting_ready") %></p>
-        <p class="mt-2 text-gray-300"><%= t("books.status.starts_shortly") %></p>
-      </div>
-    </div>
-  <% elsif book.generation_status == "in_progress" %>
+  <% if book.pending? || book.in_progress? %>
     <h1 class="fable-reader-title text-3xl font-bold text-center"><%= book.name %></h1>
-    <% wardrobe = book.current_wardrobe_plan %>
-    <% if wardrobe && !wardrobe.ready? %>
-      <p role="status" class="text-center mt-4"><%= t("books.status.preparing") %></p>
-    <% end %>
     <%= render "books/castle", book: book %>
   <% elsif book.failed? && book.generation_failure["type"] == "character_image_not_ready" %>
     <p role="status" class="fable-notice p-4 text-amber-100"><%= generation_failure_message(book) %></p>

@@ -3,7 +3,6 @@
   <main class="fable-main fable-ui fable-character-detail">
 <%= turbo_stream_from current_user, :characters %>
 <%= render "illustrations/illustration", character: @character %>
-<p style="color: green"><%= notice %></p>
 
 
 <div>

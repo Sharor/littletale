@@ -38,15 +38,15 @@ en:
     subscription: Trial & subscription
     profile: User profile
   authentication:
-    welcome_back: Welcome back!
-    next_adventure: Ready for the next adventure?
+    welcome_back: Create the story only they could star in.
+    next_adventure: Sign in to begin a personalized story or return to your family library.
     google: Continue with Google
     microsoft: Continue with Microsoft
     soon: Soon
-    new_user_html: New to LittleStories? <br>Simply sign in with Google or Microsoft.
+    new_user_html: New to LittleStories? Your first three trial books can each include up to five illustrated pages.
     fantasy: Only your fantasy
     limits: limits what you can do!
-    welcome: Welcome to Little Stories!
+    welcome: Welcome to Little Tales!
     process: We'll take you through the process of making your very own fairytale.
     how: Choose who should be in the story, then give us an outline of what should happen.
     magic: Then our fairies and typewriters take care of the rest!
@@ -55,37 +55,88 @@ en:
     login_microsoft: Login with Microsoft
   landing:
     navigation: Main navigation
-    process: Process
-    our_story: Our Story
-    get_started: Get Started
-    title_html: Turn your child into a <span>Storybook Hero.</span>
-    introduction: Upload a photo, choose an adventure, and watch your child become the star of their very own cartoon-illustrated book.
-    create: Create Your Story
-    parents: Join 2,000+ happy parents
-    photo_alt: Photo of a small boy
-    cartoon_alt: Photo of the small boy as a cartoon
-    magic_title: How the magic happens
+    stories: Sample stories
+    how_it_works: How it works
+    questions: Questions
+    sign_in: Sign in
+    eyebrow: Personalized illustrated stories
+    title: Their next adventure starts with them.
+    introduction: Create an illustrated story starring your child. Add a photo or describe their character, choose what happens, and read the story together online.
+    create: Create your child’s story
+    read_sample: Read a sample story
+    trial_short: Start with 3 trial books · Up to 5 pages each
+    hero_caption: Made from a simple idea for a child named Nora.
+    samples:
+      eyebrow: Read before you create
+      title: Three small worlds, ready to open
+      introduction: These complete five-page stories were made with LittleStories. Turn every page and see how different characters, plots, and illustration styles come together.
+      read: Read this story
+      age: For age %{age}
+      style_note: Cute cartoon, colored pencil, claymation, and many more illustration styles are available when you create your story.
     steps:
-      upload:
-        title: Upload & Plot
-        description: Add photos and describe your dream adventure.
-      illustration:
-        title: AI Illustration
-        description: Our engine transforms faces into consistent cartoon characters.
-      storybook:
-        title: Instant Storybook
-        description: A full-color, high-res PDF or physical book delivered to you.
-    watch: Watch the transformation
-    trusted: As seen on / Trusted by
-    testimonial:
-      quote: '"My daughter didn''t believe it was her until she saw her favorite teddy bear in the cartoon. She''s read it every night for a month!"'
-      author: — Sarah J., Proud Mom
-    founder_photo: Founder Photo
-    about:
-      title: Why we built LittleStories
-      origin_html: It started when I tried to find a book for my son where the hero looked like him. Not "kind of" like him, but <em>really</em> him.
-      mission: We realized that AI could be used for more than just data—it could be used for wonder. Our mission at LittleStories is to bridge the gap between a child's imagination and the physical world, making every bedtime a personal adventure.
-      signature: Personalized with love.
+      eyebrow: How it works
+      title: You bring what makes them special. We turn it into a story.
+      character:
+        title: Make their character
+        description: Add a photo or describe how your child should appear. You can include siblings, friends, and favorite companions too.
+      adventure:
+        title: Shape the adventure
+        description: Choose the characters, language, illustration style, and the idea you want the story to follow.
+      read:
+        title: Read it together
+        description: LittleStories writes and illustrates the pages, then keeps the finished book in your online library.
+    personal:
+      eyebrow: Made around your child
+      title: A story that knows who the hero is
+      introduction: Keep the details that matter to your family while giving every new story a world of its own.
+      recognizable:
+        title: Recognizably theirs
+        description: Use their name, appearance, interests, and the people they love.
+      guided:
+        title: Guided by you
+        description: Set the premise and cast. LittleStories develops them into a complete short adventure.
+      varied:
+        title: A different world each time
+        description: Pick a visual style and story language that suits tonight’s idea.
+    trial:
+      eyebrow: Begin with a little shelf
+      title: Try three stories before you decide
+      description: Your trial includes three books, each with up to five illustrated pages. Your one-month reading period begins when your first book is complete.
+      terms: 3 trial books · Up to 5 pages each · One month of reading from your first completed book
+      action: Start your first story
+      sign_in_note: Sign in securely with Google or Microsoft.
+    faq:
+      eyebrow: Good to know
+      title: Questions parents ask
+      items:
+        ai:
+          question: How does LittleStories make the book?
+          answer: LittleStories uses AI to turn your characters and plot into story text and illustrations. You choose the characters, language, and visual style.
+        language:
+          question: Which languages can I use?
+          answer: You can create stories in English, Danish, or Greek.
+        photo:
+          question: Do I need a photo?
+          answer: No. You can upload a photo or create the character from a written description.
+        child:
+          question: Can a story include more than one child?
+          answer: Yes. Build a cast from your saved characters, including siblings, friends, and grown-ups.
+        time:
+          question: Do I need to wait on the page while the book is made?
+          answer: No. Story and illustration generation continue in the background, and the completed book appears in your library.
+        reading:
+          question: Where do we read the finished story?
+          answer: Every book lives in your LittleStories online library, ready to read page by page.
+        trial:
+          question: When does the trial month begin?
+          answer: The one-month reading period begins when your first trial book is complete.
+    final:
+      eyebrow: A new favorite can start here
+      title: Who will they become tonight?
+      description: Bring one child, one idea, and a few details. LittleStories will help you make the book you read together.
+      action: Create your child’s story
+    footer:
+      note: Personalized stories for reading together.
   admin:
     navigation:
       label: Administration
@@ -339,7 +390,7 @@ en:
       title: Choose characters
     delete:
       title: Confirm Deletion
-      confirm_html: "Are you sure you want to delete %{name}? This action is permanent."
+      confirm_html: "Are you sure you want to delete %{name}?"
     show:
       edit: Edit this character
       back: Back to characters

@@ -1,0 +1,24 @@
+<% content_for :html_lang, "en" %>
+<% content_for :body_class, "story-sample-page" %>
+<% content_for :title, "#{@story.title} | LittleStories" %>
+<% content_for :head do %>
+  <meta name="description" content="Read <%= @story.title %>, a five-page sample story from LittleStories.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="<%= @story.title %>">
+  <meta property="og:description" content="Read this complete five-page sample story from LittleStories.">
+  <meta property="og:image" content="<%= image_url(@story.pages.first.image) %>">
+<% end %>
+
+<div class="sample-shell">
+  <%= render "shared/public_nav", anchor_prefix: "/" %>
+
+  <main class="fable-reader-main sample-reader-main" aria-label="<%= @story.title %>">
+    <div class="sample-reader-back">
+      <%= link_to "Back to sample stories", "/#stories", class: "sample-back-link" %>
+    </div>
+    <%= render "books/render_book",
+          book: @story,
+          reader_back_path: new_user_session_path,
+          reader_back_label: "Create your child’s story" %>
+  </main>
+</div>

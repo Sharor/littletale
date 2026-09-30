@@ -139,4 +139,21 @@ class PageIllustrationGenerationTest < ActiveSupport::TestCase
     assert_equal "failed", @image.reload.generation_metadata.dig("page_generation", "attempts", -1, "status")
     assert @book.reload.failed?
   end
+
+  test "a replay after worker interruption records an unknown outcome without another provider call" do
+    token = PageIllustrationGeneration.reserve!(@image, retrying: false)
+    state = PageIllustrationGeneration.state(@image.reload).deep_dup
+    state["status"] = "running"
+    state["attempts"].last["status"] = "running"
+    @image.update!(generation_metadata: @image.generation_metadata.merge("page_generation" => state))
+
+    @image.stub :gpt_image_1_edit, ->(*) { flunk "An interrupted provider request must not be sent again" } do
+      PageIllustrationGeneration.perform!(@image, token)
+    end
+
+    attempt = PageIllustrationGeneration.attempts(@image.reload).last
+    assert_equal "outcome_unknown", PageIllustrationGeneration.state(@image)["status"]
+    assert_equal "outcome_unknown", attempt["status"]
+    assert_equal "WorkerInterrupted", attempt["error_class"]
+  end
 end

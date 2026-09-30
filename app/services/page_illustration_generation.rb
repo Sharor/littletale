@@ -75,15 +75,22 @@ class PageIllustrationGeneration
   end
 
   def self.perform!(illustration, token)
-    claimed = illustration.with_lock do
+    claim_status = illustration.with_lock do
       current = state(illustration).deep_dup
       if current["token"] == token && current["status"] == "queued"
         current["status"] = "running"
         current["attempts"].last["status"] = "running"
         illustration.update!(generation_metadata: illustration.generation_metadata.merge("page_generation" => current))
-        true
+        :claimed
+      elsif current["token"] == token && current["status"] == "running"
+        :interrupted
       end
     end
+    if claim_status == :interrupted
+      finish!(illustration, "outcome_unknown", error: "WorkerInterrupted")
+      return
+    end
+    claimed = claim_status == :claimed
     return unless claimed
 
     book = illustration.page.book.reload
@@ -135,6 +142,25 @@ class PageIllustrationGeneration
       current["attempts"].last.merge!("status" => status, "finished_at" => Time.current.iso8601,
         "error_class" => error, "failure" => illustration.generation_metadata["failure"])
       illustration.update!(generation_metadata: illustration.generation_metadata.merge("page_generation" => current))
+    end
+  end
+
+  def self.recover_interrupted!(cutoff: 1.hour.ago)
+    Illustration.where(updated_at: ...cutoff).find_each do |illustration|
+      recovered_with_image = false
+      illustration.with_lock do
+        current = state(illustration.reload).deep_dup
+        attempt = current["attempts"]&.last
+        next unless current["status"] == "running" && attempt
+
+        recovered_with_image = illustration.original_image.present?
+        status = recovered_with_image ? "succeeded" : "outcome_unknown"
+        current["status"] = status
+        attempt.merge!("status" => status, "finished_at" => Time.current.iso8601,
+          "error_class" => ("WorkerInterrupted" unless recovered_with_image))
+        illustration.update!(generation_metadata: illustration.generation_metadata.merge("page_generation" => current))
+      end
+      illustration.page.book.refresh_generation_status!(attempt: illustration.page.generation_attempt) if recovered_with_image
     end
   end
 end

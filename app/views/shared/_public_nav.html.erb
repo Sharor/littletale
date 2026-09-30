@@ -1,0 +1,13 @@
+<% anchor_prefix = local_assigns.fetch(:anchor_prefix, "") %>
+<nav class="fable-public-nav" aria-label="<%= t("landing.navigation") %>">
+  <a class="fable-public-brand" href="/" aria-label="LittleStories home">
+    <%= image_tag "logo_small.png", alt: "", width: 45, height: 45 %>
+    <span>LittleStories</span>
+  </a>
+  <div class="fable-public-nav-links">
+    <a href="<%= anchor_prefix %>#stories"><%= t("landing.stories") %></a>
+    <a href="<%= anchor_prefix %>#how-it-works"><%= t("landing.how_it_works") %></a>
+    <a href="<%= anchor_prefix %>#questions"><%= t("landing.questions") %></a>
+  </div>
+  <%= link_to t("landing.sign_in"), new_user_session_path, class: "fable-public-button fable-public-button-outline" %>
+</nav>

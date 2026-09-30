@@ -1,0 +1,21 @@
+en:
+  admin:
+    characters:
+      title: Deleted characters
+      empty: No deleted characters.
+      restore: Restore character
+      restored: Character restored.
+da:
+  admin:
+    characters:
+      title: Slettede karakterer
+      empty: Ingen slettede karakterer.
+      restore: Gendan karakter
+      restored: Karakteren er gendannet.
+el:
+  admin:
+    characters:
+      title: Διαγραμμένοι χαρακτήρες
+      empty: Δεν υπάρχουν διαγραμμένοι χαρακτήρες.
+      restore: Επαναφορά χαρακτήρα
+      restored: Ο χαρακτήρας επαναφέρθηκε.

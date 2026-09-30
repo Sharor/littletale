@@ -285,6 +285,31 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{rerun_generation_admin_book_path(book)}']", count: 0
   end
 
+  test "castle remains visible from the queue through illustration generation" do
+    book = @user.books.create!(name: "Castle journey", total_pages: 2)
+
+    get book_url(book)
+    assert_select "#castle_construction.lvl-1", count: 1
+    assert_select "[role='status']", text: /Getting your book ready/
+
+    book.update!(generation_status: :in_progress)
+    2.times { book.pages.create!(text: "Waiting for illustration") }
+    get book_url(book)
+    assert_select "#castle_construction.lvl-6", count: 1
+    assert_select "#storybook", count: 0
+  end
+
+  test "castle progress ignores pages from a previous generation attempt" do
+    book = @user.books.create!(name: "Fresh attempt", total_pages: 2,
+      generation_status: :in_progress, generation_attempt: 2)
+    book.pages.create!(text: "Old page", generation_attempt: 1)
+    book.pages.create!(text: "New page", generation_attempt: 2)
+
+    get book_url(book)
+
+    assert_select "#castle_construction", text: /Making your book: 50%/
+  end
+
   private
 
   def grant_paid_bundle

@@ -10,7 +10,7 @@ class CharactersController < ApplicationController
   skip_before_action :check_tutorial, only: [ :confirm_delete ]
   # GET /characters or /characters.json
   def index
-    @characters = current_user.characters
+    @characters = current_user.characters.active
   end
 
   # GET /characters/1 or /characters/1.json
@@ -20,7 +20,7 @@ class CharactersController < ApplicationController
   # GET /characters/new
   def new
     @character = Character.new(roles: [])
-    @tutorial = "new_character_tutorial" unless current_user.characters.any?
+    @tutorial = "new_character_tutorial" unless current_user.characters.active.any?
   end
 
   # GET /characters/1/edit
@@ -33,7 +33,7 @@ class CharactersController < ApplicationController
 
   # GET /characters/select
   def select
-    @characters = Character.where(user: current_user)
+    @characters = Character.active.where(user: current_user)
     @tutorial = "select_character_tutorial" unless current_user.tutorial&.tutorial_complete
 
     render "select",  layout: false, locals: { book: @book, characters: @characters }
@@ -42,7 +42,7 @@ class CharactersController < ApplicationController
   # POST /characters/save_selected
   def save_selected
     character_ids = params[:character_ids] || []
-    characters = Character.where(id: character_ids, user: current_user)
+    characters = Character.active.where(id: character_ids, user: current_user)
     unless characters.size == Array(character_ids).reject(&:blank?).map(&:to_s).uniq.size && characters.all?(&:image_ready_for_book?)
       return render plain: I18n.t("notices.characters.own_ready_only"), status: :unprocessable_content
     end
@@ -131,7 +131,7 @@ class CharactersController < ApplicationController
 
   # Necessary because of label logic in view
   def confirm_delete
-    @character = current_user.characters.find(params[:id])
+    @character = current_user.characters.active.find(params[:id])
 
     # CRITICAL: Explicitly render the partial. Do NOT implicitly render a view or redirect.
     render partial: "delete_confirmation_modal", locals: { character: @character }
@@ -139,8 +139,8 @@ class CharactersController < ApplicationController
 
   # DELETE /characters/1 or /characters/1.json
   def destroy
-    @character = current_user.characters.find(params[:id])
-    @character.destroy
+    @character = current_user.characters.active.find(params[:id])
+    @character.update!(deleted_at: Time.current)
 
     # Respond with Turbo Stream
     respond_to do |format|
@@ -149,17 +149,17 @@ class CharactersController < ApplicationController
           # 1. Remove the character card from the DOM
           turbo_stream.remove(@character),
           # 2. Clear the content of the modal frame
-          turbo_stream.replace("modal", '<turbo-frame id="modal"></turbo-frame>')
+          turbo_stream.update("modal", "")
         ]
       end
-      format.html { redirect_to characters_url, notice: I18n.t("notices.characters.destroyed") }
+      format.html { redirect_to characters_url, notice: I18n.t("notices.characters.destroyed"), status: :see_other }
     end
   end
 
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_character
-      @character = current_user.characters.find(params[:id])
+      @character = current_user.characters.active.find(params[:id])
     end
 
     def set_book

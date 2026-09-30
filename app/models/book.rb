@@ -88,7 +88,7 @@ class Book < ApplicationRecord
 
   # For frontend purposes
   def construction_level
-    return 0 if total_pages.to_i.zero?
+    return 1 if total_pages.to_i.zero?
 
     percent = (current_pages.count.to_f / total_pages * 100).round
     case percent

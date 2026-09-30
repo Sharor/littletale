@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= content_for(:html_lang) || I18n.locale %>">
   <head>
-    <title><%= content_for(:title) || "Little Fables" %></title>
+    <title><%= content_for(:title) || "LittleStories" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -32,9 +32,15 @@
   </head>
 
  <body class="storybook-theme <%= content_for(:body_class) %>">
-    <% flash.each do |type, message| %>
-      <p class="fable-ui fable-notice m-4 p-3" role="<%= type.to_s == "alert" ? "alert" : "status" %>"><%= message %></p>
-    <% end %>
+    <div class="fable-flash-stack">
+      <% flash.each do |type, message| %>
+        <div class="fable-ui fable-notice fable-flash">
+          <p role="<%= type.to_s == "alert" ? "alert" : "status" %>"><%= message %></p>
+          <button type="button" class="fable-dialog-close" aria-label="<%= t("common.close") %>"
+            onclick="this.closest('.fable-flash').remove()">×</button>
+        </div>
+      <% end %>
+    </div>
     <% if current_user&.admin? && (controller_path.start_with?("admin/") || controller_path == "console") %>
       <div class="fable-layout">
         <%= render "layouts/sidebar" %>

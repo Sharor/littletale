@@ -1,0 +1,14 @@
+<main class="max-w-6xl mx-auto space-y-6">
+  <h1><%= t("admin.characters.title") %></h1>
+  <% if @characters.empty? %>
+    <p><%= t("admin.characters.empty") %></p>
+  <% end %>
+  <% @characters.each do |character| %>
+    <article class="fable-panel">
+      <h2><%= character.name %></h2>
+      <p><%= character.user.email %></p>
+      <p><%= l(character.deleted_at, format: :short) %></p>
+      <%= button_to t("admin.characters.restore"), restore_admin_character_path(character), method: :post %>
+    </article>
+  <% end %>
+</main>

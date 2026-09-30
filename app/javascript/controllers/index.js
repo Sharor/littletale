@@ -15,3 +15,6 @@ application.register("tabs", TabsController)
 application.register("art-style-picker", ArtStylePickerController)
 application.register("gift-message", GiftMessageController)
 application.register("gift-modal", GiftModalController)
+
+import CharacterDeleteController from "./character_delete_controller"
+application.register("character-delete", CharacterDeleteController)

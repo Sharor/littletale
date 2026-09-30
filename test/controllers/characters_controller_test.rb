@@ -145,4 +145,51 @@ class CharactersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
   end
+  test "deleting a character preserves its record image and existing book membership" do
+    illustration_id = @character.illustration.id
+    book = @character.books.first
+    @character.photo.attach(io: File.open(file_fixture("character.png")),
+      filename: "character.png", content_type: "image/png")
+
+    assert_no_difference(["Character.count", "Illustration.count"]) do
+      delete character_url(@character), as: :turbo_stream
+    end
+
+    assert_response :success
+    assert_not_nil @character.reload.deleted_at
+    assert_equal illustration_id, @character.illustration.id
+    assert @character.photo.attached?
+    assert_includes book.reload.characters, @character
+    assert_select "turbo-stream[action='remove'][target='character_#{@character.id}']"
+    assert_select "turbo-stream[action='update'][target='modal']"
+
+    get characters_url
+    assert_select "#character_#{@character.id}", count: 0
+    get character_url(@character)
+    assert_response :not_found
+    get select_characters_url(book_id: book.id)
+    assert_select "input[value='#{@character.id}']", count: 0
+    get new_book_url(character_ids: [@character.id])
+    assert_response :unprocessable_content
+    post save_selected_characters_url, params: { book_id: book.id, character_ids: [@character.id] }
+    assert_response :unprocessable_content
+  end
+
+  test "HTML deletion returns to the character list" do
+    delete character_url(@character)
+
+    assert_response :see_other
+    assert_redirected_to characters_url
+    assert_not_nil @character.reload.deleted_at
+  end
+
+  test "cannot delete another user's character" do
+    character = Character.create!(name: "Private", user: users(:two))
+
+    delete character_url(character), as: :turbo_stream
+
+    assert_response :not_found
+    assert Character.exists?(character.id)
+  end
+
 end

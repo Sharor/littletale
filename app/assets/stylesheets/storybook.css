@@ -211,7 +211,12 @@
 .fable-dialog-inner { min-width: 0; padding: clamp(1rem, 4vw, 2.5rem); }
 .fable-dialog-heading { display: flex; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
 .fable-ui .fable-dialog-close { display: grid; place-items: center; flex-shrink: 0; min-width: 44px; min-height: 44px; color: var(--fable-wine); text-decoration: none; }
-.fable-delete-overlay { overflow-y: auto; }
+.fable-flash-stack { position: fixed; top: 1rem; right: 1rem; z-index: 80; width: min(28rem, calc(100% - 2rem)); display: grid; gap: .75rem; pointer-events: none; }
+.fable-flash { display: flex; align-items: start; gap: .75rem; padding: .75rem 1rem; box-shadow: 0 8px 24px #4d382733; pointer-events: auto; }
+.fable-flash p { flex: 1; margin: .4rem 0; overflow-wrap: anywhere; }
+.fable-flash .fable-dialog-close, .fable-delete-dialog .fable-dialog-close { padding: 0; background: transparent; border: 0; }
+.fable-delete-dialog { margin: auto; width: min(28rem, calc(100% - 2rem)); padding: 1.5rem; }
+.fable-delete-dialog::backdrop { background: #241b15c9; }
 .fable-delete-dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; color: var(--fable-ink); background: var(--fable-paper); border: 1px solid #b69763; border-radius: 4px; box-shadow: 0 24px 70px #0005; }
 .fable-selection-grid { max-height: 60dvh; overflow-y: auto; padding: .25rem; }
 .fable-selection-grid .peer + div { border-color: #b6976377; border-radius: 3px; }
