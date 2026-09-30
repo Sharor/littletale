@@ -1,6 +1,6 @@
 # Lulu sandbox orders plan
 
-Status: proposed implementation; shorter booklet format confirmed by the user. Planning only. No application code, credential changes, or Lulu orders are part of this planning pass.
+Status: implementation authorized; shorter booklet format confirmed by the user.
 
 ## Intent and approach
 
@@ -41,15 +41,33 @@ The selected example and API contracts come from Lulu's current [OpenAPI specifi
 
 ## Action checklist and milestones
 
-1. [ ] **Confirm the sandbox contract and print proof.** Apply the confirmed saddle-stitch booklet choice, confirm that `credentials.lulu.client` and `credentials.lulu.secret` belong to the separate sandbox account, verify the example preset, its page-count limits and cover template, and identify a reachable asset host. Produce and inspect one English/Danish/Greek PDF proof before building the full flow. Lulu sandbox jobs do not enter real production. [Sandbox documentation](https://help.api.lulu.com/en/support/solutions/articles/64000306383-do-you-have-a-sandbox-environment-)
-2. [ ] **Add the access boundary with failing tests first.** Introduce the flag/policy, sandbox-only configuration, and Orders navigation. Test guests, ordinary users, admins, direct URLs, ownership checks, and flag-off behavior. Keep credentials and tokens server-side and filtered from logs.
-3. [ ] **Persist order drafts and retained editions.** Add reversible migrations for orders and ordered pages; retain images and source metadata. Test snapshot integrity, incomplete books, another owner's book, and later source edits/deletion. Apply migrations in WSL to development and test, then restart Rails/workers without recreating databases.
-4. [ ] **Build the three-step wizard and read/back flow.** Save each step server-side; provide resume, back, validation errors, and the order-scoped reader. Test navigation after refresh and reading, phone/desktop layouts, keyboard use, and all supported UI locales.
-5. [ ] **Generate the print files asynchronously.** Add the approved PDF dependency and bundled licensed fonts. Render interior and cover from the retained revision, round the final interior count up to a multiple of four with minimal blank pages, validate the booklet page limit, store PDFs, and expose authorized preview/download actions. Test dimensions, pagination, fonts, image placement, cover geometry, and stale-job protection.
-6. [ ] **Integrate Lulu validation, shipping, and quotes.** Implement client-credentials authentication with token expiry handling and sandbox-only hosts. Use `/validate-interior/`, `/cover-dimensions/`, `/validate-cover/`, `/shipping-options/`, and `/print-job-cost-calculations/`; poll asynchronous validation with bounded retries. Translate provider errors into the relevant step and invalidate stale quotes when inputs change. Cover contracts with HTTP stubs. [Lulu API specification](https://api.lulu.com/api-docs/openapi-specs/openapi_public.yml)
-7. [ ] **Submit once and track the result.** Recheck access, revision, validation, and quote before POSTing `/print-jobs/`. Lock the submission transition and use a stable local UUID as `external_id`. Persist the returned ID and poll status with bounded intervals. Treat a timeout after submission as an unknown outcome: search and match the exact external ID before an explicit retry. Do not assume `external_id` supplies provider-side idempotency.
-8. [ ] **Run acceptance and sandbox integration checks.** Run focused tests and the full `bin/rails test` suite, plus browser tests for the wizard/reader and flag-off access. With sandbox credentials and reachable synthetic PDFs, exercise authentication, quote, validation, submission, status refresh, and sandbox portal payment simulation. Record provider validation results; never submit a real customer order as a test.
-9. [ ] **Roll out behind the flag.** Document credentials, asset hosting/expiry, sandbox portal payment, enable/disable steps, failed/unknown-order investigation, and worker operation. Enable only for the admin pilot after checks pass. Disabling the flag blocks new preparation/submission while retaining order records and already-issued file capabilities until expiry; production requires a separate future change.
+### Task 1: Confirm the sandbox contract and print proof
+
+Apply the confirmed saddle-stitch booklet choice, confirm that `credentials.lulu.client` and `credentials.lulu.secret` belong to the separate sandbox account, verify the example preset, its page-count limits and cover template, and identify a reachable asset host. Produce and inspect one English/Danish/Greek PDF proof before building the full flow. Lulu sandbox jobs do not enter real production. [Sandbox documentation](https://help.api.lulu.com/en/support/solutions/articles/64000306383-do-you-have-a-sandbox-environment-)
+### Task 2: Add the access boundary with failing tests first
+
+Introduce the flag/policy, sandbox-only configuration, and Orders navigation. Test guests, ordinary users, admins, direct URLs, ownership checks, and flag-off behavior. Keep credentials and tokens server-side and filtered from logs.
+### Task 3: Persist order drafts and retained editions
+
+Add reversible migrations for orders and ordered pages; retain images and source metadata. Test snapshot integrity, incomplete books, another owner's book, and later source edits/deletion. Apply migrations in WSL to development and test, then restart Rails/workers without recreating databases.
+### Task 4: Build the three-step wizard and read/back flow
+
+Save each step server-side; provide resume, back, validation errors, and the order-scoped reader. Test navigation after refresh and reading, phone/desktop layouts, keyboard use, and all supported UI locales.
+### Task 5: Generate the print files asynchronously
+
+Add the approved PDF dependency and bundled licensed fonts. Render interior and cover from the retained revision, round the final interior count up to a multiple of four with minimal blank pages, validate the booklet page limit, store PDFs, and expose authorized preview/download actions. Test dimensions, pagination, fonts, image placement, cover geometry, and stale-job protection.
+### Task 6: Integrate Lulu validation, shipping, and quotes
+
+Implement client-credentials authentication with token expiry handling and sandbox-only hosts. Use `/validate-interior/`, `/cover-dimensions/`, `/validate-cover/`, `/shipping-options/`, and `/print-job-cost-calculations/`; poll asynchronous validation with bounded retries. Translate provider errors into the relevant step and invalidate stale quotes when inputs change. Cover contracts with HTTP stubs. [Lulu API specification](https://api.lulu.com/api-docs/openapi-specs/openapi_public.yml)
+### Task 7: Submit once and track the result
+
+Recheck access, revision, validation, and quote before POSTing `/print-jobs/`. Lock the submission transition and use a stable local UUID as `external_id`. Persist the returned ID and poll status with bounded intervals. Treat a timeout after submission as an unknown outcome: search and match the exact external ID before an explicit retry. Do not assume `external_id` supplies provider-side idempotency.
+### Task 8: Run acceptance and sandbox integration checks
+
+Run focused tests and the full `bin/rails test` suite, plus browser tests for the wizard/reader and flag-off access. With sandbox credentials and reachable synthetic PDFs, exercise authentication, quote, validation, submission, status refresh, and sandbox portal payment simulation. Record provider validation results; never submit a real customer order as a test.
+### Task 9: Roll out behind the flag
+
+Document credentials, asset hosting/expiry, sandbox portal payment, enable/disable steps, failed/unknown-order investigation, and worker operation. Enable only for the admin pilot after checks pass. Disabling the flag blocks new preparation/submission while retaining order records and already-issued file capabilities until expiry; production requires a separate future change.
 
 Milestone exits: steps 1–3 establish the contract and retained data; steps 4–5 deliver the usable flow and PDFs; steps 6–7 deliver the sandbox integration; steps 8–9 prove and enable the admin pilot.
 
