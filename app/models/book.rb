@@ -10,6 +10,7 @@ class Book < ApplicationRecord
   has_many :trial_book_reservations, dependent: :nullify
   has_many :book_credit_reservations, dependent: :nullify
   has_many :book_gifts, foreign_key: :source_book_id, dependent: :nullify, inverse_of: :source_book
+  has_many :print_orders, foreign_key: :source_book_id, dependent: :nullify, inverse_of: :source_book
 
   has_many :book_wardrobe_plans, dependent: :destroy
 
