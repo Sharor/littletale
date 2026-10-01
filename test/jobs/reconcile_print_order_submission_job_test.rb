@@ -15,8 +15,11 @@ class ReconcilePrintOrderSubmissionJobTest < ActiveJob::TestCase
       pod_package_id: PrintOrder::POD_PACKAGE_ID,
       workflow_state: "submission_uncertain",
       submission_uuid: SecureRandom.uuid,
-      submission_uncertain_at: Time.current
+      submission_uncertain_at: Time.current,
+      submission_attempted_at: Time.current,
+      submission_attempts: [ { "external_id" => "placeholder", "outcome" => "pending" } ]
     )
+    @order.update!(submission_attempts: [ { "external_id" => @order.submission_uuid, "outcome" => "pending" } ])
   end
 
   teardown do

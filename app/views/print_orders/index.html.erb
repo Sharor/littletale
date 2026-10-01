@@ -20,10 +20,17 @@
             <div>
               <p class="library-eyebrow"><%= t("print_orders.status.#{order.workflow_state}") %></p>
               <h2><%= order.title %></h2>
+              <% if order.provider_status.present? %>
+                <p data-provider-status="<%= order.provider_status %>">
+                  <%= t("print_orders.provider_statuses.#{order.provider_status.downcase}",
+                    default: order.provider_status.humanize) %>
+                </p>
+              <% end %>
               <p><%= l(order.created_at.to_date, format: :long) %></p>
             </div>
             <% resume_path = order.step >= 3 ? options_print_order_path(order) : (order.step == 2 ? address_print_order_path(order) : print_order_path(order)) %>
-            <%= link_to t("print_orders.index.resume"), resume_path, class: "print-orders-secondary" %>
+            <%= link_to t(order.submission_started? ? "print_orders.index.view" : "print_orders.index.resume"),
+              resume_path, class: "print-orders-secondary" %>
           </article>
         <% end %>
       </div>

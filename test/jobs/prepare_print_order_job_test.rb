@@ -2,6 +2,7 @@
 
 require "test_helper"
 require "pdf/reader"
+require "minitest/mock"
 
 class PreparePrintOrderJobTest < ActiveJob::TestCase
   setup do
@@ -48,5 +49,22 @@ class PreparePrintOrderJobTest < ActiveJob::TestCase
     assert_not @order.interior_pdf.attached?
     assert_not @order.cover_pdf.attached?
     assert_equal "draft", @order.workflow_state
+  end
+
+  test "records an expected rendering failure and leaves preparation retryable" do
+    renderer = Object.new
+    renderer.define_singleton_method(:render) do
+      raise Lulu::BookletPdf::RenderingError, "corrupt retained image"
+    end
+
+    Lulu::BookletPdf.stub(:new, renderer) do
+      PreparePrintOrderJob.perform_now(@order.id, @order.content_revision)
+    end
+
+    @order.reload
+    assert_equal "failed", @order.workflow_state
+    assert_match(/could not be built/i, @order.failure_message)
+    assert_not @order.interior_pdf.attached?
+    assert @order.editable?
   end
 end

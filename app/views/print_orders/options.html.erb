@@ -22,7 +22,9 @@
           <%= @order.postcode %> <%= @order.city %><br>
           <%= @order.country_code %>
         </address>
-        <%= link_to t("print_orders.options.edit_address"), address_print_order_path(@order), class: "print-orders-secondary" %>
+        <% if @order.editable? %>
+          <%= link_to t("print_orders.options.edit_address"), address_print_order_path(@order), class: "print-orders-secondary" %>
+        <% end %>
       </section>
     </div>
 
@@ -53,8 +55,10 @@
         </div>
       <% else %>
         <p><%= @order.failure_message.presence || t("print_orders.options.preview_help") %></p>
-        <%= button_to t("print_orders.options.prepare"), prepare_print_order_path(@order), method: :post,
-          class: "print-orders-primary", disabled: @order.workflow_state == "preparing" %>
+        <% if @order.editable? %>
+          <%= button_to t("print_orders.options.prepare"), prepare_print_order_path(@order), method: :post,
+            class: "print-orders-primary", disabled: @order.workflow_state == "preparing" %>
+        <% end %>
       <% end %>
     </section>
 
@@ -74,39 +78,72 @@
           <% if @order.validation_state == "validating" %>
             <p><%= t("print_orders.options.validating") %></p>
           <% elsif @order.validation_current? %>
-            <%= form_with url: quote_print_order_path(@order), method: :post, class: "print-order-shipping-form" do |form| %>
-              <fieldset>
-                <legend><%= t("print_orders.options.shipping_legend") %></legend>
-                <div class="print-order-shipping-options">
-                  <% @order.shipping_options.each do |option| %>
-                    <% level = option.fetch("level") %>
-                    <label data-shipping-option="<%= level %>">
-                      <%= form.radio_button :shipping_option, level,
-                        checked: @order.shipping_option == level || (@order.shipping_option.blank? && @order.shipping_options.one?) %>
-                      <span>
-                        <strong><%= t("print_orders.shipping_levels.#{level.downcase}", default: level.humanize) %></strong>
-                        <% if option["cost_excl_tax"].present? %>
-                          <%= option["cost_excl_tax"] %> <%= option["currency"] %>
-                        <% end %>
-                        <% if option["total_days_min"].present? && option["total_days_max"].present? %>
-                          · <%= t("print_orders.options.business_days", min: option["total_days_min"], max: option["total_days_max"]) %>
-                        <% end %>
-                      </span>
-                    </label>
-                  <% end %>
-                </div>
-              </fieldset>
-              <%= form.submit t("print_orders.options.request_quote"), class: "print-orders-primary",
-                disabled: @order.workflow_state == "quoting" %>
+            <% if @order.editable? %>
+              <%= form_with url: quote_print_order_path(@order), method: :post, class: "print-order-shipping-form" do |form| %>
+                <fieldset>
+                  <legend><%= t("print_orders.options.shipping_legend") %></legend>
+                  <div class="print-order-shipping-options">
+                    <% @order.shipping_options.each do |option| %>
+                      <% level = option.fetch("level") %>
+                      <label data-shipping-option="<%= level %>">
+                        <%= form.radio_button :shipping_option, level,
+                          checked: @order.shipping_option == level || (@order.shipping_option.blank? && @order.shipping_options.one?) %>
+                        <span>
+                          <strong><%= t("print_orders.shipping_levels.#{level.downcase}", default: level.humanize) %></strong>
+                          <% if option["cost_excl_tax"].present? %>
+                            <%= option["cost_excl_tax"] %> <%= option["currency"] %>
+                          <% end %>
+                          <% if option["total_days_min"].present? && option["total_days_max"].present? %>
+                            · <%= t("print_orders.options.business_days", min: option["total_days_min"], max: option["total_days_max"]) %>
+                          <% end %>
+                        </span>
+                      </label>
+                    <% end %>
+                  </div>
+                </fieldset>
+                <%= form.submit t("print_orders.options.request_quote"), class: "print-orders-primary",
+                  disabled: @order.workflow_state == "quoting" %>
+              <% end %>
+            <% elsif @order.shipping_option.present? %>
+              <p data-selected-shipping-option="<%= @order.shipping_option %>">
+                <strong><%= t("print_orders.options.shipping_legend") %>:</strong>
+                <%= t("print_orders.shipping_levels.#{@order.shipping_option.downcase}", default: @order.shipping_option.humanize) %>
+              </p>
             <% end %>
 
             <% if @order.quote_current? %>
               <% currency = @order.quote.fetch("currency") %>
               <dl class="print-order-quote">
-                <div>
-                  <dt><%= t("print_orders.options.shipping_cost") %></dt>
-                  <dd><%= @order.quote.dig("shipping_cost", "total_cost_incl_tax") %> <%= currency %></dd>
-                </div>
+                <% @order.quote.fetch("line_item_costs", []).each_with_index do |line_item, index| %>
+                  <div data-print-order-printing="<%= index + 1 %>">
+                    <dt><%= t("print_orders.options.printing") %></dt>
+                    <dd><%= line_item["total_cost_incl_tax"] %> <%= currency %></dd>
+                  </div>
+                <% end %>
+                <% if @order.quote.dig("fulfillment_cost", "total_cost_incl_tax").present? %>
+                  <div data-print-order-fulfillment="<%= @order.quote.dig("fulfillment_cost", "total_cost_incl_tax") %>">
+                    <dt><%= t("print_orders.options.fulfillment") %></dt>
+                    <dd><%= @order.quote.dig("fulfillment_cost", "total_cost_incl_tax") %> <%= currency %></dd>
+                  </div>
+                  <% end %>
+                <% @order.quote.fetch("fees", []).reject { |fee| fee["fee_type"] == "FULFILLMENT_FEE" }.each do |fee| %>
+                  <div data-print-order-fee="<%= fee["fee_type"] %>">
+                    <dt><%= t("print_orders.options.provider_fee", fee: fee["fee_type"].to_s.humanize) %></dt>
+                    <dd><%= fee["total_cost_incl_tax"] %> <%= currency %></dd>
+                  </div>
+                <% end %>
+                <% if @order.quote.dig("shipping_cost", "total_cost_incl_tax").present? %>
+                  <div>
+                    <dt><%= t("print_orders.options.shipping_cost") %></dt>
+                    <dd><%= @order.quote.dig("shipping_cost", "total_cost_incl_tax") %> <%= currency %></dd>
+                  </div>
+                <% end %>
+                <% if @order.quote["total_discount_amount"].present? %>
+                  <div data-print-order-discount="<%= @order.quote["total_discount_amount"] %>">
+                    <dt><%= t("print_orders.options.discount") %></dt>
+                    <dd>−<%= @order.quote["total_discount_amount"] %> <%= currency %></dd>
+                  </div>
+                <% end %>
                 <div data-print-order-tax="<%= @order.quote["total_tax"] %>">
                   <dt><%= t("print_orders.options.tax") %></dt>
                   <dd><%= @order.quote["total_tax"] %> <%= currency %></dd>
@@ -121,8 +158,10 @@
             <% end %>
           <% else %>
             <p><%= t("print_orders.options.validation_help") %></p>
-            <%= button_to t("print_orders.options.validate"), validate_files_print_order_path(@order), method: :post,
-              class: "print-orders-primary" %>
+            <% if @order.editable? %>
+              <%= button_to t("print_orders.options.validate"), validate_files_print_order_path(@order), method: :post,
+                class: "print-orders-primary" %>
+            <% end %>
           <% end %>
         <% end %>
       </section>
@@ -142,6 +181,10 @@
             class: "print-orders-secondary" %>
         <% elsif @order.workflow_state == "submitting" %>
           <p><%= t("print_orders.options.submitting") %></p>
+        <% elsif @order.retryable_submission? %>
+          <p class="fable-notice" role="alert"><%= @order.failure_message %></p>
+          <%= button_to t("print_orders.options.retry_submission"), retry_submission_print_order_path(@order),
+            method: :post, class: "print-orders-primary" %>
         <% elsif @order.workflow_state.in?(%w[submission_uncertain submission_needs_review submission_failed]) %>
           <p class="fable-notice" role="alert"><%= @order.failure_message %></p>
         <% elsif @order.submittable? %>

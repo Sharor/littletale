@@ -25,6 +25,8 @@ LULU_ASSET_HOST: "https://littletale.com"
 
 `LULU_ASSET_HOST` must be a public HTTPS origin that routes to this application. Lulu receives artifact-specific signed URLs for the retained interior and cover PDFs. Each URL expires after six hours and exposes no order or delivery data. Normal order pages and PDF previews still require an enabled administrator session.
 
+Rails replaces the signed path segment with `[FILTERED]` in request-start logs, and the production Alloy pipeline applies the same redaction before application and Kamal proxy logs leave the host. Kamal proxy still writes the original request path to its host-local Docker log because it has no per-path suppression setting. Treat access to that host log like access to deployment secrets, retain only its bounded rotation, and do not copy raw proxy entries for `/lulu-files/` into tickets or recordings.
+
 Before enabling the pilot, verify configuration from the deployed Rails console without printing either credential:
 
 ```ruby
@@ -54,17 +56,19 @@ PDF preparation, Lulu file validation, quotes, submission reconciliation, and st
 
 Provider validation and address errors appear on step three. Correct the delivery address or regenerate the files, then request validation and a new quote. A changed address invalidates the previous validation and quote.
 
-Submission uses the order's stable `submission_uuid` as Lulu's `external_id`. If the POST times out, the app marks the result uncertain and searches Lulu for that exact external ID six times. It does not repeat the POST. If the order reaches `submission_needs_review`:
+Immediately before submission, the app requests the quote again. If any stored quote component has changed, the updated estimate is shown and the administrator must confirm it again.
+
+Submission uses the order's stable `submission_uuid` as Lulu's `external_id` and durably records an attempt before contacting Lulu. A timeout, HTTP 408 or 429 response, or provider 5xx response is ambiguous: the app marks the result uncertain and searches Lulu for that exact external ID six times. It does not repeat the POST. If the order reaches `submission_needs_review`:
 
 1. Copy the local `submission_uuid` from an authorized Rails console without copying the delivery address.
 2. Search the Lulu sandbox portal or API for the exact external ID.
 3. If Lulu has the job, record its ID and status through a reviewed repair rather than submitting again.
 4. If Lulu has no job, investigate the original response and logs before permitting a new explicit submission. Never clear the UUID merely to retry an uncertain request.
 
-Known provider rejections end in `submission_failed` and retain the sanitized provider message. Submitted jobs are polled until a terminal or action-required status such as `UNPAID`, `REJECTED`, `ERROR`, `SHIPPED`, or `CANCELED`; an administrator can request another status refresh from the order.
+Known provider rejections end in `submission_failed` and retain the sanitized provider message and attempt history. **Review and retry** clears the rejected request identifier, invalidates validation and the quote, and requires the administrator to validate, quote, and confirm again. It is unavailable for uncertain submissions. Submitted jobs are polled until a terminal or action-required status such as `UNPAID`, `REJECTED`, `ERROR`, `SHIPPED`, or `CANCELED`; an administrator can request another status refresh from the order.
 
 ## Disable and rollback
 
 Set `LULU_ORDERS_ENABLED` to `"false"` and redeploy to remove Orders from navigation and block order routes plus all mutating Lulu jobs. Existing order records and retained files remain. Signed artifact URLs already issued remain usable only until their six-hour expiry.
 
-Do not roll back the three print-order migrations to disable the pilot. A code rollback does not reverse submitted Lulu jobs, and removing the tables would destroy retained editions and reconciliation identifiers. Preserve the data and disable the flag while any sandbox job is being investigated.
+Do not roll back the print-order migrations to disable the pilot. A code rollback does not reverse submitted Lulu jobs, and removing the tables would destroy retained editions, attempt history, and reconciliation identifiers. Preserve the data and disable the flag while any sandbox job is being investigated.

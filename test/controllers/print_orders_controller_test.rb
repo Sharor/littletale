@@ -34,6 +34,22 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "orders list shows provider status and a view action after submission" do
+    order = PrintOrder.start_for!(user: @admin, book: @book)
+    order.update!(
+      step: 3,
+      workflow_state: "submitted",
+      submission_uuid: SecureRandom.uuid,
+      lulu_print_job_id: "551",
+      provider_status: "UNPAID"
+    )
+
+    with_lulu_orders_enabled { get "/orders" }
+
+    assert_select "[data-provider-status='UNPAID']", text: /Awaiting sandbox payment/
+    assert_select "a[href='/orders/#{order.id}/options']", text: "View order"
+  end
+
   test "enabled ordinary users cannot see or open orders" do
     @admin.update!(admin: false)
 
@@ -75,7 +91,7 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_select "form[action='/orders']" do
         assert_select "input[type='radio'][name='book_id'][value='#{@book.id}']"
-        assert_select "a[href='#{book_path(@book)}']", text: "Read book"
+        assert_select "a[href='#{book_path(@book)}']", count: 0
       end
 
       assert_difference("PrintOrder.count", 1) do
@@ -258,7 +274,14 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
       shipping_option: "MAIL",
       quote: {
         "currency" => "EUR", "total_cost_incl_tax" => "14.80", "total_tax" => "2.96",
-        "shipping_cost" => { "total_cost_incl_tax" => "5.00" }
+        "total_discount_amount" => "1.00",
+        "line_item_costs" => [ { "quantity" => 1, "total_cost_incl_tax" => "8.00" } ],
+        "fulfillment_cost" => { "total_cost_incl_tax" => "0.80" },
+        "shipping_cost" => { "total_cost_incl_tax" => "5.00" },
+        "fees" => [
+          { "fee_type" => "HANDLING_FEE", "total_cost_incl_tax" => "1.00" },
+          { "fee_type" => "FULFILLMENT_FEE", "total_cost_incl_tax" => "0.80" }
+        ]
       },
       quote_revision: order.checkout_revision,
       quoted_at: Time.current,
@@ -271,6 +294,11 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-shipping-option='MAIL']", text: /Mail.*4.25 EUR.*7–12 business days/m
+    assert_select "[data-print-order-printing='1']", text: /8.00 EUR/
+    assert_select "[data-print-order-fulfillment='0.80']", text: /0.80 EUR/
+    assert_select "[data-print-order-fee='HANDLING_FEE']", text: /1.00 EUR/
+    assert_select "[data-print-order-fee='FULFILLMENT_FEE']", count: 0
+    assert_select "[data-print-order-discount='1.00']", text: /−1.00 EUR/
     assert_select "[data-print-order-total='14.80']", text: /14.80 EUR/
     assert_select "[data-print-order-tax='2.96']", text: /2.96 EUR/
   end
@@ -340,6 +368,54 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to "/orders/#{order.id}/options"
+  end
+
+  test "submission locks delivery editing in routes and the review page" do
+    order = submittable_order
+    order.update!(workflow_state: "submitting", submission_uuid: SecureRandom.uuid)
+
+    with_lulu_asset_host do
+      with_lulu_orders_enabled do
+        get "/orders/#{order.id}/address"
+        assert_redirected_to "/orders/#{order.id}/options"
+
+        patch "/orders/#{order.id}/address", params: { print_order: { street1: "Changed Road 2" } }
+        assert_redirected_to "/orders/#{order.id}/options"
+
+        get "/orders/#{order.id}/options"
+      end
+    end
+
+    assert_equal "Story Lane 4", order.reload.street1
+    assert_select "a[href='/orders/#{order.id}/address']", count: 0
+    assert_select "form[action='/orders/#{order.id}/prepare']", count: 0
+    assert_select "form[action='/orders/#{order.id}/validate_files']", count: 0
+    assert_select "form[action='/orders/#{order.id}/quote']", count: 0
+  end
+
+  test "a confirmed rejection offers an explicit audited retry" do
+    order = submittable_order
+    external_id = SecureRandom.uuid
+    order.update!(
+      workflow_state: "submission_failed",
+      submission_uuid: external_id,
+      submission_attempted_at: 1.minute.ago,
+      submission_attempts: [ { "external_id" => external_id, "outcome" => "rejected" } ],
+      failure_message: "Lulu rejected the address"
+    )
+
+    with_lulu_orders_enabled do
+      get "/orders/#{order.id}/options"
+      assert_select "form[action='/orders/#{order.id}/retry_submission'] button", text: "Review and retry"
+
+      post "/orders/#{order.id}/retry_submission"
+    end
+
+    assert_redirected_to "/orders/#{order.id}/options"
+    order.reload
+    assert_nil order.submission_uuid
+    assert_equal "not_started", order.validation_state
+    assert_equal external_id, order.submission_attempts.last.fetch("external_id")
   end
 
   private

@@ -9,6 +9,7 @@ en:
       empty: Start an order by choosing one of your completed books.
       new: Start a book order
       resume: Resume order
+      view: View order
     steps:
       label: Order steps
       book: Choose book
@@ -21,7 +22,6 @@ en:
       pages:
         one: 1 story page
         other: "%{count} story pages"
-      read: Read book
       choose: Save selected book
       empty: There are no completed, fully illustrated books available to print.
     show:
@@ -88,7 +88,11 @@ en:
       business_days: "%{min}–%{max} business days"
       request_quote: Calculate exact price
       quoting: Lulu is calculating the price, tax, and delivery cost.
+      printing: Book printing
+      fulfillment: Fulfillment
+      provider_fee: "%{fee}"
       shipping_cost: Delivery
+      discount: Discount
       tax: Tax
       total: Total
       sandbox_label: Lulu sandbox order
@@ -98,6 +102,7 @@ en:
       submitting: The sandbox order is being created. Please do not submit it again.
       lulu_job_id: "Lulu job #%{id}"
       refresh_status: Refresh Lulu status
+      retry_submission: Review and retry
     shipping_levels:
       mail: Mail
       priority_mail: Priority mail
@@ -122,6 +127,7 @@ en:
       submission_uncertain: Checking submission
       submission_needs_review: Manual review needed
       submission_failed: Submission failed
+      quote_changed: Quote changed
     provider_statuses:
       created: Lulu is validating the order
       unpaid: Awaiting sandbox payment
@@ -139,10 +145,12 @@ en:
       quoting: Lulu sandbox is calculating the exact price.
       submitting: The Lulu sandbox order is being created.
       refreshing_status: Lulu status refresh has been queued.
+      retry_submission: The rejected attempt is preserved. Revalidate and request a fresh quote before confirming again.
     errors:
       ineligible_book: Choose one of your completed, fully illustrated books.
       complete_address: Complete the delivery address before choosing print options.
       preparation_queue: The print preview could not be queued. Please try again.
+      preparation_failed: The print preview could not be built from the retained book. Check its images and try again.
       asset_host: Configure a public HTTPS asset host before requesting Lulu validation.
       validation_queue: Lulu validation could not be queued. Please try again.
       quote_queue: The price request could not be queued. Please try again.
@@ -156,5 +164,8 @@ en:
       not_submittable: Revalidate the files and request a current quote before placing the order.
       submission_uncertain: Lulu may have received this order. The app is checking the exact order reference and will not submit it again automatically.
       submission_not_confirmed: Lulu could not confirm whether it received this order. Review it in the sandbox portal before taking further action.
+      quote_changed: Lulu returned a different total. Review the updated quote and confirm the order again.
+      submission_locked: This order is read only because submission has started.
+      retry_submission: Only a confirmed rejected submission can be retried.
       status_refresh: "Lulu status could not be refreshed: %{message}"
       status_queue: Lulu status refresh could not be queued. Please try again.

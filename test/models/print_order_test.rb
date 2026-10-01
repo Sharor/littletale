@@ -95,4 +95,47 @@ class PrintOrderTest < ActiveSupport::TestCase
     assert_equal "not_started", order.validation_state
     assert_empty order.validation_details
   end
+
+  test "delivery details become read only after submission starts" do
+    order = PrintOrder.start_for!(user: @admin, book: @book)
+    order.update!(
+      recipient_name: "A Reader", street1: "Old Road 1", city: "Copenhagen", postcode: "2100",
+      country_code: "DK", recipient_email: "reader@example.com", phone_number: "+45 12345678",
+      submission_uuid: SecureRandom.uuid, workflow_state: "submitting"
+    )
+
+    refute order.save_delivery_address(street1: "Changed Road 2")
+
+    assert_predicate order.errors[:base], :present?
+    assert_equal "Old Road 1", order.reload.street1
+  end
+
+  test "a confirmed rejection can be reopened with a fresh checkout and preserved audit history" do
+    order = PrintOrder.start_for!(user: @admin, book: @book)
+    external_id = SecureRandom.uuid
+    order.update!(
+      workflow_state: "submission_failed",
+      submission_uuid: external_id,
+      submission_attempted_at: 1.minute.ago,
+      submission_attempts: [ { "external_id" => external_id, "outcome" => "rejected" } ],
+      validation_state: "validated",
+      validation_details: { "content_revision" => 1, "checkout_revision" => 1 },
+      shipping_option: "MAIL",
+      quote: { "currency" => "EUR", "total_cost_incl_tax" => "14.80" },
+      quote_revision: 1,
+      failure_message: "Rejected"
+    )
+    previous_checkout_revision = order.checkout_revision
+
+    assert order.retry_submission!
+
+    order.reload
+    assert_nil order.submission_uuid
+    assert_nil order.submission_attempted_at
+    assert_equal previous_checkout_revision + 1, order.checkout_revision
+    assert_equal "not_started", order.validation_state
+    assert_empty order.quote
+    assert_equal external_id, order.submission_attempts.last.fetch("external_id")
+    assert_equal "rejected", order.submission_attempts.last.fetch("outcome")
+  end
 end

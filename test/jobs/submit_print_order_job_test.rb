@@ -42,7 +42,7 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
   end
 
   test "submits the exact retained revision once and persists Lulu's id" do
-    client = SuccessfulSubmissionClient.new
+    client = preserve_current_quote(SuccessfulSubmissionClient.new)
 
     Lulu::Client.stub(:new, client) do
       SubmitPrintOrderJob.perform_now(
@@ -63,8 +63,82 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
       URI(client.payload.dig(:line_items, 0, :printable_normalization, :interior, :source_url)).host
   end
 
-  test "a transport timeout becomes uncertain and only enqueues reconciliation" do
+  test "a duplicate delivery cannot post after the first delivery claims the submission" do
+    calls = 0
+    nested = false
+    order_id = @order.id
+    content_revision = @order.content_revision
+    checkout_revision = @order.checkout_revision
+    submission_uuid = @order.submission_uuid
+    client = preserve_current_quote(Object.new)
+    client.define_singleton_method(:create_print_job) do |**payload|
+      calls += 1
+      unless nested
+        nested = true
+        SubmitPrintOrderJob.perform_now(
+          order_id, content_revision, checkout_revision, submission_uuid
+        )
+      end
+      { "id" => 551, "external_id" => payload.fetch(:external_id), "status" => { "name" => "UNPAID" } }
+    end
+
+    Lulu::Client.stub(:new, client) do
+      SubmitPrintOrderJob.perform_now(
+        @order.id, @order.content_revision, @order.checkout_revision, @order.submission_uuid
+      )
+    end
+
+    assert_equal 1, calls
+    assert_equal "551", @order.reload.lulu_print_job_id
+  end
+
+  test "a redelivery after the provider response reconciles instead of posting again" do
+    calls = 0
+    client = preserve_current_quote(Object.new)
+    client.define_singleton_method(:create_print_job) do |**|
+      calls += 1
+      {}
+    end
+
+    Lulu::Client.stub(:new, client) do
+      assert_raises(KeyError) do
+        SubmitPrintOrderJob.perform_now(
+          @order.id, @order.content_revision, @order.checkout_revision, @order.submission_uuid
+        )
+      end
+      SubmitPrintOrderJob.perform_now(
+        @order.id, @order.content_revision, @order.checkout_revision, @order.submission_uuid
+      )
+    end
+
+    assert_equal 1, calls
+    assert_nil @order.reload.lulu_print_job_id
+  end
+
+  test "a changed provider quote requires another confirmation before submission" do
     client = Object.new
+    client.define_singleton_method(:cost_calculation) do |**|
+      { "currency" => "EUR", "total_cost_incl_tax" => "15.80", "total_tax" => "3.16",
+        "shipping_cost" => { "total_cost_incl_tax" => "5.00" } }
+    end
+    client.define_singleton_method(:create_print_job) { |**| raise "changed quote was submitted" }
+
+    Lulu::Client.stub(:new, client) do
+      SubmitPrintOrderJob.perform_now(
+        @order.id, @order.content_revision, @order.checkout_revision, @order.submission_uuid
+      )
+    end
+
+    @order.reload
+    assert_equal "quote_changed", @order.workflow_state
+    assert_equal "15.80", @order.quote.fetch("total_cost_incl_tax")
+    assert_nil @order.submission_uuid
+    assert_nil @order.submission_attempted_at
+    assert_empty @order.submission_attempts
+  end
+
+  test "a transport timeout becomes uncertain and only enqueues reconciliation" do
+    client = preserve_current_quote(Object.new)
     client.define_singleton_method(:create_print_job) do |**|
       raise Lulu::Client::RequestError.new(status: 0, details: "The Lulu sandbox did not respond.")
     end
@@ -86,8 +160,29 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
     assert_nil @order.lulu_print_job_id
   end
 
+  test "an ambiguous provider response becomes uncertain and only enqueues reconciliation" do
+    client = preserve_current_quote(Object.new)
+    client.define_singleton_method(:create_print_job) do |**|
+      raise Lulu::Client::RequestError.new(status: 503, details: "Service unavailable")
+    end
+
+    Lulu::Client.stub(:new, client) do
+      assert_enqueued_with(
+        job: ReconcilePrintOrderSubmissionJob,
+        args: [ @order.id, @order.content_revision, @order.checkout_revision, @order.submission_uuid, 0 ]
+      ) do
+        SubmitPrintOrderJob.perform_now(
+          @order.id, @order.content_revision, @order.checkout_revision, @order.submission_uuid
+        )
+      end
+    end
+
+    assert_equal "submission_uncertain", @order.reload.workflow_state
+    assert_predicate @order.submission_uncertain_at, :present?
+  end
+
   test "does not submit a stale checkout revision" do
-    client = Object.new
+    client = preserve_current_quote(Object.new)
     client.define_singleton_method(:create_print_job) { |**| flunk "stale job contacted Lulu" }
 
     Lulu::Client.stub(:new, client) do
@@ -99,14 +194,14 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
     assert_nil @order.reload.lulu_print_job_id
   end
 
-  test "a definite provider rejection fails without reconciliation" do
-    client = Object.new
+  test "a definite provider rejection fails without another submission" do
+    client = preserve_current_quote(Object.new)
     client.define_singleton_method(:create_print_job) do |**|
       raise Lulu::Client::RequestError.new(status: 400, details: { "shipping_address" => [ "Invalid" ] })
     end
 
     Lulu::Client.stub(:new, client) do
-      assert_no_enqueued_jobs do
+      assert_enqueued_with(job: ReconcilePrintOrderSubmissionJob) do
         SubmitPrintOrderJob.perform_now(
           @order.id, @order.content_revision, @order.checkout_revision, @order.submission_uuid
         )
@@ -117,6 +212,7 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
     assert_equal "submission_failed", @order.workflow_state
     assert_match(/shipping_address: Invalid/, @order.failure_message)
     assert_nil @order.submission_uncertain_at
+    assert_equal "rejected", @order.submission_attempts.last.fetch("outcome")
   end
 
   class SuccessfulSubmissionClient
@@ -126,5 +222,13 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
       @payload = payload
       { "id" => 551, "external_id" => payload.fetch(:external_id), "status" => { "name" => "UNPAID" } }
     end
+  end
+
+  private
+
+  def preserve_current_quote(client)
+    quote = @order.quote.deep_dup
+    client.define_singleton_method(:cost_calculation) { |**| quote }
+    client
   end
 end

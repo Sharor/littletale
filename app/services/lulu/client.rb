@@ -12,23 +12,51 @@ module Lulu
     class ConfigurationError < StandardError; end
 
     class RequestError < StandardError
+      SENSITIVE_KEYS = %w[
+        access_token authorization city client_secret contact_email country country_code email name password phone_number
+        postcode recipient_email recipient_name secret source_url state state_code street1 street2 token
+      ].freeze
+      MAX_DESCRIPTION_LENGTH = 1_000
       attr_reader :status, :details
 
       def initialize(status:, details:)
         @status = status
-        @details = details
-        super("Lulu request failed (#{status}): #{self.class.describe(details)}")
+        @details = self.class.sanitize(details)
+        super("Lulu request failed (#{status}): #{self.class.describe(@details)}")
       end
 
       def self.describe(details)
-        case details
+        description = case details
         when Hash
-          details.flat_map { |key, value| Array(value).map { |item| "#{key}: #{item}" } }.join(", ")
+          details.flat_map do |key, value|
+            values = value.is_a?(Array) ? value : [ value ]
+            values.map { |item| "#{key}: #{item.is_a?(Hash) ? describe(item) : item}" }
+          end.join(", ")
         when Array
-          details.join(", ")
+          details.map { |item| item.is_a?(Hash) ? describe(item) : item }.join(", ")
         else
           details.to_s
-        end.presence || "No provider details were returned."
+        end
+        (description.presence || "No provider details were returned.").truncate(MAX_DESCRIPTION_LENGTH)
+      end
+
+      def self.sanitize(value, key = nil)
+        return "[FILTERED]" if key && SENSITIVE_KEYS.include?(key.to_s.downcase)
+
+        case value
+        when Hash
+          value.to_h { |nested_key, nested_value| [ nested_key, sanitize(nested_value, nested_key) ] }
+        when Array
+          value.map { |item| sanitize(item) }
+        when String
+          value
+            .gsub(%r{https?://[^\s"'<>\]]+}, "[FILTERED]")
+            .gsub(/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i, "[FILTERED]")
+            .gsub(/(?<!\w)\+?\d[\d\s().\-]{6,}\d/, "[FILTERED]")
+            .truncate(MAX_DESCRIPTION_LENGTH)
+        else
+          value
+        end
       end
     end
 

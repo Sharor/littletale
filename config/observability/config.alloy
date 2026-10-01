@@ -105,5 +105,9 @@ loki.process "redact" {
     expression = "(/gifts/)([^ ?\\\"]+)"
     replace    = "[FILTERED]"
   }
+  stage.replace {
+    expression = "/lulu-files/([^/ ?\\\"]+)"
+    replace    = "[FILTERED]"
+  }
   forward_to = [loki.write.backend.receiver]
 }

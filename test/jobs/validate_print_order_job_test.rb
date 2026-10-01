@@ -90,7 +90,9 @@ class ValidatePrintOrderJobTest < ActiveJob::TestCase
     )
     client = FakeValidationClient.new
     client.define_singleton_method(:interior_validation) do |id|
-      { "id" => id, "status" => "ERROR", "errors" => [ "Trim size is invalid." ] }
+      { "id" => id, "status" => "ERROR", "errors" => [
+        "Trim size is invalid at https://assets.example.test/private-token for reader@example.com."
+      ] }
     end
 
     Lulu::Client.stub(:new, client) do
@@ -100,6 +102,8 @@ class ValidatePrintOrderJobTest < ActiveJob::TestCase
     @order.reload
     assert_equal "failed", @order.validation_state
     assert_match(/interior: Trim size is invalid/, @order.failure_message)
+    assert_not_includes @order.failure_message, "private-token"
+    assert_not_includes @order.failure_message, "reader@example.com"
   end
 
   class FakeValidationClient

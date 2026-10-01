@@ -5,6 +5,7 @@ require "prawn"
 module Lulu
   class BookletPdf
     class PageLimitExceeded < StandardError; end
+    class RenderingError < StandardError; end
 
     Result = Data.define(:interior, :cover, :page_count, :blank_page_count)
 
@@ -27,6 +28,9 @@ module Lulu
         page_count:,
         blank_page_count:
       )
+    rescue Prawn::Errors::CannotFit, Prawn::Errors::IncompatibleStringEncoding,
+           Prawn::Errors::UnknownFont, Prawn::Errors::UnsupportedImageType, Errno::ENOENT => error
+      raise RenderingError, error.message
     end
 
     private

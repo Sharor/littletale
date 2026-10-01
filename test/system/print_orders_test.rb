@@ -32,10 +32,6 @@ class PrintOrdersTest < ApplicationSystemTestCase
     visit print_orders_url
     click_link "Start a book order"
 
-    within("article", text: @book.name) { click_link "Read book" }
-    assert_selector "#storybook h1", text: /#{Regexp.escape(@book.name)}/i
-    page.go_back
-
     choose "book_id_#{@book.id}"
     click_button "Save selected book"
     assert_text @book.name

@@ -45,6 +45,22 @@ class PrintOrderArtifactsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "application/pdf", response.media_type
   end
 
+  test "filters the signed capability from actual request logs" do
+    url = Lulu::ArtifactUrl.for(order: @order, kind: :interior)
+    token = URI(url).path.split("/")[2]
+    output = StringIO.new
+    previous_logger = Rails.logger
+    Rails.logger = ActiveSupport::TaggedLogging.new(Logger.new(output))
+
+    get URI(url).request_uri
+
+    assert_response :success
+    assert_includes output.string, "/lulu-files/[FILTERED]/interior.pdf"
+    assert_not_includes output.string, token
+  ensure
+    Rails.logger = previous_logger
+  end
+
   test "rejects a tampered artifact token" do
     url = Lulu::ArtifactUrl.for(order: @order, kind: :cover)
     uri = URI(url)

@@ -246,6 +246,31 @@ class Lulu::ClientTest < ActiveSupport::TestCase
     assert_not_includes error.message, "sandbox-secret"
   end
 
+  test "redacts delivery details and signed URLs from provider errors" do
+    stub_token
+    signed_url = "https://assets.example.test/lulu-files/private-token/interior.pdf"
+    stub_request(:post, "#{BASE_URL}/cover-dimensions/")
+      .to_return(status: 400, headers: json_headers, body: {
+        shipping_address: {
+          name: "A Reader", street1: "Story Lane 4", city: "Copenhagen",
+          email: "reader@example.com", phone_number: "+45 12345678"
+        },
+        source_url: signed_url,
+        detail: "Could not fetch #{signed_url} for reader@example.com"
+      }.to_json)
+
+    error = assert_raises(Lulu::Client::RequestError) do
+      @client.cover_dimensions(pod_package_id: PrintOrder::POD_PACKAGE_ID, interior_page_count: 4)
+    end
+
+    [ "A Reader", "Story Lane 4", "Copenhagen", "reader@example.com", "+45 12345678",
+      "private-token", signed_url ].each do |secret|
+      assert_not_includes error.details.to_s, secret
+      assert_not_includes error.message, secret
+    end
+    assert_includes error.message, "[FILTERED]"
+  end
+
   private
 
   def stub_token(token: "sandbox-token", expires_in: 300)

@@ -95,8 +95,8 @@ class ValidatePrintOrderJob < ApplicationJob
           "cover_id" => cover.fetch("id"),
           "interior_status" => interior["status"],
           "cover_status" => cover["status"],
-          "interior_errors" => Array(interior["errors"]),
-          "cover_errors" => Array(cover["errors"])
+          "interior_errors" => sanitized_errors(interior["errors"]),
+          "cover_errors" => sanitized_errors(cover["errors"])
         ),
         failure_message: nil
       )
@@ -106,9 +106,13 @@ class ValidatePrintOrderJob < ApplicationJob
 
   def validation_statuses(interior, cover)
     {
-      "interior" => { "status" => interior["status"], "errors" => Array(interior["errors"]) },
-      "cover" => { "status" => cover["status"], "errors" => Array(cover["errors"]) }
+      "interior" => { "status" => interior["status"], "errors" => sanitized_errors(interior["errors"]) },
+      "cover" => { "status" => cover["status"], "errors" => sanitized_errors(cover["errors"]) }
     }
+  end
+
+  def sanitized_errors(errors)
+    Array(errors).map { |error| Lulu::Client::RequestError.sanitize(error).to_s }
   end
 
   def validation_error_message(statuses)

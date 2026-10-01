@@ -70,6 +70,11 @@ class PrintOrder < ApplicationRecord
   end
 
   def save_delivery_address(attributes)
+    unless editable?
+      errors.add(:base, I18n.t("print_orders.errors.submission_locked"))
+      return false
+    end
+
     assign_attributes(attributes)
     normalize_delivery_address
     return false unless valid?(:delivery)
@@ -102,6 +107,27 @@ class PrintOrder < ApplicationRecord
     submission_uuid.present?
   end
 
+  def editable?
+    !submission_started? && lulu_print_job_id.blank?
+  end
+
+  def retryable_submission?
+    workflow_state == "submission_failed" && submission_started? && lulu_print_job_id.blank?
+  end
+
+  def retry_submission!
+    with_lock do
+      return false unless retryable_submission?
+
+      self.submission_uuid = nil
+      self.submission_attempted_at = nil
+      self.submission_uncertain_at = nil
+      invalidate_checkout!
+      save!
+    end
+    true
+  end
+
   def submittable?
     quote_current? && shipping_option.present? && !submission_started? && lulu_print_job_id.blank?
   end
@@ -130,6 +156,7 @@ class PrintOrder < ApplicationRecord
 
   def enqueue_preparation!
     with_lock do
+      return false unless editable?
       return true if artifacts_current?
       return false unless address_complete?
 
@@ -147,6 +174,7 @@ class PrintOrder < ApplicationRecord
 
   def enqueue_validation!
     with_lock do
+      return false unless editable?
       return true if validation_current?
       return validation_configuration_failure unless Lulu::Configuration.asset_host_ready?
       return false unless artifacts_current? && address_complete?
@@ -178,6 +206,7 @@ class PrintOrder < ApplicationRecord
   def enqueue_quote!(requested_shipping_option)
     shipping_level = requested_shipping_option.to_s
     with_lock do
+      return false unless editable?
       return false unless validation_current?
       return false unless SHIPPING_OPTION_LEVELS.include?(shipping_level)
       return false unless shipping_options.any? { |option| option["level"] == shipping_level }
@@ -197,7 +226,8 @@ class PrintOrder < ApplicationRecord
 
   def enqueue_submission!
     with_lock do
-      return true if submission_started? || lulu_print_job_id.present?
+      return true if lulu_print_job_id.present? || workflow_state.in?(%w[submitting submission_uncertain submission_needs_review])
+      return false if submission_started?
       return false unless submittable? && Lulu::Configuration.asset_host_ready?
 
       uuid = SecureRandom.uuid

@@ -22,7 +22,6 @@
                   <strong><%= book.name %></strong>
                   <span><%= t("print_orders.new.pages", count: book.current_pages.count) %></span>
                 </label>
-                <%= link_to t("print_orders.new.read"), book_path(book), class: "print-orders-secondary" %>
               </article>
             <% end %>
           </div>

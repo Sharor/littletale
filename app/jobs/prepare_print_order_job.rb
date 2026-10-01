@@ -34,9 +34,18 @@ class PreparePrintOrderJob < ApplicationJob
       )
     end
   rescue Lulu::BookletPdf::PageLimitExceeded => error
+    fail_current(order, expected_revision, error.message)
+  rescue Lulu::BookletPdf::RenderingError, ActiveStorage::Error, Aws::Errors::ServiceError,
+         IOError, SystemCallError
+    fail_current(order, expected_revision, I18n.t("print_orders.errors.preparation_failed"))
+  end
+
+  private
+
+  def fail_current(order, expected_revision, message)
     order&.with_lock do
       if order.reload.content_revision == expected_revision
-        order.update!(workflow_state: "failed", failure_message: error.message)
+        order.update!(workflow_state: "failed", failure_message: message)
       end
     end
   end

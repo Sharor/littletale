@@ -70,6 +70,7 @@ Rails.application.routes.draw do
       post :validate_files
       post :quote
       post :submit
+      post :retry_submission
       post :refresh_status
     end
   end
