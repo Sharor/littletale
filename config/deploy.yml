@@ -40,6 +40,11 @@ env:
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
     SOLID_QUEUE_IN_PUMA: true
 
+    # Lulu Orders remains an admin-only sandbox pilot until explicitly enabled.
+    # Lulu fetches signed PDFs from this public HTTPS application host.
+    LULU_ORDERS_ENABLED: "false"
+    LULU_ASSET_HOST: "https://littletale.com"
+
     # Set number of processes dedicated to Solid Queue (default: 1)
     # JOB_CONCURRENCY: 3
 
