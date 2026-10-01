@@ -64,4 +64,15 @@ class Lulu::BookletPdfTest < ActiveSupport::TestCase
       Lulu::BookletPdf.new(@order).render
     end
   end
+
+  test "translates a font parser failure at the font selection boundary" do
+    document = Object.new
+    document.define_singleton_method(:font) do |*|
+      raise TTFunk::SubTable::EOTError, "truncated font table"
+    end
+
+    assert_raises(Lulu::BookletPdf::RenderingError) do
+      Lulu::BookletPdf.new(@order).send(:select_font, document, "Inter")
+    end
+  end
 end

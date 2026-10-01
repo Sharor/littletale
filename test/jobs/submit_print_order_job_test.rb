@@ -202,6 +202,24 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
     assert_predicate @order.submission_uncertain_at, :present?
   end
 
+  test "a malformed successful provider response becomes uncertain" do
+    client = preserve_current_quote(Object.new)
+    client.define_singleton_method(:create_print_job) do |**|
+      raise Lulu::Client::RequestError.new(status: 201, details: "The provider returned an unreadable response.")
+    end
+
+    Lulu::Client.stub(:new, client) do
+      SubmitPrintOrderJob.perform_now(
+        @order.id, @order.content_revision, @order.checkout_revision, @order.submission_uuid
+      )
+    end
+
+    @order.reload
+    assert_equal "submission_uncertain", @order.workflow_state
+    assert_equal "uncertain", @order.submission_attempts.last.fetch("outcome")
+    refute @order.retryable_submission?
+  end
+
   test "does not submit a stale checkout revision" do
     client = preserve_current_quote(Object.new)
     client.define_singleton_method(:create_print_job) { |**| flunk "stale job contacted Lulu" }
@@ -234,6 +252,26 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
     assert_match(/shipping_address: Invalid/, @order.failure_message)
     assert_nil @order.submission_uncertain_at
     assert_equal "rejected", @order.submission_attempts.last.fetch("outcome")
+  end
+
+  test "a rejected attempt stays rejected when its job is redelivered" do
+    external_id = @order.submission_uuid
+    @order.update!(
+      workflow_state: "submission_failed",
+      submission_attempted_at: 1.minute.ago,
+      submission_attempts: [ { "external_id" => external_id, "outcome" => "rejected" } ]
+    )
+
+    ReconcilePrintOrderSubmissionJob.stub(:set, ->(*) { flunk "rejected attempt queued reconciliation" }) do
+      SubmitPrintOrderJob.perform_now(
+        @order.id, @order.content_revision, @order.checkout_revision, external_id
+      )
+    end
+
+    @order.reload
+    assert_equal "submission_failed", @order.workflow_state
+    assert_equal "rejected", @order.submission_attempts.last.fetch("outcome")
+    assert @order.retryable_submission?
   end
 
   class SuccessfulSubmissionClient

@@ -53,13 +53,14 @@ class SubmitPrintOrderJob < ApplicationJob
   private
 
   def ambiguous_submission_response?(status)
-    status.zero? || status == 408 || status == 429 || status >= 500
+    status.zero? || status.between?(200, 299) || status == 408 || status == 429 || status >= 500
   end
 
   def current?(order, content_revision, checkout_revision, submission_uuid)
     order && Lulu::Configuration.enabled? && order.user.admin? && order.artifacts_current? && order.quote_current? &&
       order.content_revision == content_revision && order.checkout_revision == checkout_revision &&
-      order.submission_uuid == submission_uuid && order.lulu_print_job_id.blank?
+      order.submission_uuid == submission_uuid && order.workflow_state.in?(%w[submitting submission_uncertain]) &&
+      order.lulu_print_job_id.blank?
   end
 
   def claim_submission_attempt(order, content_revision, checkout_revision, submission_uuid)

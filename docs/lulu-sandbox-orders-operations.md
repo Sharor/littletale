@@ -65,7 +65,7 @@ Provider validation and address errors appear on step three. Correct the deliver
 
 Immediately before submission, the app requests the quote again. If any stored quote component has changed, the updated estimate is shown and the administrator must confirm it again.
 
-Submission uses the order's stable `submission_uuid` as Lulu's `external_id` and durably records an attempt before contacting Lulu. A timeout, HTTP 408 or 429 response, or provider 5xx response is ambiguous: the app marks the result uncertain and searches Lulu for that exact external ID six times. It does not repeat the POST. If the order reaches `submission_needs_review`:
+Submission uses the order's stable `submission_uuid` as Lulu's `external_id` and durably records an attempt before contacting Lulu. A timeout, an unreadable successful response, an HTTP 408 or 429 response, or a provider 5xx response is ambiguous: the app marks the result uncertain and searches Lulu for that exact external ID six times. It does not repeat the POST. If the order reaches `submission_needs_review`:
 
 1. Copy the local `submission_uuid` from an authorized Rails console without copying the delivery address.
 2. Search the Lulu sandbox portal or API for the exact external ID.

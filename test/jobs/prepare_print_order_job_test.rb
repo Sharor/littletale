@@ -112,6 +112,27 @@ class PreparePrintOrderJobTest < ActiveJob::TestCase
     assert_match(/could not be built/i, @order.failure_message)
   end
 
+  test "records a truncated retained JPEG as a retryable preparation failure" do
+    replace_retained_image("\xFF\xD8\xFF".b, "truncated.jpg", "image/jpeg")
+    @order.update!(workflow_state: "preparing")
+
+    PreparePrintOrderJob.perform_now(@order.id, @order.content_revision)
+
+    assert_equal "failed", @order.reload.workflow_state
+    assert_match(/could not be built/i, @order.failure_message)
+  end
+
+  test "records a retained JPEG with unsupported channels as a retryable preparation failure" do
+    jpeg = "\xFF\xD8\xFF\xC0\x00\x08".b + [ 8, 1, 1, 2 ].pack("CnnC")
+    replace_retained_image(jpeg, "unsupported-channels.jpg", "image/jpeg")
+    @order.update!(workflow_state: "preparing")
+
+    PreparePrintOrderJob.perform_now(@order.id, @order.content_revision)
+
+    assert_equal "failed", @order.reload.workflow_state
+    assert_match(/could not be built/i, @order.failure_message)
+  end
+
   private
 
   def replace_retained_image(contents, filename, content_type)
