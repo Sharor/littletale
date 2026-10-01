@@ -79,6 +79,26 @@ da:
         other: "%{count} tomme sider krævet til indbinding"
       preview_interior: Vis indholds-PDF
       preview_cover: Vis omslags-PDF
+      shipping_title: Lulu-validering og levering
+      asset_host_missing: Konfigurer en offentlig HTTPS-vært til filer, før Lulu kan validere disse PDF-filer.
+      validation_help: Bed Lulus sandkasse om at validere begge PDF-filer og finde leveringsmuligheder til adressen.
+      validate: Valider filer og find levering
+      validating: Lulu validerer trykfilerne. Leveringsmuligheder vises her, når valideringen er færdig.
+      shipping_legend: Leveringsmetode
+      business_days: "%{min}–%{max} hverdage"
+      request_quote: Beregn nøjagtig pris
+      quoting: Lulu beregner pris, afgifter og leveringsomkostninger.
+      shipping_cost: Levering
+      tax: Afgifter
+      total: I alt
+    shipping_levels:
+      mail: Post
+      priority_mail: Prioriteret post
+      ground_hd: Hjemmelevering med landtransport
+      ground_bus: Erhvervslevering med landtransport
+      ground: Landtransport
+      expedited: Hurtig levering
+      express: Ekspres
     reader:
       back: Tilbage til ordren
     status:
@@ -86,9 +106,24 @@ da:
       preparing: Forbereder filer
       prepared: Filer klar
       failed: Kræver handling
+      validating: Validerer filer
+      selecting_shipping: Vælg levering
+      quoting: Beregner pris
+      quoted: Pris klar
     notices:
       preparing: Din trykvisning bliver forberedt.
+      validating: Validering i Lulu-sandkassen er startet.
+      quoting: Lulu-sandkassen beregner den nøjagtige pris.
     errors:
       ineligible_book: Vælg en af dine færdige, fuldt illustrerede bøger.
       complete_address: Udfyld leveringsadressen, før du vælger trykmuligheder.
       preparation_queue: Trykvisningen kunne ikke sættes i kø. Prøv igen.
+      asset_host: Konfigurer en offentlig HTTPS-vært til filer, før du anmoder om Lulu-validering.
+      validation_queue: Lulu-valideringen kunne ikke sættes i kø. Prøv igen.
+      quote_queue: Prisforespørgslen kunne ikke sættes i kø. Prøv igen.
+      shipping_option: Vælg en af de tilgængelige leveringsmetoder.
+      validation_timeout: Lulu nåede ikke at validere filerne. Prøv igen.
+      validation_rejected: "Lulu afviste trykfilerne: %{message}"
+      no_shipping_options: Lulu returnerede ingen leveringsmetode til denne adresse.
+      cover_dimensions: Lulu returnerede omslagsmål, som ikke passer til dette hæfte.
+      provider: "Lulu-sandkassen kunne ikke fuldføre anmodningen: %{message}"

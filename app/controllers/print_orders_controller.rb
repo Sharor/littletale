@@ -3,7 +3,8 @@
 class PrintOrdersController < ApplicationController
   before_action :authenticate_user!
   before_action :require_lulu_orders_access!
-  before_action :set_order, only: %i[show address update_address options read prepare interior_pdf cover_pdf]
+  before_action :set_order,
+    only: %i[show address update_address options read prepare interior_pdf cover_pdf validate_files quote]
 
   def index
     @orders = current_user.print_orders.order(created_at: :desc)
@@ -69,6 +70,24 @@ class PrintOrdersController < ApplicationController
 
   def cover_pdf
     send_order_pdf(@order.cover_pdf, "#{@order.title}-cover.pdf")
+  end
+
+  def validate_files
+    if @order.enqueue_validation!
+      redirect_to options_print_order_path(@order), notice: I18n.t("print_orders.notices.validating")
+    else
+      redirect_to options_print_order_path(@order), alert: @order.failure_message.presence ||
+        I18n.t("print_orders.errors.validation_queue")
+    end
+  end
+
+  def quote
+    if @order.enqueue_quote!(params[:shipping_option])
+      redirect_to options_print_order_path(@order), notice: I18n.t("print_orders.notices.quoting")
+    else
+      redirect_to options_print_order_path(@order), alert: @order.failure_message.presence ||
+        I18n.t("print_orders.errors.shipping_option")
+    end
   end
 
   private

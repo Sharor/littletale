@@ -586,6 +586,7 @@ DEPENDENCIES
   cssbundling-rails
   debug
   devise
+  faraday (~> 2.13)
   fog-aws
   jbuilder
   jsbundling-rails

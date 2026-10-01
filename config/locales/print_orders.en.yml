@@ -79,6 +79,26 @@ en:
         other: "%{count} binding-required blank pages"
       preview_interior: Preview interior PDF
       preview_cover: Preview cover PDF
+      shipping_title: Lulu validation and delivery
+      asset_host_missing: Configure a public HTTPS asset host before Lulu can validate these PDFs.
+      validation_help: Ask Lulu's sandbox to validate both PDFs and return delivery choices for this address.
+      validate: Validate files and find delivery
+      validating: Lulu is validating the print files. This page will show delivery choices when validation finishes.
+      shipping_legend: Delivery method
+      business_days: "%{min}–%{max} business days"
+      request_quote: Calculate exact price
+      quoting: Lulu is calculating the price, tax, and delivery cost.
+      shipping_cost: Delivery
+      tax: Tax
+      total: Total
+    shipping_levels:
+      mail: Mail
+      priority_mail: Priority mail
+      ground_hd: Ground home delivery
+      ground_bus: Ground business delivery
+      ground: Ground
+      expedited: Expedited
+      express: Express
     reader:
       back: Back to order
     status:
@@ -86,9 +106,24 @@ en:
       preparing: Preparing files
       prepared: Files ready
       failed: Needs attention
+      validating: Validating files
+      selecting_shipping: Choose delivery
+      quoting: Calculating price
+      quoted: Quote ready
     notices:
       preparing: Your print preview is being prepared.
+      validating: Lulu sandbox validation has started.
+      quoting: Lulu sandbox is calculating the exact price.
     errors:
       ineligible_book: Choose one of your completed, fully illustrated books.
       complete_address: Complete the delivery address before choosing print options.
       preparation_queue: The print preview could not be queued. Please try again.
+      asset_host: Configure a public HTTPS asset host before requesting Lulu validation.
+      validation_queue: Lulu validation could not be queued. Please try again.
+      quote_queue: The price request could not be queued. Please try again.
+      shipping_option: Choose one of the available delivery methods.
+      validation_timeout: Lulu did not finish validating the files in time. Please try again.
+      validation_rejected: "Lulu rejected the print files: %{message}"
+      no_shipping_options: Lulu did not return a delivery method for this address.
+      cover_dimensions: Lulu returned cover dimensions that do not match this booklet.
+      provider: "Lulu sandbox could not complete the request: %{message}"

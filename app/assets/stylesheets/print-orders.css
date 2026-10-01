@@ -35,6 +35,19 @@
 .print-order-format dl div { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .6rem; border-bottom: 1px solid var(--fable-line); }
 .print-order-format dt { color: var(--fable-muted); }
 .print-order-format dd { font-weight: 600; text-align: right; }
+.print-order-artifacts, .print-order-fulfillment { margin-top: 1rem; }
+.print-order-shipping-form { display: grid; gap: 1.25rem; }
+.print-order-shipping-form fieldset { margin: 0; padding: 0; border: 0; }
+.print-order-shipping-form legend { margin-bottom: .75rem; font: 700 1.15rem/1.25 var(--fable-font-display); }
+.print-order-shipping-options { display: grid; gap: .65rem; }
+.print-order-shipping-options label { display: grid; grid-template-columns: auto 1fr; gap: .75rem; align-items: start; padding: .85rem; border: 1px solid var(--fable-line); border-radius: 3px; cursor: pointer; }
+.print-order-shipping-options label:has(input:checked) { border-color: var(--fable-wine); box-shadow: 0 0 0 1px var(--fable-wine); }
+.print-order-shipping-options input { margin-top: .25rem; accent-color: var(--fable-wine); }
+.print-order-shipping-options span { color: var(--fable-muted); font-family: var(--fable-font-body); }
+.print-order-shipping-options strong { display: block; color: var(--fable-ink); font-family: var(--fable-font-display); }
+.print-order-quote { display: grid; gap: .65rem; margin-top: 1.5rem; }
+.print-order-quote div { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--fable-line); }
+.print-order-quote .is-total { color: var(--fable-wine); font: 700 1.2rem/1.25 var(--fable-font-display); }
 @media (min-width: 48rem) {
   .print-order-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .print-order-fields .is-wide { grid-column: 1 / -1; }

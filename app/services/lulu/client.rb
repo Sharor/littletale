@@ -1,0 +1,155 @@
+# frozen_string_literal: true
+
+require "base64"
+require "faraday"
+require "json"
+
+module Lulu
+  class Client
+    TOKEN_PATH = "/auth/realms/glasstree/protocol/openid-connect/token"
+    TOKEN_EXPIRY_SKEW = 30.seconds
+
+    class ConfigurationError < StandardError; end
+
+    class RequestError < StandardError
+      attr_reader :status, :details
+
+      def initialize(status:, details:)
+        @status = status
+        @details = details
+        super("Lulu request failed (#{status}): #{self.class.describe(details)}")
+      end
+
+      def self.describe(details)
+        case details
+        when Hash
+          details.flat_map { |key, value| Array(value).map { |item| "#{key}: #{item}" } }.join(", ")
+        when Array
+          details.join(", ")
+        else
+          details.to_s
+        end.presence || "No provider details were returned."
+      end
+    end
+
+    def initialize(
+      client_id: Configuration.client_id,
+      client_secret: Configuration.client_secret,
+      base_url: Configuration.base_url,
+      clock: -> { Time.current }
+    )
+      raise ConfigurationError, "Lulu sandbox credentials are not configured." if client_id.blank? || client_secret.blank?
+      raise ConfigurationError, "Only the Lulu sandbox host is allowed." unless base_url == Configuration::SANDBOX_BASE_URL
+
+      @client_id = client_id
+      @client_secret = client_secret
+      @clock = clock
+      @connection = Faraday.new(url: base_url) do |faraday|
+        faraday.options.open_timeout = 5
+        faraday.options.timeout = 20
+      end
+    end
+
+    def create_interior_validation(source_url:, pod_package_id:)
+      post("/validate-interior/", source_url:, pod_package_id:)
+    end
+
+    def interior_validation(id)
+      get("/validate-interior/#{Integer(id)}/")
+    end
+
+    def cover_dimensions(pod_package_id:, interior_page_count:)
+      post("/cover-dimensions/", pod_package_id:, interior_page_count:, unit: "inch")
+    end
+
+    def create_cover_validation(source_url:, pod_package_id:, interior_page_count:)
+      post("/validate-cover/", source_url:, pod_package_id:, interior_page_count:)
+    end
+
+    def cover_validation(id)
+      get("/validate-cover/#{Integer(id)}/")
+    end
+
+    def shipping_options(address:, line_items:, currency:)
+      post("/shipping-options/", {
+        currency:,
+        line_items:,
+        shipping_address: {
+          name: address[:name], street1: address[:street1], street2: address[:street2], city: address[:city],
+          postcode: address[:postcode], country: address[:country_code], state: address[:state_code],
+          phone_number: address[:phone_number]
+        }
+      })
+    end
+
+    def cost_calculation(address:, line_items:, shipping_option:)
+      post("/print-job-cost-calculations/", {
+        shipping_option:,
+        line_items:,
+        shipping_address: {
+          name: address[:name], street1: address[:street1], street2: address[:street2], city: address[:city],
+          postcode: address[:postcode], country_code: address[:country_code], state_code: address[:state_code],
+          email: address[:email], phone_number: address[:phone_number]
+        }
+      })
+    end
+
+    private
+
+    def get(path)
+      request(:get, path)
+    end
+
+    def post(path, body)
+      request(:post, path, body)
+    end
+
+    def request(method, path, body = nil, retry_auth: true)
+      response = @connection.public_send(method, path) do |request|
+        request.headers["Authorization"] = "Bearer #{access_token}"
+        request.headers["Cache-Control"] = "no-cache"
+        if body
+          request.headers["Content-Type"] = "application/json"
+          request.body = JSON.generate(body)
+        end
+      end
+
+      if response.status == 401 && retry_auth
+        clear_token
+        return request(method, path, body, retry_auth: false)
+      end
+
+      parse_response(response)
+    rescue Faraday::Error
+      raise RequestError.new(status: 0, details: "The Lulu sandbox did not respond.")
+    end
+
+    def access_token
+      return @access_token if @access_token.present? && @token_expires_at > @clock.call
+
+      response = @connection.post(TOKEN_PATH) do |request|
+        request.headers["Authorization"] = "Basic #{Base64.strict_encode64("#{@client_id}:#{@client_secret}")}"
+        request.headers["Content-Type"] = "application/x-www-form-urlencoded"
+        request.body = URI.encode_www_form(grant_type: "client_credentials")
+      end
+      payload = parse_response(response)
+      @access_token = payload.fetch("access_token")
+      @token_expires_at = @clock.call + payload.fetch("expires_in").to_i.seconds - TOKEN_EXPIRY_SKEW
+      @access_token
+    end
+
+    def clear_token
+      @access_token = nil
+      @token_expires_at = nil
+    end
+
+    def parse_response(response)
+      payload = response.body.present? ? JSON.parse(response.body) : {}
+      return payload if response.status.between?(200, 299)
+
+      raise RequestError.new(status: response.status, details: payload)
+    rescue JSON::ParserError
+      raise RequestError.new(status: response.status, details: "The provider returned an unreadable response.")
+    end
+  end
+end

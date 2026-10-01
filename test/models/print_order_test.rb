@@ -71,4 +71,28 @@ class PrintOrderTest < ActiveSupport::TestCase
     assert_equal [ "Once upon a snapshot." ], order.print_order_pages.pluck(:text)
     assert_predicate order.print_order_pages.first.image, :attached?
   end
+
+  test "changing the delivery address invalidates shipping and quote without invalidating PDFs" do
+    order = PrintOrder.start_for!(user: @admin, book: @book)
+    order.update!(
+      recipient_name: "A Reader", street1: "Old Road 1", city: "Copenhagen", postcode: "2100",
+      country_code: "DK", recipient_email: "reader@example.com", phone_number: "+45 12345678",
+      shipping_option: "MAIL", shipping_options: [ { "level" => "MAIL" } ],
+      quote: { "total_cost_incl_tax" => "12.00" }, quote_revision: order.checkout_revision,
+      validation_state: "validated", validation_details: { "interior_id" => 1 }
+    )
+    original_content_revision = order.content_revision
+    original_checkout_revision = order.checkout_revision
+
+    assert order.save_delivery_address(street1: "New Road 2")
+
+    order.reload
+    assert_equal original_content_revision, order.content_revision
+    assert_equal original_checkout_revision + 1, order.checkout_revision
+    assert_nil order.shipping_option
+    assert_empty order.shipping_options
+    assert_empty order.quote
+    assert_equal "not_started", order.validation_state
+    assert_empty order.validation_details
+  end
 end

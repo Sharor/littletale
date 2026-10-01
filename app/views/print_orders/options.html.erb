@@ -57,5 +57,75 @@
           class: "print-orders-primary", disabled: @order.workflow_state == "preparing" %>
       <% end %>
     </section>
+
+    <% if @order.artifacts_current? %>
+      <section class="fable-panel print-order-fulfillment">
+        <h2><%= t("print_orders.options.shipping_title") %></h2>
+
+        <% unless Lulu::Configuration.asset_host_ready? %>
+          <p class="fable-notice" role="alert" data-lulu-readiness="missing-asset-host">
+            <%= t("print_orders.options.asset_host_missing") %>
+          </p>
+        <% else %>
+          <% if @order.failure_message.present? %>
+            <p class="fable-notice" role="alert"><%= @order.failure_message %></p>
+          <% end %>
+
+          <% if @order.validation_state == "validating" %>
+            <p><%= t("print_orders.options.validating") %></p>
+          <% elsif @order.validation_current? %>
+            <%= form_with url: quote_print_order_path(@order), method: :post, class: "print-order-shipping-form" do |form| %>
+              <fieldset>
+                <legend><%= t("print_orders.options.shipping_legend") %></legend>
+                <div class="print-order-shipping-options">
+                  <% @order.shipping_options.each do |option| %>
+                    <% level = option.fetch("level") %>
+                    <label data-shipping-option="<%= level %>">
+                      <%= form.radio_button :shipping_option, level,
+                        checked: @order.shipping_option == level || (@order.shipping_option.blank? && @order.shipping_options.one?) %>
+                      <span>
+                        <strong><%= t("print_orders.shipping_levels.#{level.downcase}", default: level.humanize) %></strong>
+                        <% if option["cost_excl_tax"].present? %>
+                          <%= option["cost_excl_tax"] %> <%= option["currency"] %>
+                        <% end %>
+                        <% if option["total_days_min"].present? && option["total_days_max"].present? %>
+                          · <%= t("print_orders.options.business_days", min: option["total_days_min"], max: option["total_days_max"]) %>
+                        <% end %>
+                      </span>
+                    </label>
+                  <% end %>
+                </div>
+              </fieldset>
+              <%= form.submit t("print_orders.options.request_quote"), class: "print-orders-primary",
+                disabled: @order.workflow_state == "quoting" %>
+            <% end %>
+
+            <% if @order.quote_current? %>
+              <% currency = @order.quote.fetch("currency") %>
+              <dl class="print-order-quote">
+                <div>
+                  <dt><%= t("print_orders.options.shipping_cost") %></dt>
+                  <dd><%= @order.quote.dig("shipping_cost", "total_cost_incl_tax") %> <%= currency %></dd>
+                </div>
+                <div data-print-order-tax="<%= @order.quote["total_tax"] %>">
+                  <dt><%= t("print_orders.options.tax") %></dt>
+                  <dd><%= @order.quote["total_tax"] %> <%= currency %></dd>
+                </div>
+                <div class="is-total" data-print-order-total="<%= @order.quote["total_cost_incl_tax"] %>">
+                  <dt><%= t("print_orders.options.total") %></dt>
+                  <dd><%= @order.quote["total_cost_incl_tax"] %> <%= currency %></dd>
+                </div>
+              </dl>
+            <% elsif @order.workflow_state == "quoting" %>
+              <p><%= t("print_orders.options.quoting") %></p>
+            <% end %>
+          <% else %>
+            <p><%= t("print_orders.options.validation_help") %></p>
+            <%= button_to t("print_orders.options.validate"), validate_files_print_order_path(@order), method: :post,
+              class: "print-orders-primary" %>
+          <% end %>
+        <% end %>
+      </section>
+    <% end %>
   </main>
 </div>

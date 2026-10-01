@@ -4,6 +4,10 @@ class PrintOrder < ApplicationRecord
   class IneligibleBook < StandardError; end
 
   POD_PACKAGE_ID = "0500X0800.FC.PRE.SS.060UW444.GXX".freeze
+  DELIVERY_ATTRIBUTES = %i[
+    recipient_name street1 street2 city postcode country_code state_code recipient_email phone_number
+  ].freeze
+  SHIPPING_OPTION_LEVELS = %w[MAIL PRIORITY_MAIL GROUND_HD GROUND_BUS GROUND EXPEDITED EXPRESS].freeze
 
   belongs_to :user
   belongs_to :source_book, class_name: "Book", optional: true
@@ -70,12 +74,9 @@ class PrintOrder < ApplicationRecord
     normalize_delivery_address
     return false unless valid?(:delivery)
 
+    delivery_changed = DELIVERY_ATTRIBUTES.any? { |attribute| will_save_change_to_attribute?(attribute) }
     self.step = 3
-    self.shipping_option = nil
-    self.shipping_options = []
-    self.quote = {}
-    self.quote_revision = nil
-    self.quoted_at = nil
+    invalidate_checkout! if delivery_changed
     save!
   end
 
@@ -85,6 +86,38 @@ class PrintOrder < ApplicationRecord
 
   def artifacts_current?
     artifacts_revision == content_revision && interior_pdf.attached? && cover_pdf.attached?
+  end
+
+  def validation_current?
+    validation_state == "validated" &&
+      validation_details["content_revision"] == content_revision &&
+      validation_details["checkout_revision"] == checkout_revision
+  end
+
+  def quote_current?
+    quote.present? && quote_revision == checkout_revision && validation_current?
+  end
+
+  def provider_address
+    {
+      name: recipient_name,
+      street1:,
+      street2:,
+      city:,
+      postcode:,
+      country_code:,
+      state_code:,
+      email: recipient_email,
+      phone_number:
+    }
+  end
+
+  def provider_line_items
+    [ { page_count: interior_page_count, pod_package_id:, quantity: 1 } ]
+  end
+
+  def quote_currency
+    { "US" => "USD", "GB" => "GBP", "CA" => "CAD", "AU" => "AUD" }.fetch(country_code, "EUR")
   end
 
   def enqueue_preparation!
@@ -104,6 +137,56 @@ class PrintOrder < ApplicationRecord
     false
   end
 
+  def enqueue_validation!
+    with_lock do
+      return true if validation_current?
+      return validation_configuration_failure unless Lulu::Configuration.asset_host_ready?
+      return false unless artifacts_current? && address_complete?
+
+      update!(
+        workflow_state: "validating",
+        validation_state: "validating",
+        validation_details: {},
+        shipping_option: nil,
+        shipping_options: [],
+        quote: {},
+        quote_revision: nil,
+        quoted_at: nil,
+        failure_message: nil
+      )
+      job = ValidatePrintOrderJob.perform_later(id, content_revision, checkout_revision, 0)
+      return true if job&.successfully_enqueued?
+
+      update!(workflow_state: "failed", validation_state: "failed",
+        failure_message: I18n.t("print_orders.errors.validation_queue"))
+      false
+    end
+  rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
+    update_columns(workflow_state: "failed", validation_state: "failed",
+      failure_message: I18n.t("print_orders.errors.validation_queue"))
+    false
+  end
+
+  def enqueue_quote!(requested_shipping_option)
+    shipping_level = requested_shipping_option.to_s
+    with_lock do
+      return false unless validation_current?
+      return false unless SHIPPING_OPTION_LEVELS.include?(shipping_level)
+      return false unless shipping_options.any? { |option| option["level"] == shipping_level }
+
+      update!(workflow_state: "quoting", shipping_option: shipping_level, quote: {}, quote_revision: nil,
+        quoted_at: nil, failure_message: nil)
+      job = QuotePrintOrderJob.perform_later(id, content_revision, checkout_revision, shipping_level)
+      return true if job&.successfully_enqueued?
+
+      update!(workflow_state: "failed", failure_message: I18n.t("print_orders.errors.quote_queue"))
+      false
+    end
+  rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
+    update_columns(workflow_state: "failed", failure_message: I18n.t("print_orders.errors.quote_queue"))
+    false
+  end
+
   def self.eligible_pages(user:, book:)
     pages = book.current_pages.includes(:illustration).to_a
     eligible = user.admin? && book.user_id == user.id && book.completed? && pages.length == book.total_pages &&
@@ -115,6 +198,26 @@ class PrintOrder < ApplicationRecord
   private_class_method :eligible_pages
 
   private
+
+  def invalidate_checkout!
+    self.checkout_revision += 1
+    self.shipping_option = nil
+    self.shipping_options = []
+    self.quote = {}
+    self.quote_revision = nil
+    self.quoted_at = nil
+    self.validation_state = "not_started"
+    self.validation_details = {}
+    self.cover_dimensions = {}
+    self.workflow_state = artifacts_current? ? "prepared" : "draft"
+    self.failure_message = nil
+  end
+
+  def validation_configuration_failure
+    update!(workflow_state: "failed", validation_state: "failed",
+      failure_message: I18n.t("print_orders.errors.asset_host"))
+    false
+  end
 
   def normalize_delivery_address
     %i[recipient_name street1 street2 city postcode state_code recipient_email phone_number].each do |attribute|

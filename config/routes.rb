@@ -53,6 +53,8 @@ Rails.application.routes.draw do
   get "gifts/:token", to: "gift_invitations#show", as: :gift_invitation
   post "gifts/:token/claim", to: "gift_invitations#claim", as: :claim_gift_invitation
   post "gifts/:token/switch_account", to: "gift_invitations#switch_account", as: :switch_account_gift_invitation
+  get "lulu-files/:token/:kind.pdf", to: "print_order_artifacts#show", as: :print_order_artifact,
+    constraints: { kind: /interior|cover/ }
   resources :received_gifts, only: %i[index show] do
     get "pages/:id/image", to: "received_gift_images#show", as: :page_image
   end
@@ -65,6 +67,8 @@ Rails.application.routes.draw do
       post :prepare
       get :interior_pdf
       get :cover_pdf
+      post :validate_files
+      post :quote
     end
   end
   resources :book_gifts, only: [] do

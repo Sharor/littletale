@@ -197,6 +197,75 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     assert response.body.start_with?("%PDF-")
   end
 
+  test "prepared files can be queued for revision-specific Lulu validation" do
+    order = addressed_order
+    with_lulu_orders_enabled do
+      PreparePrintOrderJob.perform_now(order.id, order.content_revision)
+    end
+
+    with_lulu_asset_host do
+      with_lulu_orders_enabled do
+        assert_enqueued_with(
+          job: ValidatePrintOrderJob,
+          args: [ order.id, order.content_revision, order.checkout_revision, 0 ]
+        ) { post "/orders/#{order.id}/validate_files" }
+      end
+    end
+
+    assert_redirected_to "/orders/#{order.id}/options"
+    assert_equal "validating", order.reload.validation_state
+  end
+
+  test "validation stays unavailable until a public HTTPS asset host is configured" do
+    order = addressed_order
+    with_lulu_orders_enabled do
+      PreparePrintOrderJob.perform_now(order.id, order.content_revision)
+      assert_no_enqueued_jobs { post "/orders/#{order.id}/validate_files" }
+    end
+
+    assert_redirected_to "/orders/#{order.id}/options"
+    with_lulu_orders_enabled { follow_redirect! }
+    assert_select "[data-lulu-readiness='missing-asset-host']", text: /public HTTPS asset host/
+  end
+
+  test "validated shipping choices can be queued for a revision-specific quote" do
+    order = quoted_ready_order
+
+    with_lulu_orders_enabled do
+      assert_enqueued_with(
+        job: QuotePrintOrderJob,
+        args: [ order.id, order.content_revision, order.checkout_revision, "MAIL" ]
+      ) { post "/orders/#{order.id}/quote", params: { shipping_option: "MAIL" } }
+    end
+
+    assert_redirected_to "/orders/#{order.id}/options"
+    assert_equal "quoting", order.reload.workflow_state
+    assert_equal "MAIL", order.shipping_option
+  end
+
+  test "the print step renders shipping options and the current provider quote" do
+    order = quoted_ready_order
+    order.update!(
+      shipping_option: "MAIL",
+      quote: {
+        "currency" => "EUR", "total_cost_incl_tax" => "14.80", "total_tax" => "2.96",
+        "shipping_cost" => { "total_cost_incl_tax" => "5.00" }
+      },
+      quote_revision: order.checkout_revision,
+      quoted_at: Time.current,
+      workflow_state: "quoted"
+    )
+
+    with_lulu_asset_host do
+      with_lulu_orders_enabled { get "/orders/#{order.id}/options" }
+    end
+
+    assert_response :success
+    assert_select "[data-shipping-option='MAIL']", text: /Mail.*4.25 EUR.*7–12 business days/m
+    assert_select "[data-print-order-total='14.80']", text: /14.80 EUR/
+    assert_select "[data-print-order-tax='2.96']", text: /2.96 EUR/
+  end
+
   private
 
   def with_lulu_orders_enabled
@@ -213,6 +282,14 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     yield
   ensure
     ENV["LULU_ORDERS_ENABLED"] = previous
+  end
+
+  def with_lulu_asset_host
+    previous = ENV["LULU_ASSET_HOST"]
+    ENV["LULU_ASSET_HOST"] = "https://assets.example.test"
+    yield
+  ensure
+    ENV["LULU_ASSET_HOST"] = previous
   end
 
   def create_eligible_book(user)
@@ -238,6 +315,28 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
         recipient_email: "reader@example.com",
         phone_number: "+45 12345678",
         step: 3
+      )
+    end
+  end
+
+  def quoted_ready_order
+    addressed_order.tap do |order|
+      with_lulu_orders_enabled { PreparePrintOrderJob.perform_now(order.id, order.content_revision) }
+      order.reload.update!(
+        validation_state: "validated",
+        validation_details: {
+          "content_revision" => order.content_revision,
+          "checkout_revision" => order.checkout_revision,
+          "interior_status" => "NORMALIZED",
+          "cover_status" => "NORMALIZED"
+        },
+        shipping_options: [
+          {
+            "level" => "MAIL", "currency" => "EUR", "cost_excl_tax" => "4.25",
+            "total_days_min" => 7, "total_days_max" => 12
+          }
+        ],
+        workflow_state: "selecting_shipping"
       )
     end
   end
