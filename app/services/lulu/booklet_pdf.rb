@@ -108,10 +108,6 @@ module Lulu
       document.start_new_page
       paper_background(document, size: COVER_SIZE)
       fold = COVER_SIZE.first / 2.0
-      document.stroke_color "B69763"
-      document.dash 3, space: 3
-      document.stroke_vertical_line 0, COVER_SIZE.last, at: fold
-      document.undash
 
       document.font("EB Garamond") do
         document.fill_color "742D38"

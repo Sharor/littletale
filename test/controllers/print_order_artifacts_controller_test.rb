@@ -36,6 +36,15 @@ class PrintOrderArtifactsControllerTest < ActionDispatch::IntegrationTest
     assert response.body.start_with?("%PDF-")
   end
 
+  test "serves a current PDF to the Lulu provider user agent" do
+    url = Lulu::ArtifactUrl.for(order: @order, kind: :cover)
+
+    get URI(url).request_uri, headers: { "User-Agent" => "Lulu Print API" }
+
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+  end
+
   test "rejects a tampered artifact token" do
     url = Lulu::ArtifactUrl.for(order: @order, kind: :cover)
     uri = URI(url)
