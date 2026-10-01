@@ -1,0 +1,35 @@
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui print-orders-main">
+    <%= render "steps", current_step: 1 %>
+    <header class="print-orders-heading">
+      <p class="library-eyebrow"><%= t("print_orders.new.eyebrow") %></p>
+      <h1><%= t("print_orders.new.title") %></h1>
+      <p><%= t("print_orders.new.introduction") %></p>
+    </header>
+
+    <% if @book_error.present? %><p role="alert"><%= @book_error %></p><% end %>
+
+    <% if @books.any? %>
+      <%= form_with url: print_orders_path, class: "print-order-book-form" do |form| %>
+        <fieldset>
+          <legend class="sr-only"><%= t("print_orders.new.title") %></legend>
+          <div class="print-order-book-grid">
+            <% @books.each do |book| %>
+              <article class="fable-panel print-order-book-card">
+                <label>
+                  <%= radio_button_tag :book_id, book.id, false, required: true %>
+                  <strong><%= book.name %></strong>
+                  <span><%= t("print_orders.new.pages", count: book.current_pages.count) %></span>
+                </label>
+              </article>
+            <% end %>
+          </div>
+        </fieldset>
+        <%= form.submit t("print_orders.new.choose"), class: "print-orders-primary" %>
+      <% end %>
+    <% else %>
+      <section class="fable-panel"><p><%= t("print_orders.new.empty") %></p></section>
+    <% end %>
+  </main>
+</div>

@@ -1,0 +1,11 @@
+<nav class="print-order-steps" aria-label="<%= t("print_orders.steps.label") %>">
+  <ol>
+    <% [ [1, "book"], [2, "delivery"], [3, "print"] ].each do |number, key| %>
+      <li class="<%= "is-current" if current_step == number %> <%= "is-complete" if current_step > number %>"
+          <%= "aria-current=step" if current_step == number %>>
+        <span><%= number %></span>
+        <%= t("print_orders.steps.#{key}") %>
+      </li>
+    <% end %>
+  </ol>
+</nav>

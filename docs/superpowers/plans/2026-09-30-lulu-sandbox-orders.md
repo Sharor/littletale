@@ -1,0 +1,83 @@
+# Lulu sandbox orders plan
+
+Status: implementation authorized; shorter booklet format confirmed by the user.
+
+## Intent and approach
+
+Add **Orders** immediately below **Gifts** in desktop and mobile navigation. An administrator can select a finished book, read it and return to the same saved draft, enter delivery details, then choose the supported print format and submit a sandbox order. Keep the three requested steps; place the print preview, shipping choice, quote, and final confirmation within step three.
+
+Implement this inside the existing Rails/Hotwire application using a persisted `PrintOrder`, retained page assets, a small `Lulu::Client`, and Solid Queue jobs for PDF preparation, validation, submission, and status refresh. Use a separate print layout with Prawn; it supports image placement and embedded TrueType fonts without adding a browser to production. Verify the fonts and layout in an early PDF proof. [Prawn documentation](https://prawnpdf.org/docs/prawn/2.5.0/)
+
+## Scope boundaries
+
+**In scope:** a default-off feature flag plus server-side admin authorization; an orders list and resumable three-step flow; completed books owned by the signed-in admin; one book and one copy per order; preserved read/back navigation; delivery details; one supported Lulu saddle-stitch booklet example preset; interior/cover PDFs; a print preview; sandbox shipping and cost estimates; explicit submission; order status and actionable failures; English, Danish, and Greek UI coverage.
+
+**Out of scope:** production printing, public access, Stripe checkout or customer charging, changes to generation credits, printing received gifts or other users' books, multiple books/copies, the full Lulu product catalog, custom cover editing, automatic new illustrations/upscaling, cancellation/refund flows, and webhook infrastructure. Sandbox payment simulation is performed in Lulu's sandbox portal; the app must show an unpaid order accurately rather than report it as fulfilled. [Lulu payment workflow](https://help.api.lulu.com/en/support/solutions/articles/64000254636-what-payment-methods-are-accepted-)
+
+## Proposed product decisions
+
+| Area | Initial behavior |
+| --- | --- |
+| Access | `LULU_ORDERS_ENABLED=false` by default; access requires the flag AND `current_user.admin?`. Check routes and mutation jobs, not just navigation. |
+| Step 1 — Book | Show eligible completed books with all current pages and images. Save the selection before opening **Read book**. Provide **Back to order** throughout reading, returning to the saved step. |
+| Step 2 — Delivery | Collect recipient name, address lines, city, postal code, country, conditional state/region, recipient email, and phone. Preserve input on validation errors. Handle required destination-specific fields or explain why that destination is unavailable. |
+| Step 3 — Print options | Use Lulu's documented 5×8-inch premium full-color, saddle-stitch booklet example, 60# uncoated white paper, glossy cover: `0500X0800.FC.PRE.SS.060UW444.GXX`. Display size, quality, and stapled binding clearly with this single available combination; validate the preset against the sandbox before enabling it. |
+| Review and submission | Show the actual PDFs, final page count, delivery details, available shipping services, and itemized provider estimate with its returned currency. Use **Place sandbox order**, with a persistent sandbox label. No customer payment form. |
+| Short stories | Confirmed: use the shorter booklet format. Preserve all story text and illustrations, then add only the 0–3 blank pages needed to reach a multiple of four. Show those pages and the final count in the print preview. Reject a layout exceeding the supported booklet limit with an actionable error; never truncate the story. |
+| Orders list | Show drafts and submitted orders with title, date, local progress/provider status, and a link to resume or view details and read the retained book. |
+
+The selected example and API contracts come from Lulu's current [OpenAPI specification](https://api.lulu.com/api-docs/openapi-specs/openapi_public.yml). Use the documented dotted product identifier; do not construct arbitrary combinations from user input.
+
+## Repository reuse and print constraints
+
+- Extend `app/views/layouts/_sidebar.html.erb` for both navigation variants, using the existing storybook tokens, EB Garamond headings, Inter body text, and wine-colored actions.
+- Reuse the existing reader and its `reader_back_path` / `reader_back_label` pattern where appropriate. An order-scoped reader adapter can expose retained pages while suppressing generation and gift actions. Derive return paths from the authorized order, never an arbitrary URL parameter.
+- Follow the retained-image approach in `BookGift` and `GiftPage`, without coupling physical orders to digital gift eligibility or billing. Capture the chosen title, ordered `current_pages`, text, and image bytes when saving the book selection. Changes to the original book must not change an existing order's preview or PDFs.
+- Introduce `PrintOrder` and `PrintOrderPage`, with ownership, draft inputs, content/layout revision, PDF attachments, validation IDs/results, quote inputs/currency, submission UUID, Lulu job ID, provider status, and sanitized error details. Keep provider status separate from local preparation/submission state. Changing book, address, or format invalidates the affected quote and artifacts; stale jobs must not overwrite newer revisions.
+- Use a dedicated interior PDF with single pages in reading order and a separate one-page back/front cover PDF. For the selected 5×8-inch trim, use 5.25×8.25-inch interior pages including bleed, embedded fonts, safe text margins, no crop marks, and no password protection. Ask Lulu's cover-dimensions endpoint for the saddle-stitch cover dimensions using the final interior count; keep text away from the central fold and omit spine text. [Lulu book creation guide](https://assets.lulu.com/media/guides/en/lulu-book-creation-guide.pdf)
+- Saddle-stitch booklets support 4–48 interior pages in multiples of four according to Lulu's guide. Count the rendered PDF pages, including any title/end pages and required blanks, rather than the app's story-page records. Confirm limits for the exact preset during sandbox validation before enabling orders. [Lulu getting-started guide](https://assets.lulu.com/media/guides/en/lulu-getting-started-guide.pdf)
+- Current image generation requests 1024×1024 pixels (`app/models/illustration.rb`). At 300 PPI this supports approximately 3.41 inches: use inset illustrations and a title-led cover. Measure actual assets, paginate long text without clipping, and verify Danish/Greek glyph coverage. Do not silently stretch low-resolution images across the page.
+- Lulu fetches files from reachable URLs; WSL localhost and login-protected previews are insufficient. Retain PDFs in Active Storage and provide expiring, artifact-specific download URLs on a reachable HTTPS host. Normal order/preview routes remain admin-only; Lulu's narrowly scoped file-download capability must not expose orders, addresses, or other attachments. Verify this hosting prerequisite before the live sandbox smoke test. [Lulu file requirements](https://help.api.lulu.com/en/support/solutions/articles/64000254607-what-files-are-required-for-lulu-print-api-production-)
+
+## Action checklist and milestones
+
+### Task 1: Confirm the sandbox contract and print proof
+
+Apply the confirmed saddle-stitch booklet choice, confirm that `credentials.lulu.client` and `credentials.lulu.secret` belong to the separate sandbox account, verify the example preset, its page-count limits and cover template, and identify a reachable asset host. Produce and inspect one English/Danish/Greek PDF proof before building the full flow. Lulu sandbox jobs do not enter real production. [Sandbox documentation](https://help.api.lulu.com/en/support/solutions/articles/64000306383-do-you-have-a-sandbox-environment-)
+### Task 2: Add the access boundary with failing tests first
+
+Introduce the flag/policy, sandbox-only configuration, and Orders navigation. Test guests, ordinary users, admins, direct URLs, ownership checks, and flag-off behavior. Keep credentials and tokens server-side and filtered from logs.
+### Task 3: Persist order drafts and retained editions
+
+Add reversible migrations for orders and ordered pages; retain images and source metadata. Test snapshot integrity, incomplete books, another owner's book, and later source edits/deletion. Apply migrations in WSL to development and test, then restart Rails/workers without recreating databases.
+### Task 4: Build the three-step wizard and read/back flow
+
+Save each step server-side; provide resume, back, validation errors, and the order-scoped reader. Test navigation after refresh and reading, phone/desktop layouts, keyboard use, and all supported UI locales.
+### Task 5: Generate the print files asynchronously
+
+Add the approved PDF dependency and bundled licensed fonts. Render interior and cover from the retained revision, round the final interior count up to a multiple of four with minimal blank pages, validate the booklet page limit, store PDFs, and expose authorized preview/download actions. Test dimensions, pagination, fonts, image placement, cover geometry, and stale-job protection.
+### Task 6: Integrate Lulu validation, shipping, and quotes
+
+Implement client-credentials authentication with token expiry handling and sandbox-only hosts. Use `/validate-interior/`, `/cover-dimensions/`, `/validate-cover/`, `/shipping-options/`, and `/print-job-cost-calculations/`; poll asynchronous validation with bounded retries. Translate provider errors into the relevant step and invalidate stale quotes when inputs change. Cover contracts with HTTP stubs. [Lulu API specification](https://api.lulu.com/api-docs/openapi-specs/openapi_public.yml)
+### Task 7: Submit once and track the result
+
+Recheck access, revision, validation, and quote before POSTing `/print-jobs/`. Lock the submission transition and use a stable local UUID as `external_id`. Persist the returned ID and poll status with bounded intervals. Treat a timeout after submission as an unknown outcome: search and match the exact external ID before an explicit retry. Do not assume `external_id` supplies provider-side idempotency.
+### Task 8: Run acceptance and sandbox integration checks
+
+Run focused tests and the full `bin/rails test` suite, plus browser tests for the wizard/reader and flag-off access. With sandbox credentials and reachable synthetic PDFs, exercise authentication, quote, validation, submission, status refresh, and sandbox portal payment simulation. Record provider validation results; never submit a real customer order as a test.
+### Task 9: Roll out behind the flag
+
+Document credentials, asset hosting/expiry, sandbox portal payment, enable/disable steps, failed/unknown-order investigation, and worker operation. Enable only for the admin pilot after checks pass. Disabling the flag blocks new preparation/submission while retaining order records and already-issued file capabilities until expiry; production requires a separate future change.
+
+Milestone exits: steps 1–3 establish the contract and retained data; steps 4–5 deliver the usable flow and PDFs; steps 6–7 deliver the sandbox integration; steps 8–9 prove and enable the admin pilot.
+
+## Validation and risks
+
+- **Authorization:** verify flag and admin checks on every order operation, including preview, PDF download, refresh, and submission; scope records to their owner. Test guessed IDs and narrow artifact-token expiry. Decide access independently of generation credits, following the existing Gifts flow's separation from trial generation limits.
+- **Content fidelity:** verify exact retained text/order, no missing images, no stale generation-attempt pages, no clipped long titles/text, all glyphs embedded, and the same retained edition in reader and PDF. Validate final product/page-count compatibility before calculating the cover and price. Cover the 4-page minimum, multiples-of-four rounding, the 48-page maximum, and an oversized result; verify all required blanks appear in the preview. Adapt the configured bounds if validation establishes a narrower limit for the chosen preset.
+- **Provider failures:** test expired tokens, invalid addresses, unsupported delivery, rejected PDFs, unreachable/expired URLs, validation delays, 429/5xx responses, duplicate clicks/jobs, concurrent draft changes, and ambiguous submission timeouts. Do not retry a potentially accepted order blindly.
+- **Price and delivery:** use decimal amounts and the provider's supported currency; do not assume DKK support or display an invented conversion. Quote shipping/tax from the entered destination and actual PDF page count. Request new confirmation if the quote changes.
+- **Operational prerequisites:** sandbox credentials and externally reachable PDFs are required for integration acceptance; normal automated tests must run without them. Filter delivery details, signed URLs, credentials, and provider tokens from logs/recordings.
+- **Confirmed product choice:** use a shorter saddle-stitch booklet, with only binding-required blank pages. The remaining scope stays limited to one copy, one format, admin access, and the Lulu sandbox; the exact preset must pass provider validation before rollout.
+
+Stop condition: an enabled admin can complete the saved three-step flow, read and return without losing state, inspect valid PDFs and a sandbox quote, submit exactly one order, and see Lulu's resulting status; all required tests pass and ordinary users cannot access the feature.

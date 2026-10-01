@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    Ascii85 (2.0.1)
     actioncable (8.0.2.1)
       actionpack (= 8.0.2.1)
       activesupport (= 8.0.2.1)
@@ -74,6 +75,7 @@ GEM
       uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
+    afm (1.0.0)
     ast (2.4.3)
     aws-eventstream (1.4.0)
     aws-partitions (1.1200.0)
@@ -188,6 +190,7 @@ GEM
     globalid (1.2.1)
       activesupport (>= 6.1)
     hashdiff (1.2.0)
+    hashery (2.1.2)
     hashie (5.0.0)
     httparty (0.24.2)
       csv
@@ -337,9 +340,19 @@ GEM
     parser (3.3.9.0)
       ast (~> 2.4.1)
       racc
+    pdf-core (0.10.0)
+    pdf-reader (2.16.0)
+      Ascii85 (>= 1.0, < 3.0, != 2.0.0)
+      afm (>= 0.2.1, < 2)
+      hashery (~> 2.0)
+      ttfunk
     pkg-config (1.6.4)
     pp (0.6.2)
       prettyprint
+    prawn (2.5.0)
+      matrix (~> 0.4)
+      pdf-core (~> 0.10.0)
+      ttfunk (~> 1.8)
     prettyprint (0.2.0)
     prism (1.4.0)
     prometheus-client (4.2.5)
@@ -516,6 +529,8 @@ GEM
     time (0.4.1)
       date
     timeout (0.4.3)
+    ttfunk (1.8.0)
+      bigdecimal (~> 3.1)
     turbo-rails (2.0.16)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
@@ -571,6 +586,7 @@ DEPENDENCIES
   cssbundling-rails
   debug
   devise
+  faraday (~> 2.13)
   fog-aws
   jbuilder
   jsbundling-rails
@@ -584,6 +600,8 @@ DEPENDENCIES
   omniauth-microsoft_v2_auth (~> 0.1.1)
   omniauth-rails_csrf_protection
   open-uri
+  pdf-reader (~> 2.15)
+  prawn (~> 2.5)
   prometheus-client (~> 4.2)
   propshaft
   puma (>= 5.0)

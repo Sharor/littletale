@@ -1,0 +1,198 @@
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui print-orders-main">
+    <%= render "steps", current_step: 3 %>
+    <header class="print-orders-heading">
+      <p class="library-eyebrow"><%= t("print_orders.options.eyebrow") %></p>
+      <h1><%= t("print_orders.options.title") %></h1>
+      <p><%= t("print_orders.options.introduction") %></p>
+    </header>
+
+    <div class="print-order-review-grid">
+      <section class="fable-panel">
+        <h2><%= @order.title %></h2>
+        <%= link_to t("print_orders.options.read"), read_print_order_path(@order), class: "print-orders-secondary" %>
+      </section>
+      <section class="fable-panel">
+        <h2><%= t("print_orders.options.delivery") %></h2>
+        <address>
+          <%= @order.recipient_name %><br>
+          <%= @order.street1 %><br>
+          <% if @order.street2.present? %><%= @order.street2 %><br><% end %>
+          <%= @order.postcode %> <%= @order.city %><br>
+          <%= @order.country_code %>
+        </address>
+        <% if @order.editable? %>
+          <%= link_to t("print_orders.options.edit_address"), address_print_order_path(@order), class: "print-orders-secondary" %>
+        <% end %>
+      </section>
+    </div>
+
+    <section class="fable-panel print-order-format" data-pod-package-id="<%= @order.pod_package_id %>">
+      <p class="library-eyebrow"><%= t("print_orders.options.only_format") %></p>
+      <h2><%= t("print_orders.options.format_title") %></h2>
+      <dl>
+        <div><dt><%= t("print_orders.options.size") %></dt><dd>5 × 8 <%= t("print_orders.options.inches") %></dd></div>
+        <div><dt><%= t("print_orders.options.quality") %></dt><dd><%= t("print_orders.options.premium_color") %></dd></div>
+        <div><dt><%= t("print_orders.options.binding") %></dt><dd><%= t("print_orders.options.saddle_stitch") %></dd></div>
+        <div><dt><%= t("print_orders.options.paper") %></dt><dd><%= t("print_orders.options.uncoated_white") %></dd></div>
+        <div><dt><%= t("print_orders.options.finish") %></dt><dd><%= t("print_orders.options.glossy") %></dd></div>
+      </dl>
+    </section>
+
+    <section class="fable-panel print-order-artifacts">
+      <h2><%= t("print_orders.options.preview_title") %></h2>
+      <% if @order.artifacts_current? %>
+        <p data-print-page-count="<%= @order.interior_page_count %>">
+          <%= t("print_orders.options.page_count", count: @order.interior_page_count) %>
+          · <%= t("print_orders.options.blank_page_count", count: @order.blank_page_count) %>
+        </p>
+        <div class="print-orders-actions">
+          <%= link_to t("print_orders.options.preview_interior"), interior_pdf_print_order_path(@order),
+            class: "print-orders-secondary", target: "_blank" %>
+          <%= link_to t("print_orders.options.preview_cover"), cover_pdf_print_order_path(@order),
+            class: "print-orders-secondary", target: "_blank" %>
+        </div>
+      <% else %>
+        <p><%= @order.failure_message.presence || t("print_orders.options.preview_help") %></p>
+        <% if @order.editable? %>
+          <%= button_to t("print_orders.options.prepare"), prepare_print_order_path(@order), method: :post,
+            class: "print-orders-primary", disabled: @order.workflow_state == "preparing" %>
+        <% end %>
+      <% end %>
+    </section>
+
+    <% if @order.artifacts_current? %>
+      <section class="fable-panel print-order-fulfillment">
+        <h2><%= t("print_orders.options.shipping_title") %></h2>
+
+        <% unless Lulu::Configuration.asset_host_ready? %>
+          <p class="fable-notice" role="alert" data-lulu-readiness="missing-asset-host">
+            <%= t("print_orders.options.asset_host_missing") %>
+          </p>
+        <% else %>
+          <% if @order.failure_message.present? %>
+            <p class="fable-notice" role="alert"><%= @order.failure_message %></p>
+          <% end %>
+
+          <% if @order.validation_state == "validating" %>
+            <p><%= t("print_orders.options.validating") %></p>
+          <% elsif @order.validation_current? %>
+            <% if @order.editable? %>
+              <%= form_with url: quote_print_order_path(@order), method: :post, class: "print-order-shipping-form" do |form| %>
+                <fieldset>
+                  <legend><%= t("print_orders.options.shipping_legend") %></legend>
+                  <div class="print-order-shipping-options">
+                    <% @order.shipping_options.each do |option| %>
+                      <% level = option.fetch("level") %>
+                      <label data-shipping-option="<%= level %>">
+                        <%= form.radio_button :shipping_option, level,
+                          checked: @order.shipping_option == level || (@order.shipping_option.blank? && @order.shipping_options.one?) %>
+                        <span>
+                          <strong><%= t("print_orders.shipping_levels.#{level.downcase}", default: level.humanize) %></strong>
+                          <% if option["cost_excl_tax"].present? %>
+                            <%= option["cost_excl_tax"] %> <%= option["currency"] %>
+                          <% end %>
+                          <% if option["total_days_min"].present? && option["total_days_max"].present? %>
+                            · <%= t("print_orders.options.business_days", min: option["total_days_min"], max: option["total_days_max"]) %>
+                          <% end %>
+                        </span>
+                      </label>
+                    <% end %>
+                  </div>
+                </fieldset>
+                <%= form.submit t("print_orders.options.request_quote"), class: "print-orders-primary",
+                  disabled: @order.workflow_state == "quoting" %>
+              <% end %>
+            <% elsif @order.shipping_option.present? %>
+              <p data-selected-shipping-option="<%= @order.shipping_option %>">
+                <strong><%= t("print_orders.options.shipping_legend") %>:</strong>
+                <%= t("print_orders.shipping_levels.#{@order.shipping_option.downcase}", default: @order.shipping_option.humanize) %>
+              </p>
+            <% end %>
+
+            <% if @order.quote_current? %>
+              <% currency = @order.quote.fetch("currency") %>
+              <dl class="print-order-quote">
+                <% @order.quote.fetch("line_item_costs", []).each_with_index do |line_item, index| %>
+                  <div data-print-order-printing="<%= index + 1 %>">
+                    <dt><%= t("print_orders.options.printing") %></dt>
+                    <dd><%= line_item["total_cost_incl_tax"] %> <%= currency %></dd>
+                  </div>
+                <% end %>
+                <% if @order.quote.dig("fulfillment_cost", "total_cost_incl_tax").present? %>
+                  <div data-print-order-fulfillment="<%= @order.quote.dig("fulfillment_cost", "total_cost_incl_tax") %>">
+                    <dt><%= t("print_orders.options.fulfillment") %></dt>
+                    <dd><%= @order.quote.dig("fulfillment_cost", "total_cost_incl_tax") %> <%= currency %></dd>
+                  </div>
+                  <% end %>
+                <% @order.quote.fetch("fees", []).reject { |fee| fee["fee_type"] == "FULFILLMENT_FEE" }.each do |fee| %>
+                  <div data-print-order-fee="<%= fee["fee_type"] %>">
+                    <dt><%= t("print_orders.options.provider_fee", fee: fee["fee_type"].to_s.humanize) %></dt>
+                    <dd><%= fee["total_cost_incl_tax"] %> <%= currency %></dd>
+                  </div>
+                <% end %>
+                <% if @order.quote.dig("shipping_cost", "total_cost_incl_tax").present? %>
+                  <div>
+                    <dt><%= t("print_orders.options.shipping_cost") %></dt>
+                    <dd><%= @order.quote.dig("shipping_cost", "total_cost_incl_tax") %> <%= currency %></dd>
+                  </div>
+                <% end %>
+                <% if @order.quote["total_discount_amount"].present? %>
+                  <div data-print-order-discount="<%= @order.quote["total_discount_amount"] %>">
+                    <dt><%= t("print_orders.options.discount") %></dt>
+                    <dd>−<%= @order.quote["total_discount_amount"] %> <%= currency %></dd>
+                  </div>
+                <% end %>
+                <div data-print-order-tax="<%= @order.quote["total_tax"] %>">
+                  <dt><%= t("print_orders.options.tax") %></dt>
+                  <dd><%= @order.quote["total_tax"] %> <%= currency %></dd>
+                </div>
+                <div class="is-total" data-print-order-total="<%= @order.quote["total_cost_incl_tax"] %>">
+                  <dt><%= t("print_orders.options.total") %></dt>
+                  <dd><%= @order.quote["total_cost_incl_tax"] %> <%= currency %></dd>
+                </div>
+              </dl>
+            <% elsif @order.workflow_state == "quoting" %>
+              <p><%= t("print_orders.options.quoting") %></p>
+            <% end %>
+          <% else %>
+            <p><%= t("print_orders.options.validation_help") %></p>
+            <% if @order.editable? %>
+              <%= button_to t("print_orders.options.validate"), validate_files_print_order_path(@order), method: :post,
+                class: "print-orders-primary" %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </section>
+    <% end %>
+
+    <% if @order.quote_current? || @order.submission_started? || @order.lulu_print_job_id.present? %>
+      <section class="fable-panel print-order-submission" data-lulu-environment="sandbox">
+        <p class="library-eyebrow"><%= t("print_orders.options.sandbox_label") %></p>
+        <h2><%= t("print_orders.options.order_title") %></h2>
+
+        <% if @order.lulu_print_job_id.present? %>
+          <p class="print-order-provider-status" data-provider-status="<%= @order.provider_status %>">
+            <strong><%= t("print_orders.provider_statuses.#{@order.provider_status.to_s.downcase}", default: @order.provider_status.to_s.humanize) %></strong>
+          </p>
+          <p><%= t("print_orders.options.lulu_job_id", id: @order.lulu_print_job_id) %></p>
+          <%= button_to t("print_orders.options.refresh_status"), refresh_status_print_order_path(@order), method: :post,
+            class: "print-orders-secondary" %>
+        <% elsif @order.workflow_state == "submitting" %>
+          <p><%= t("print_orders.options.submitting") %></p>
+        <% elsif @order.retryable_submission? %>
+          <p class="fable-notice" role="alert"><%= @order.failure_message %></p>
+          <%= button_to t("print_orders.options.retry_submission"), retry_submission_print_order_path(@order),
+            method: :post, class: "print-orders-primary" %>
+        <% elsif @order.workflow_state.in?(%w[submission_uncertain submission_needs_review submission_failed]) %>
+          <p class="fable-notice" role="alert"><%= @order.failure_message %></p>
+        <% elsif @order.submittable? %>
+          <p><%= t("print_orders.options.sandbox_warning") %></p>
+          <%= button_to t("print_orders.options.place_order"), submit_print_order_path(@order), method: :post,
+            class: "print-orders-primary" %>
+        <% end %>
+      </section>
+    <% end %>
+  </main>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_30_190000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_01_110000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -390,6 +390,64 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_30_190000) do
     t.index ["book_wardrobe_plan_id"], name: "index_pages_on_book_wardrobe_plan_id"
   end
 
+  create_table "print_order_pages", force: :cascade do |t|
+    t.integer "print_order_id", null: false
+    t.integer "position", null: false
+    t.text "text", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["print_order_id", "position"], name: "index_print_order_pages_on_print_order_id_and_position", unique: true
+    t.index ["print_order_id"], name: "index_print_order_pages_on_print_order_id"
+  end
+
+  create_table "print_orders", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "source_book_id"
+    t.string "title", null: false
+    t.string "language", null: false
+    t.string "workflow_state", default: "draft", null: false
+    t.integer "step", default: 1, null: false
+    t.string "pod_package_id", null: false
+    t.integer "content_revision", default: 1, null: false
+    t.integer "artifacts_revision"
+    t.integer "interior_page_count"
+    t.string "recipient_name"
+    t.string "street1"
+    t.string "street2"
+    t.string "city"
+    t.string "postcode"
+    t.string "country_code"
+    t.string "state_code"
+    t.string "recipient_email"
+    t.string "phone_number"
+    t.string "shipping_option"
+    t.json "shipping_options", default: [], null: false
+    t.json "quote", default: {}, null: false
+    t.integer "quote_revision"
+    t.datetime "quoted_at"
+    t.string "validation_state", default: "not_started", null: false
+    t.json "validation_details", default: {}, null: false
+    t.json "cover_dimensions", default: {}, null: false
+    t.string "submission_uuid"
+    t.string "lulu_print_job_id"
+    t.string "provider_status"
+    t.text "failure_message"
+    t.datetime "submitted_at"
+    t.datetime "submission_uncertain_at"
+    t.datetime "last_status_checked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "blank_page_count"
+    t.integer "checkout_revision", default: 1, null: false
+    t.datetime "submission_attempted_at"
+    t.json "submission_attempts", default: [], null: false
+    t.index ["lulu_print_job_id"], name: "index_print_orders_on_lulu_print_job_id", unique: true
+    t.index ["source_book_id"], name: "index_print_orders_on_source_book_id"
+    t.index ["submission_uuid"], name: "index_print_orders_on_submission_uuid", unique: true
+    t.index ["user_id", "created_at"], name: "index_print_orders_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_print_orders_on_user_id"
+  end
+
   create_table "stripe_events", force: :cascade do |t|
     t.string "stripe_event_id", null: false
     t.string "event_type", null: false
@@ -545,6 +603,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_30_190000) do
   add_foreign_key "illustrations", "pages", on_delete: :cascade
   add_foreign_key "pages", "book_wardrobe_plans"
   add_foreign_key "pages", "books", on_delete: :cascade
+  add_foreign_key "print_order_pages", "print_orders", on_delete: :cascade
+  add_foreign_key "print_orders", "books", column: "source_book_id", on_delete: :nullify
+  add_foreign_key "print_orders", "users"
   add_foreign_key "subscription_periods", "user_subscriptions"
   add_foreign_key "trial_book_reservations", "books", on_delete: :nullify
   add_foreign_key "trial_book_reservations", "users"

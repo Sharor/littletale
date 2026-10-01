@@ -1,0 +1,43 @@
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+
+  <main class="fable-main fable-ui">
+    <header class="library-heading">
+      <p class="library-eyebrow"><%= t("print_orders.index.eyebrow") %></p>
+      <h1><%= t("print_orders.index.title") %></h1>
+      <div class="library-rule" aria-hidden="true"><span>✦</span></div>
+      <p class="print-orders-intro"><%= t("print_orders.index.introduction") %></p>
+    </header>
+
+    <div class="print-orders-actions">
+      <%= link_to t("print_orders.index.new"), new_print_order_path, class: "print-orders-primary" %>
+    </div>
+
+    <% if @orders.any? %>
+      <div class="print-orders-list">
+        <% @orders.each do |order| %>
+          <article class="fable-panel print-order-row">
+            <div>
+              <p class="library-eyebrow"><%= t("print_orders.status.#{order.workflow_state}") %></p>
+              <h2><%= order.title %></h2>
+              <% if order.provider_status.present? %>
+                <p data-provider-status="<%= order.provider_status %>">
+                  <%= t("print_orders.provider_statuses.#{order.provider_status.downcase}",
+                    default: order.provider_status.humanize) %>
+                </p>
+              <% end %>
+              <p><%= l(order.created_at.to_date, format: :long) %></p>
+            </div>
+            <% resume_path = order.step >= 3 ? options_print_order_path(order) : (order.step == 2 ? address_print_order_path(order) : print_order_path(order)) %>
+            <%= link_to t(order.submission_started? ? "print_orders.index.view" : "print_orders.index.resume"),
+              resume_path, class: "print-orders-secondary" %>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <section class="fable-panel print-orders-empty">
+        <p><%= t("print_orders.index.empty") %></p>
+      </section>
+    <% end %>
+  </main>
+</div>

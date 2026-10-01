@@ -19,6 +19,7 @@ class User < ApplicationRecord
   has_many :book_credit_reservations, dependent: :restrict_with_exception
   has_many :character_credit_reservations, dependent: :restrict_with_exception
   has_many :user_subscriptions, dependent: :restrict_with_exception
+  has_many :print_orders, dependent: :restrict_with_exception
   has_many :sent_book_gifts, class_name: "BookGift", foreign_key: :sender_id, dependent: :nullify,
     inverse_of: :sender
   has_many :received_book_gifts, class_name: "BookGift", foreign_key: :recipient_id, dependent: :nullify,

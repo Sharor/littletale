@@ -1,0 +1,171 @@
+da:
+  navigation:
+    orders: Ordrer
+  print_orders:
+    index:
+      eyebrow: Lulu-sandkasse
+      title: Bogordrer
+      introduction: Gør en af dine færdige historier til et trykt minde.
+      empty: Start en ordre ved at vælge en af dine færdige bøger.
+      new: Start en bogordre
+      resume: Fortsæt ordre
+      view: Se ordre
+    steps:
+      label: Ordretrin
+      book: Vælg bog
+      delivery: Levering
+      print: Tryk og gennemgang
+    new:
+      eyebrow: Trin 1 af 3
+      title: Vælg din bog
+      introduction: Vælg en færdig, fuldt illustreret historie. Vi gemmer denne udgave, før du fortsætter.
+      pages:
+        one: 1 historieside
+        other: "%{count} historiesider"
+      choose: Gem valgt bog
+      empty: Der er ingen færdige, fuldt illustrerede bøger, som kan trykkes.
+    show:
+      eyebrow: Valgt udgave
+      introduction: Læs den gemte udgave, før du fortsætter, så du ved, at det er den rigtige historie.
+      pages:
+        one: 1 gemt historieside
+        other: "%{count} gemte historiesider"
+      read: Læs gemt bog
+      continue: Fortsæt til levering
+    address:
+      eyebrow: Trin 2 af 3
+      title: Leveringsadresse
+      introduction: Indtast den adresse, Lulu skal bruge til denne sandkasseordre.
+      fields:
+        recipient_name: Modtagers navn
+        street1: Adresselinje 1
+        street2: Adresselinje 2 (valgfri)
+        city: By
+        postcode: Postnummer
+        country_code: Landekode
+        state_code: Stat eller region
+        recipient_email: Modtagers e-mail
+        phone_number: Telefonnummer
+      state_help: Brug en landekode på to bogstaver. Stat eller region kræves for USA, Canada og Australien.
+      back: Tilbage til bogen
+      continue: Fortsæt til trykmuligheder
+    options:
+      eyebrow: Trin 3 af 3 · Lulu-sandkasse
+      title: Vælg trykformat
+      introduction: Gennemgå den gemte historie, leveringsadressen og det understøttede hæfteformat.
+      read: Læs gemt bog
+      delivery: Leveringsadresse
+      edit_address: Rediger adresse
+      only_format: Tilgængeligt format
+      format_title: Hæfte i premiumfarve
+      size: Størrelse
+      inches: tommer
+      quality: Kvalitet
+      premium_color: Premiumfarve
+      binding: Indbinding
+      saddle_stitch: Hæfteklammer
+      paper: Papir
+      uncoated_white: 60# ubestrøget hvidt
+      finish: Omslagets finish
+      glossy: Blank
+      preview_title: Trykvisning
+      preview_help: Byg PDF-filerne, så du kan gennemgå alle trykte sider, før du beder om en pris.
+      prepare: Byg trykvisning
+      page_count:
+        one: 1 inderside
+        other: "%{count} indersider"
+      blank_page_count:
+        one: 1 tom side krævet til indbinding
+        other: "%{count} tomme sider krævet til indbinding"
+      preview_interior: Vis indholds-PDF
+      preview_cover: Vis omslags-PDF
+      shipping_title: Lulu-validering og levering
+      asset_host_missing: Konfigurer en offentlig HTTPS-vært til filer, før Lulu kan validere disse PDF-filer.
+      validation_help: Bed Lulus sandkasse om at validere begge PDF-filer og finde leveringsmuligheder til adressen.
+      validate: Valider filer og find levering
+      validating: Lulu validerer trykfilerne. Leveringsmuligheder vises her, når valideringen er færdig.
+      shipping_legend: Leveringsmetode
+      business_days: "%{min}–%{max} hverdage"
+      request_quote: Beregn nøjagtig pris
+      quoting: Lulu beregner pris, afgifter og leveringsomkostninger.
+      printing: Bogtryk
+      fulfillment: Ekspedition
+      provider_fee: "%{fee}"
+      shipping_cost: Levering
+      discount: Rabat
+      tax: Afgifter
+      total: I alt
+      sandbox_label: Lulu-sandkasseordre
+      order_title: Afgiv og følg ordre
+      sandbox_warning: Dette opretter én ubetalt ordre i Lulus sandkasse. Gennemgå PDF-filerne, adressen, leveringen og totalen, før du fortsætter.
+      place_order: Afgiv sandkasseordre
+      submitting: Sandkasseordren oprettes. Undlad at afgive den igen.
+      lulu_job_id: "Lulu-job nr. %{id}"
+      refresh_status: Opdater Lulu-status
+      retry_submission: Gennemgå og prøv igen
+    shipping_levels:
+      mail: Post
+      priority_mail: Prioriteret post
+      ground_hd: Hjemmelevering med landtransport
+      ground_bus: Erhvervslevering med landtransport
+      ground: Landtransport
+      expedited: Hurtig levering
+      express: Ekspres
+    reader:
+      back: Tilbage til ordren
+    status:
+      draft: Kladde
+      preparing: Forbereder filer
+      prepared: Filer klar
+      failed: Kræver handling
+      validating: Validerer filer
+      selecting_shipping: Vælg levering
+      quoting: Beregner pris
+      quoted: Pris klar
+      submitting: Opretter sandkasseordre
+      submitted: Afsendt
+      submission_uncertain: Kontrollerer afsendelse
+      submission_needs_review: Manuel kontrol kræves
+      submission_failed: Afsendelse mislykkedes
+      quote_changed: Pris ændret
+    provider_statuses:
+      created: Lulu validerer ordren
+      unpaid: Afventer sandkassebetaling
+      payment_in_progress: Sandkassebetaling behandles
+      production_ready: Klar til produktion
+      production_delayed: Produktion forsinket
+      in_production: I produktion
+      rejected: Afvist af Lulu
+      error: Lulu rapporterede en fejl
+      shipped: Afsendt
+      canceled: Annulleret
+    notices:
+      preparing: Din trykvisning bliver forberedt.
+      validating: Validering i Lulu-sandkassen er startet.
+      quoting: Lulu-sandkassen beregner den nøjagtige pris.
+      submitting: Ordren oprettes i Lulu-sandkassen.
+      refreshing_status: Opdatering af Lulu-status er sat i kø.
+      retry_submission: Det afviste forsøg er bevaret. Valider igen, og hent en ny pris før næste bekræftelse.
+    errors:
+      ineligible_book: Vælg en af dine færdige, fuldt illustrerede bøger.
+      complete_address: Udfyld leveringsadressen, før du vælger trykmuligheder.
+      preparation_queue: Trykvisningen kunne ikke sættes i kø. Prøv igen.
+      preparation_failed: Trykvisningen kunne ikke bygges fra den gemte bog. Kontrollér billederne, og prøv igen.
+      asset_host: Konfigurer en offentlig HTTPS-vært til filer, før du anmoder om Lulu-validering.
+      validation_queue: Lulu-valideringen kunne ikke sættes i kø. Prøv igen.
+      quote_queue: Prisforespørgslen kunne ikke sættes i kø. Prøv igen.
+      shipping_option: Vælg en af de tilgængelige leveringsmetoder.
+      validation_timeout: Lulu nåede ikke at validere filerne. Prøv igen.
+      validation_rejected: "Lulu afviste trykfilerne: %{message}"
+      no_shipping_options: Lulu returnerede ingen leveringsmetode til denne adresse.
+      cover_dimensions: Lulu returnerede omslagsmål, som ikke passer til dette hæfte.
+      provider: "Lulu-sandkassen kunne ikke fuldføre anmodningen: %{message}"
+      submission_queue: Sandkasseordren kunne ikke sættes i kø. Prøv igen.
+      not_submittable: Valider filerne igen, og hent en aktuel pris, før du afgiver ordren.
+      submission_uncertain: Lulu har muligvis modtaget ordren. Appen kontrollerer den nøjagtige ordrereference og afgiver den ikke automatisk igen.
+      submission_not_confirmed: Lulu kunne ikke bekræfte, om ordren blev modtaget. Kontroller den i sandkasseportalen, før du fortsætter.
+      quote_changed: Lulu returnerede en anden total. Gennemgå den opdaterede pris, og bekræft ordren igen.
+      submission_locked: Ordren er skrivebeskyttet, fordi afsendelsen er startet.
+      retry_submission: Kun en bekræftet afvist afsendelse kan prøves igen.
+      status_refresh: "Lulu-status kunne ikke opdateres: %{message}"
+      status_queue: Opdatering af Lulu-status kunne ikke sættes i kø. Prøv igen.

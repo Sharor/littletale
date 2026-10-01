@@ -10,6 +10,13 @@ proxy:
   hosts:
     - minortale.com
     - www.minortale.com
+  run:
+    # Signed Lulu artifact capabilities can appear in the proxy's host-local log.
+    # Retain only one tightly bounded file; Rails and Alloy redact the path.
+    log_max_size: "1m"
+    options:
+      log-opt:
+        - "max-file=1"
 
 registry:
   username: sharor
@@ -28,6 +35,11 @@ env:
 
   clear:
     SOLID_QUEUE_IN_PUMA: true
+
+    # Lulu Orders remains an admin-only sandbox pilot until explicitly enabled.
+    # Lulu fetches signed PDFs from this public HTTPS application host.
+    LULU_ORDERS_ENABLED: "false"
+    LULU_ASSET_HOST: "https://minortale.com"
 
 aliases:
   console: app exec --interactive --reuse "bin/rails console"

@@ -1,0 +1,171 @@
+en:
+  navigation:
+    orders: Orders
+  print_orders:
+    index:
+      eyebrow: Lulu sandbox
+      title: Book orders
+      introduction: Turn one of your completed stories into a printed keepsake.
+      empty: Start an order by choosing one of your completed books.
+      new: Start a book order
+      resume: Resume order
+      view: View order
+    steps:
+      label: Order steps
+      book: Choose book
+      delivery: Delivery
+      print: Print and review
+    new:
+      eyebrow: Step 1 of 3
+      title: Choose your book
+      introduction: Choose a completed, fully illustrated story. We save this edition before you continue.
+      pages:
+        one: 1 story page
+        other: "%{count} story pages"
+      choose: Save selected book
+      empty: There are no completed, fully illustrated books available to print.
+    show:
+      eyebrow: Selected edition
+      introduction: Read the retained edition before continuing so you know it is the right story.
+      pages:
+        one: 1 retained story page
+        other: "%{count} retained story pages"
+      read: Read retained book
+      continue: Continue to delivery
+    address:
+      eyebrow: Step 2 of 3
+      title: Delivery address
+      introduction: Enter the address Lulu should use for this sandbox order.
+      fields:
+        recipient_name: Recipient name
+        street1: Address line 1
+        street2: Address line 2 (optional)
+        city: City
+        postcode: Postal code
+        country_code: Country code
+        state_code: State or region
+        recipient_email: Recipient email
+        phone_number: Phone number
+      state_help: Use a two-letter country code. State or region is required for the US, Canada, and Australia.
+      back: Back to book
+      continue: Continue to print options
+    options:
+      eyebrow: Step 3 of 3 · Lulu sandbox
+      title: Choose print format
+      introduction: Review the retained story, delivery address, and supported booklet format.
+      read: Read retained book
+      delivery: Delivery address
+      edit_address: Edit address
+      only_format: Available format
+      format_title: Premium color booklet
+      size: Size
+      inches: inches
+      quality: Quality
+      premium_color: Premium color
+      binding: Binding
+      saddle_stitch: Saddle stitch
+      paper: Paper
+      uncoated_white: 60# uncoated white
+      finish: Cover finish
+      glossy: Glossy
+      preview_title: Print preview
+      preview_help: Build the PDFs to review every printed page before requesting a quote.
+      prepare: Build print preview
+      page_count:
+        one: 1 interior page
+        other: "%{count} interior pages"
+      blank_page_count:
+        one: 1 binding-required blank page
+        other: "%{count} binding-required blank pages"
+      preview_interior: Preview interior PDF
+      preview_cover: Preview cover PDF
+      shipping_title: Lulu validation and delivery
+      asset_host_missing: Configure a public HTTPS asset host before Lulu can validate these PDFs.
+      validation_help: Ask Lulu's sandbox to validate both PDFs and return delivery choices for this address.
+      validate: Validate files and find delivery
+      validating: Lulu is validating the print files. This page will show delivery choices when validation finishes.
+      shipping_legend: Delivery method
+      business_days: "%{min}–%{max} business days"
+      request_quote: Calculate exact price
+      quoting: Lulu is calculating the price, tax, and delivery cost.
+      printing: Book printing
+      fulfillment: Fulfillment
+      provider_fee: "%{fee}"
+      shipping_cost: Delivery
+      discount: Discount
+      tax: Tax
+      total: Total
+      sandbox_label: Lulu sandbox order
+      order_title: Place and track order
+      sandbox_warning: This creates one unpaid order in Lulu's sandbox. Review the PDFs, address, delivery method, and total before continuing.
+      place_order: Place sandbox order
+      submitting: The sandbox order is being created. Please do not submit it again.
+      lulu_job_id: "Lulu job #%{id}"
+      refresh_status: Refresh Lulu status
+      retry_submission: Review and retry
+    shipping_levels:
+      mail: Mail
+      priority_mail: Priority mail
+      ground_hd: Ground home delivery
+      ground_bus: Ground business delivery
+      ground: Ground
+      expedited: Expedited
+      express: Express
+    reader:
+      back: Back to order
+    status:
+      draft: Draft
+      preparing: Preparing files
+      prepared: Files ready
+      failed: Needs attention
+      validating: Validating files
+      selecting_shipping: Choose delivery
+      quoting: Calculating price
+      quoted: Quote ready
+      submitting: Creating sandbox order
+      submitted: Submitted
+      submission_uncertain: Checking submission
+      submission_needs_review: Manual review needed
+      submission_failed: Submission failed
+      quote_changed: Quote changed
+    provider_statuses:
+      created: Lulu is validating the order
+      unpaid: Awaiting sandbox payment
+      payment_in_progress: Sandbox payment in progress
+      production_ready: Ready for production
+      production_delayed: Production delayed
+      in_production: In production
+      rejected: Rejected by Lulu
+      error: Lulu reported an error
+      shipped: Shipped
+      canceled: Canceled
+    notices:
+      preparing: Your print preview is being prepared.
+      validating: Lulu sandbox validation has started.
+      quoting: Lulu sandbox is calculating the exact price.
+      submitting: The Lulu sandbox order is being created.
+      refreshing_status: Lulu status refresh has been queued.
+      retry_submission: The rejected attempt is preserved. Revalidate and request a fresh quote before confirming again.
+    errors:
+      ineligible_book: Choose one of your completed, fully illustrated books.
+      complete_address: Complete the delivery address before choosing print options.
+      preparation_queue: The print preview could not be queued. Please try again.
+      preparation_failed: The print preview could not be built from the retained book. Check its images and try again.
+      asset_host: Configure a public HTTPS asset host before requesting Lulu validation.
+      validation_queue: Lulu validation could not be queued. Please try again.
+      quote_queue: The price request could not be queued. Please try again.
+      shipping_option: Choose one of the available delivery methods.
+      validation_timeout: Lulu did not finish validating the files in time. Please try again.
+      validation_rejected: "Lulu rejected the print files: %{message}"
+      no_shipping_options: Lulu did not return a delivery method for this address.
+      cover_dimensions: Lulu returned cover dimensions that do not match this booklet.
+      provider: "Lulu sandbox could not complete the request: %{message}"
+      submission_queue: The sandbox order could not be queued. Please try again.
+      not_submittable: Revalidate the files and request a current quote before placing the order.
+      submission_uncertain: Lulu may have received this order. The app is checking the exact order reference and will not submit it again automatically.
+      submission_not_confirmed: Lulu could not confirm whether it received this order. Review it in the sandbox portal before taking further action.
+      quote_changed: Lulu returned a different total. Review the updated quote and confirm the order again.
+      submission_locked: This order is read only because submission has started.
+      retry_submission: Only a confirmed rejected submission can be retried.
+      status_refresh: "Lulu status could not be refreshed: %{message}"
+      status_queue: Lulu status refresh could not be queued. Please try again.

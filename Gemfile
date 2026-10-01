@@ -59,6 +59,8 @@ gem "rubocop-performance"
 gem "rubocop-rails"
 # gem "openai", github: "openai/openai-ruby", branch: "main" # this is the official OpenAI gem, sort that out later
 gem "ruby-openai", "~> 8.3"  # , github: "alexrudall/ruby-openai", branch: "feat/multi-image"
+gem "prawn", "~> 2.5"
+gem "faraday", "~> 2.13"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
@@ -85,6 +87,7 @@ group :test do
   gem "minitest-focus"
   gem "vcr"
   gem "webmock"
+  gem "pdf-reader", "~> 2.15"
 end
 
 gem "mission_control-jobs", "~> 1.1"
