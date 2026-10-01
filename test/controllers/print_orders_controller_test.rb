@@ -14,6 +14,15 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     sign_in @admin
   end
 
+  test "filters every delivery address field from parameter logs" do
+    delivery = PrintOrder::DELIVERY_ATTRIBUTES.index_with { |attribute| "private-#{attribute}" }
+    filtered = ActiveSupport::ParameterFilter.new(
+      Rails.application.config.filter_parameters
+    ).filter(delivery)
+
+    assert_equal delivery.keys.index_with { "[FILTERED]" }, filtered
+  end
+
   test "enabled admins can open orders from navigation" do
     with_lulu_orders_enabled do
       get "/orders"
