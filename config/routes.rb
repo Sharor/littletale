@@ -69,6 +69,8 @@ Rails.application.routes.draw do
       get :cover_pdf
       post :validate_files
       post :quote
+      post :submit
+      post :refresh_status
     end
   end
   resources :book_gifts, only: [] do

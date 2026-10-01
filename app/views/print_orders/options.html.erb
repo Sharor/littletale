@@ -127,5 +127,29 @@
         <% end %>
       </section>
     <% end %>
+
+    <% if @order.quote_current? || @order.submission_started? || @order.lulu_print_job_id.present? %>
+      <section class="fable-panel print-order-submission" data-lulu-environment="sandbox">
+        <p class="library-eyebrow"><%= t("print_orders.options.sandbox_label") %></p>
+        <h2><%= t("print_orders.options.order_title") %></h2>
+
+        <% if @order.lulu_print_job_id.present? %>
+          <p class="print-order-provider-status" data-provider-status="<%= @order.provider_status %>">
+            <strong><%= t("print_orders.provider_statuses.#{@order.provider_status.to_s.downcase}", default: @order.provider_status.to_s.humanize) %></strong>
+          </p>
+          <p><%= t("print_orders.options.lulu_job_id", id: @order.lulu_print_job_id) %></p>
+          <%= button_to t("print_orders.options.refresh_status"), refresh_status_print_order_path(@order), method: :post,
+            class: "print-orders-secondary" %>
+        <% elsif @order.workflow_state == "submitting" %>
+          <p><%= t("print_orders.options.submitting") %></p>
+        <% elsif @order.workflow_state.in?(%w[submission_uncertain submission_needs_review submission_failed]) %>
+          <p class="fable-notice" role="alert"><%= @order.failure_message %></p>
+        <% elsif @order.submittable? %>
+          <p><%= t("print_orders.options.sandbox_warning") %></p>
+          <%= button_to t("print_orders.options.place_order"), submit_print_order_path(@order), method: :post,
+            class: "print-orders-primary" %>
+        <% end %>
+      </section>
+    <% end %>
   </main>
 </div>

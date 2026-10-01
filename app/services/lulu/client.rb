@@ -94,20 +94,34 @@ module Lulu
       })
     end
 
+    def create_print_job(**payload)
+      post("/print-jobs/", payload)
+    end
+
+    def find_print_job_by_external_id(external_id)
+      response = get("/print-jobs/", search: external_id, page_size: 100, exclude_line_items: true)
+      Array(response["results"]).find { |job| job["external_id"] == external_id }
+    end
+
+    def print_job_status(id)
+      get("/print-jobs/#{id}/status/")
+    end
+
     private
 
-    def get(path)
-      request(:get, path)
+    def get(path, query = nil)
+      request(:get, path, query:)
     end
 
     def post(path, body)
-      request(:post, path, body)
+      request(:post, path, body:)
     end
 
-    def request(method, path, body = nil, retry_auth: true)
+    def request(method, path, body: nil, query: nil, retry_auth: true)
       response = @connection.public_send(method, path) do |request|
         request.headers["Authorization"] = "Bearer #{access_token}"
         request.headers["Cache-Control"] = "no-cache"
+        request.params.update(query) if query
         if body
           request.headers["Content-Type"] = "application/json"
           request.body = JSON.generate(body)
@@ -116,7 +130,7 @@ module Lulu
 
       if response.status == 401 && retry_auth
         clear_token
-        return request(method, path, body, retry_auth: false)
+        return request(method, path, body:, query:, retry_auth: false)
       end
 
       parse_response(response)

@@ -266,6 +266,73 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-print-order-tax='2.96']", text: /2.96 EUR/
   end
 
+  test "a confirmed sandbox order is queued only once across duplicate clicks" do
+    order = submittable_order
+
+    with_lulu_asset_host do
+      with_lulu_orders_enabled do
+        assert_enqueued_with(job: SubmitPrintOrderJob) do
+          post "/orders/#{order.id}/submit"
+        end
+      end
+    end
+    order.reload
+    assert_predicate order.submission_uuid, :present?
+    assert_equal "submitting", order.workflow_state
+
+    with_lulu_asset_host do
+      with_lulu_orders_enabled do
+        assert_no_enqueued_jobs { post "/orders/#{order.id}/submit" }
+      end
+    end
+    assert_equal order.submission_uuid, order.reload.submission_uuid
+  end
+
+  test "the print step clearly labels submission as sandbox and shows provider status" do
+    order = submittable_order
+    with_lulu_asset_host do
+      with_lulu_orders_enabled { get "/orders/#{order.id}/options" }
+    end
+
+    assert_response :success
+    assert_select "[data-lulu-environment='sandbox']", text: /sandbox order/i
+    assert_select "form[action='/orders/#{order.id}/submit'] button", text: "Place sandbox order"
+
+    order.update!(
+      workflow_state: "submitted",
+      submission_uuid: SecureRandom.uuid,
+      lulu_print_job_id: "551",
+      provider_status: "UNPAID",
+      submitted_at: Time.current
+    )
+    with_lulu_asset_host do
+      with_lulu_orders_enabled { get "/orders/#{order.id}/options" }
+    end
+
+    assert_select "[data-provider-status='UNPAID']", text: /Awaiting sandbox payment/
+    assert_select "form[action='/orders/#{order.id}/submit']", count: 0
+    assert_select "form[action='/orders/#{order.id}/refresh_status'] button", text: "Refresh Lulu status"
+  end
+
+  test "submitted orders can queue a manual status refresh" do
+    order = submittable_order
+    order.update!(
+      workflow_state: "submitted",
+      submission_uuid: SecureRandom.uuid,
+      lulu_print_job_id: "551",
+      provider_status: "UNPAID",
+      submitted_at: Time.current
+    )
+
+    with_lulu_orders_enabled do
+      assert_enqueued_with(job: RefreshPrintOrderStatusJob, args: [ order.id, 0 ]) do
+        post "/orders/#{order.id}/refresh_status"
+      end
+    end
+
+    assert_redirected_to "/orders/#{order.id}/options"
+  end
+
   private
 
   def with_lulu_orders_enabled
@@ -337,6 +404,18 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
           }
         ],
         workflow_state: "selecting_shipping"
+      )
+    end
+  end
+
+  def submittable_order
+    quoted_ready_order.tap do |order|
+      order.update!(
+        shipping_option: "MAIL",
+        quote: { "currency" => "EUR", "total_cost_incl_tax" => "14.80", "total_tax" => "2.96" },
+        quote_revision: order.checkout_revision,
+        quoted_at: Time.current,
+        workflow_state: "quoted"
       )
     end
   end

@@ -98,6 +98,14 @@ class PrintOrder < ApplicationRecord
     quote.present? && quote_revision == checkout_revision && validation_current?
   end
 
+  def submission_started?
+    submission_uuid.present?
+  end
+
+  def submittable?
+    quote_current? && shipping_option.present? && !submission_started? && lulu_print_job_id.blank?
+  end
+
   def provider_address
     {
       name: recipient_name,
@@ -184,6 +192,35 @@ class PrintOrder < ApplicationRecord
     end
   rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
     update_columns(workflow_state: "failed", failure_message: I18n.t("print_orders.errors.quote_queue"))
+    false
+  end
+
+  def enqueue_submission!
+    with_lock do
+      return true if submission_started? || lulu_print_job_id.present?
+      return false unless submittable? && Lulu::Configuration.asset_host_ready?
+
+      uuid = SecureRandom.uuid
+      update!(workflow_state: "submitting", submission_uuid: uuid, failure_message: nil)
+      job = SubmitPrintOrderJob.perform_later(id, content_revision, checkout_revision, uuid)
+      return true if job&.successfully_enqueued?
+
+      update!(workflow_state: "quoted", submission_uuid: nil,
+        failure_message: I18n.t("print_orders.errors.submission_queue"))
+      false
+    end
+  rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
+    update_columns(workflow_state: "quoted", submission_uuid: nil,
+      failure_message: I18n.t("print_orders.errors.submission_queue"))
+    false
+  end
+
+  def enqueue_status_refresh!
+    return false if lulu_print_job_id.blank?
+
+    job = RefreshPrintOrderStatusJob.perform_later(id, 0)
+    job&.successfully_enqueued? || false
+  rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
     false
   end
 

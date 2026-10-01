@@ -91,6 +91,13 @@ en:
       shipping_cost: Delivery
       tax: Tax
       total: Total
+      sandbox_label: Lulu sandbox order
+      order_title: Place and track order
+      sandbox_warning: This creates one unpaid order in Lulu's sandbox. Review the PDFs, address, delivery method, and total before continuing.
+      place_order: Place sandbox order
+      submitting: The sandbox order is being created. Please do not submit it again.
+      lulu_job_id: "Lulu job #%{id}"
+      refresh_status: Refresh Lulu status
     shipping_levels:
       mail: Mail
       priority_mail: Priority mail
@@ -110,10 +117,28 @@ en:
       selecting_shipping: Choose delivery
       quoting: Calculating price
       quoted: Quote ready
+      submitting: Creating sandbox order
+      submitted: Submitted
+      submission_uncertain: Checking submission
+      submission_needs_review: Manual review needed
+      submission_failed: Submission failed
+    provider_statuses:
+      created: Lulu is validating the order
+      unpaid: Awaiting sandbox payment
+      payment_in_progress: Sandbox payment in progress
+      production_ready: Ready for production
+      production_delayed: Production delayed
+      in_production: In production
+      rejected: Rejected by Lulu
+      error: Lulu reported an error
+      shipped: Shipped
+      canceled: Canceled
     notices:
       preparing: Your print preview is being prepared.
       validating: Lulu sandbox validation has started.
       quoting: Lulu sandbox is calculating the exact price.
+      submitting: The Lulu sandbox order is being created.
+      refreshing_status: Lulu status refresh has been queued.
     errors:
       ineligible_book: Choose one of your completed, fully illustrated books.
       complete_address: Complete the delivery address before choosing print options.
@@ -127,3 +152,9 @@ en:
       no_shipping_options: Lulu did not return a delivery method for this address.
       cover_dimensions: Lulu returned cover dimensions that do not match this booklet.
       provider: "Lulu sandbox could not complete the request: %{message}"
+      submission_queue: The sandbox order could not be queued. Please try again.
+      not_submittable: Revalidate the files and request a current quote before placing the order.
+      submission_uncertain: Lulu may have received this order. The app is checking the exact order reference and will not submit it again automatically.
+      submission_not_confirmed: Lulu could not confirm whether it received this order. Review it in the sandbox portal before taking further action.
+      status_refresh: "Lulu status could not be refreshed: %{message}"
+      status_queue: Lulu status refresh could not be queued. Please try again.

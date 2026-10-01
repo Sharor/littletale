@@ -173,6 +173,64 @@ class Lulu::ClientTest < ActiveSupport::TestCase
     assert_equal "The Lulu sandbox did not respond.", error.details
   end
 
+  test "creates a one-copy print job with Lulu's printable normalization schema" do
+    stub_token
+    payload = {
+      external_id: "submission-uuid",
+      contact_email: "admin@example.com",
+      line_items: [ {
+        external_id: "submission-uuid-1",
+        printable_normalization: {
+          cover: { source_url: "https://assets.example.test/cover.pdf" },
+          interior: { source_url: "https://assets.example.test/interior.pdf" },
+          pod_package_id: PrintOrder::POD_PACKAGE_ID
+        },
+        quantity: 1,
+        title: "Printed moon"
+      } ],
+      production_delay: 120,
+      shipping_address: {
+        name: "A Reader", street1: "Story Lane 4", street2: nil, city: "Copenhagen", postcode: "2100",
+        country_code: "DK", state_code: nil, email: "reader@example.com", phone_number: "+45 12345678"
+      },
+      shipping_level: "MAIL"
+    }
+    create_request = stub_request(:post, "#{BASE_URL}/print-jobs/")
+      .with(body: payload.to_json)
+      .to_return(status: 201, headers: json_headers,
+        body: { id: 551, external_id: "submission-uuid", status: { name: "UNPAID" } }.to_json)
+
+    result = @client.create_print_job(**payload)
+
+    assert_equal 551, result.fetch("id")
+    assert_equal "UNPAID", result.dig("status", "name")
+    assert_requested create_request
+  end
+
+  test "finds an exact external id and retrieves print-job status" do
+    stub_token
+    list_request = stub_request(:get, "#{BASE_URL}/print-jobs/")
+      .with(query: hash_including("search" => "submission-uuid"))
+      .to_return(status: 200, headers: json_headers, body: {
+        count: 2,
+        results: [
+          { id: 551, external_id: "submission-uuid-old", status: { name: "UNPAID" } },
+          { id: 552, external_id: "submission-uuid", status: { name: "CREATED" } }
+        ]
+      }.to_json)
+    status_request = stub_request(:get, "#{BASE_URL}/print-jobs/552/status/")
+      .to_return(status: 200, headers: json_headers,
+        body: { name: "UNPAID", changed: "2026-10-01T12:00:00Z", message: "Payment required" }.to_json)
+
+    match = @client.find_print_job_by_external_id("submission-uuid")
+    status = @client.print_job_status(match.fetch("id"))
+
+    assert_equal 552, match.fetch("id")
+    assert_equal "UNPAID", status.fetch("name")
+    assert_requested list_request
+    assert_requested status_request
+  end
+
   test "raises a sanitized provider error" do
     stub_token
     stub_request(:post, "#{BASE_URL}/cover-dimensions/")

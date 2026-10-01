@@ -4,7 +4,9 @@ class PrintOrdersController < ApplicationController
   before_action :authenticate_user!
   before_action :require_lulu_orders_access!
   before_action :set_order,
-    only: %i[show address update_address options read prepare interior_pdf cover_pdf validate_files quote]
+    only: %i[
+      show address update_address options read prepare interior_pdf cover_pdf validate_files quote submit refresh_status
+    ]
 
   def index
     @orders = current_user.print_orders.order(created_at: :desc)
@@ -87,6 +89,23 @@ class PrintOrdersController < ApplicationController
     else
       redirect_to options_print_order_path(@order), alert: @order.failure_message.presence ||
         I18n.t("print_orders.errors.shipping_option")
+    end
+  end
+
+  def submit
+    if @order.enqueue_submission!
+      redirect_to options_print_order_path(@order), notice: I18n.t("print_orders.notices.submitting")
+    else
+      redirect_to options_print_order_path(@order), alert: @order.failure_message.presence ||
+        I18n.t("print_orders.errors.not_submittable")
+    end
+  end
+
+  def refresh_status
+    if @order.enqueue_status_refresh!
+      redirect_to options_print_order_path(@order), notice: I18n.t("print_orders.notices.refreshing_status")
+    else
+      redirect_to options_print_order_path(@order), alert: I18n.t("print_orders.errors.status_queue")
     end
   end
 

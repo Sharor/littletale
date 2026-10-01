@@ -91,6 +91,13 @@ da:
       shipping_cost: Levering
       tax: Afgifter
       total: I alt
+      sandbox_label: Lulu-sandkasseordre
+      order_title: Afgiv og følg ordre
+      sandbox_warning: Dette opretter én ubetalt ordre i Lulus sandkasse. Gennemgå PDF-filerne, adressen, leveringen og totalen, før du fortsætter.
+      place_order: Afgiv sandkasseordre
+      submitting: Sandkasseordren oprettes. Undlad at afgive den igen.
+      lulu_job_id: "Lulu-job nr. %{id}"
+      refresh_status: Opdater Lulu-status
     shipping_levels:
       mail: Post
       priority_mail: Prioriteret post
@@ -110,10 +117,28 @@ da:
       selecting_shipping: Vælg levering
       quoting: Beregner pris
       quoted: Pris klar
+      submitting: Opretter sandkasseordre
+      submitted: Afsendt
+      submission_uncertain: Kontrollerer afsendelse
+      submission_needs_review: Manuel kontrol kræves
+      submission_failed: Afsendelse mislykkedes
+    provider_statuses:
+      created: Lulu validerer ordren
+      unpaid: Afventer sandkassebetaling
+      payment_in_progress: Sandkassebetaling behandles
+      production_ready: Klar til produktion
+      production_delayed: Produktion forsinket
+      in_production: I produktion
+      rejected: Afvist af Lulu
+      error: Lulu rapporterede en fejl
+      shipped: Afsendt
+      canceled: Annulleret
     notices:
       preparing: Din trykvisning bliver forberedt.
       validating: Validering i Lulu-sandkassen er startet.
       quoting: Lulu-sandkassen beregner den nøjagtige pris.
+      submitting: Ordren oprettes i Lulu-sandkassen.
+      refreshing_status: Opdatering af Lulu-status er sat i kø.
     errors:
       ineligible_book: Vælg en af dine færdige, fuldt illustrerede bøger.
       complete_address: Udfyld leveringsadressen, før du vælger trykmuligheder.
@@ -127,3 +152,9 @@ da:
       no_shipping_options: Lulu returnerede ingen leveringsmetode til denne adresse.
       cover_dimensions: Lulu returnerede omslagsmål, som ikke passer til dette hæfte.
       provider: "Lulu-sandkassen kunne ikke fuldføre anmodningen: %{message}"
+      submission_queue: Sandkasseordren kunne ikke sættes i kø. Prøv igen.
+      not_submittable: Valider filerne igen, og hent en aktuel pris, før du afgiver ordren.
+      submission_uncertain: Lulu har muligvis modtaget ordren. Appen kontrollerer den nøjagtige ordrereference og afgiver den ikke automatisk igen.
+      submission_not_confirmed: Lulu kunne ikke bekræfte, om ordren blev modtaget. Kontroller den i sandkasseportalen, før du fortsætter.
+      status_refresh: "Lulu-status kunne ikke opdateres: %{message}"
+      status_queue: Opdatering af Lulu-status kunne ikke sættes i kø. Prøv igen.
