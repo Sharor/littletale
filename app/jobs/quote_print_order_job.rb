@@ -32,25 +32,25 @@ class QuotePrintOrderJob < ApplicationJob
       )
     end
   rescue Lulu::Client::RequestError, Lulu::Client::ConfigurationError => error
-    fail_current(order, expected_content_revision, expected_checkout_revision,
+    fail_current(order, expected_content_revision, expected_checkout_revision, shipping_option,
       I18n.t("print_orders.errors.provider", message: error.message))
   end
 
   private
 
   def current?(order, content_revision, checkout_revision, shipping_option)
-    order && Lulu::Configuration.enabled? && order.user.admin? && order.artifacts_current? &&
+    order && Lulu::Configuration.enabled? && order.user.admin? && order.editable? && order.artifacts_current? &&
       order.validation_state == "validated" && order.content_revision == content_revision &&
       order.checkout_revision == checkout_revision &&
       order.shipping_options.any? { |option| option["level"] == shipping_option }
   end
 
-  def fail_current(order, content_revision, checkout_revision, message)
+  def fail_current(order, content_revision, checkout_revision, shipping_option, message)
     return unless order
 
     order.with_lock do
       order.reload
-      return unless order.content_revision == content_revision && order.checkout_revision == checkout_revision
+      return unless current?(order, content_revision, checkout_revision, shipping_option)
 
       order.update!(workflow_state: "failed", failure_message: message)
     end

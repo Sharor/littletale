@@ -61,4 +61,23 @@ class QuotePrintOrderJobTest < ActiveJob::TestCase
 
     assert_empty @order.reload.quote
   end
+
+  test "does not persist a quote after submission starts during the provider request" do
+    order = @order
+    client = Object.new
+    client.define_singleton_method(:cost_calculation) do |**|
+      order.update!(workflow_state: "submitting", submission_uuid: SecureRandom.uuid)
+      { "currency" => "EUR", "total_cost_incl_tax" => "99.00" }
+    end
+
+    Lulu::Client.stub(:new, client) do
+      QuotePrintOrderJob.perform_now(
+        @order.id, @order.content_revision, @order.checkout_revision, "MAIL"
+      )
+    end
+
+    @order.reload
+    assert_equal "submitting", @order.workflow_state
+    assert_empty @order.quote
+  end
 end

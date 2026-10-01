@@ -67,4 +67,54 @@ class PreparePrintOrderJobTest < ActiveJob::TestCase
     assert_not @order.interior_pdf.attached?
     assert @order.editable?
   end
+
+  test "does not persist rendered files after submission starts during rendering" do
+    order = @order
+    renderer = Object.new
+    renderer.define_singleton_method(:render) do
+      order.update!(workflow_state: "submitting", submission_uuid: SecureRandom.uuid)
+      Lulu::BookletPdf::Result.new(interior: "%PDF-interior", cover: "%PDF-cover", page_count: 4,
+        blank_page_count: 1)
+    end
+
+    Lulu::BookletPdf.stub(:new, renderer) do
+      PreparePrintOrderJob.perform_now(@order.id, @order.content_revision)
+    end
+
+    @order.reload
+    assert_equal "submitting", @order.workflow_state
+    assert_not @order.interior_pdf.attached?
+    assert_not @order.cover_pdf.attached?
+  end
+
+  test "records a corrupt retained JPEG as a retryable preparation failure" do
+    replace_retained_image("\xFF\xD8\xFF\xE0\x00\x02\x00\x00\x00\x02".b, "corrupt.jpg", "image/jpeg")
+    @order.update!(workflow_state: "preparing")
+
+    PreparePrintOrderJob.perform_now(@order.id, @order.content_revision)
+
+    assert_equal "failed", @order.reload.workflow_state
+    assert_match(/could not be built/i, @order.failure_message)
+  end
+
+  test "records corrupt retained PNG data as a retryable preparation failure" do
+    chunk = ->(type, data) { [ data.bytesize ].pack("N") + type + data + ("\0" * 4) }
+    png = "\x89PNG\r\n\x1A\n".b
+    png << chunk.call("IHDR", [ 1, 1, 8, 2, 0, 0, 0 ].pack("NNCCCCC"))
+    png << chunk.call("IDAT", "bad")
+    png << chunk.call("IEND", "")
+    replace_retained_image(png, "corrupt.png", "image/png")
+    @order.update!(workflow_state: "preparing")
+
+    PreparePrintOrderJob.perform_now(@order.id, @order.content_revision)
+
+    assert_equal "failed", @order.reload.workflow_state
+    assert_match(/could not be built/i, @order.failure_message)
+  end
+
+  private
+
+  def replace_retained_image(contents, filename, content_type)
+    @order.print_order_pages.first.image.attach(io: StringIO.new(contents), filename:, content_type:)
+  end
 end

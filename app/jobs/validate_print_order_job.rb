@@ -49,7 +49,7 @@ class ValidatePrintOrderJob < ApplicationJob
   private
 
   def current?(order, content_revision, checkout_revision)
-    order && Lulu::Configuration.enabled? && order.user.admin? && order.artifacts_current? &&
+    order && Lulu::Configuration.enabled? && order.user.admin? && order.editable? && order.artifacts_current? &&
       order.content_revision == content_revision && order.checkout_revision == checkout_revision
   end
 
@@ -157,7 +157,7 @@ class ValidatePrintOrderJob < ApplicationJob
 
     order.with_lock do
       order.reload
-      return unless order.content_revision == content_revision && order.checkout_revision == checkout_revision
+      return unless current?(order, content_revision, checkout_revision)
 
       order.update!(workflow_state: "failed", validation_state: "failed", failure_message: message)
     end

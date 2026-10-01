@@ -25,7 +25,14 @@ LULU_ASSET_HOST: "https://littletale.com"
 
 `LULU_ASSET_HOST` must be a public HTTPS origin that routes to this application. Lulu receives artifact-specific signed URLs for the retained interior and cover PDFs. Each URL expires after six hours and exposes no order or delivery data. Normal order pages and PDF previews still require an enabled administrator session.
 
-Rails replaces the signed path segment with `[FILTERED]` in request-start logs, and the production Alloy pipeline applies the same redaction before application and Kamal proxy logs leave the host. Kamal proxy still writes the original request path to its host-local Docker log because it has no per-path suppression setting. Treat access to that host log like access to deployment secrets, retain only its bounded rotation, and do not copy raw proxy entries for `/lulu-files/` into tickets or recordings.
+Rails replaces the signed path segment with `[FILTERED]` in request-start logs, and the production Alloy pipeline applies the same redaction before application and Kamal proxy logs leave the host. Kamal proxy still writes the original request path to its root-controlled, host-local Docker log because it has no per-path suppression setting. `config/deploy.yml` limits that log to one 1 MB file. Restrict Docker and host access to deployment operators, and do not copy raw proxy entries for `/lulu-files/` into tickets or recordings.
+
+Before enabling the flag, reboot the proxy so the committed run settings apply, then verify its Docker log configuration on the host:
+
+```sh
+docker inspect kamal-proxy --format '{{json .HostConfig.LogConfig}}'
+# json-file configuration must include max-size=1m and max-file=1
+```
 
 Before enabling the pilot, verify configuration from the deployed Rails console without printing either credential:
 

@@ -271,6 +271,31 @@ class Lulu::ClientTest < ActiveSupport::TestCase
     assert_includes error.message, "[FILTERED]"
   end
 
+  test "redacts outgoing delivery values repeated in free text errors" do
+    stub_token
+    address = {
+      name: "A Reader", street1: "Story Lane 4", street2: nil, city: "Copenhagen", postcode: "2100",
+      country_code: "DK", state_code: nil, email: "reader@example.com", phone_number: "+45 12345678"
+    }
+    stub_request(:post, "#{BASE_URL}/print-job-cost-calculations/")
+      .to_return(status: 400, headers: json_headers, body: {
+        detail: "Delivery for A Reader at Story Lane 4, Copenhagen 2100 was rejected"
+      }.to_json)
+
+    error = assert_raises(Lulu::Client::RequestError) do
+      @client.cost_calculation(
+        address:,
+        line_items: [ { page_count: 4, pod_package_id: PrintOrder::POD_PACKAGE_ID, quantity: 1 } ],
+        shipping_option: "MAIL"
+      )
+    end
+
+    [ "A Reader", "Story Lane 4", "Copenhagen", "2100" ].each do |secret|
+      assert_not_includes error.details.to_s, secret
+      assert_not_includes error.message, secret
+    end
+  end
+
   private
 
   def stub_token(token: "sandbox-token", expires_in: 300)

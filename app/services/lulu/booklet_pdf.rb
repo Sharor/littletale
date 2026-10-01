@@ -29,7 +29,8 @@ module Lulu
         blank_page_count:
       )
     rescue Prawn::Errors::CannotFit, Prawn::Errors::IncompatibleStringEncoding,
-           Prawn::Errors::UnknownFont, Prawn::Errors::UnsupportedImageType, Errno::ENOENT => error
+           Prawn::Errors::UnknownFont, Prawn::Errors::UnsupportedImageType,
+           Prawn::Images::JPG::FormatError, TTFunk::Error, Zlib::DataError, EOFError, Errno::ENOENT => error
       raise RenderingError, error.message
     end
 

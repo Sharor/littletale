@@ -115,6 +115,27 @@ class SubmitPrintOrderJobTest < ActiveJob::TestCase
     assert_nil @order.reload.lulu_print_job_id
   end
 
+  test "a redelivery is marked for review when reconciliation cannot be queued" do
+    external_id = @order.submission_uuid
+    @order.update!(
+      submission_attempted_at: 1.minute.ago,
+      submission_attempts: [ { "external_id" => external_id, "outcome" => "pending" } ]
+    )
+    failed_job = Struct.new(:successfully_enqueued?).new(false)
+    configured_job = Object.new
+    configured_job.define_singleton_method(:perform_later) { |*| failed_job }
+
+    ReconcilePrintOrderSubmissionJob.stub(:set, configured_job) do
+      SubmitPrintOrderJob.perform_now(
+        @order.id, @order.content_revision, @order.checkout_revision, external_id
+      )
+    end
+
+    @order.reload
+    assert_equal "submission_needs_review", @order.workflow_state
+    assert_equal "needs_review", @order.submission_attempts.last.fetch("outcome")
+  end
+
   test "a changed provider quote requires another confirmation before submission" do
     client = Object.new
     client.define_singleton_method(:cost_calculation) do |**|

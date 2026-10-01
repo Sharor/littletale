@@ -9,8 +9,11 @@ class SubmitPrintOrderJob < ApplicationJob
     submission_attempted = false
     order = PrintOrder.find_by(id: order_id)
     return unless current?(order, expected_content_revision, expected_checkout_revision, submission_uuid)
-    return enqueue_reconciliation(order, expected_content_revision, expected_checkout_revision, submission_uuid) if
-      order.submission_attempted_at.present?
+    if order.submission_attempted_at.present?
+      return if enqueue_reconciliation(order, expected_content_revision, expected_checkout_revision, submission_uuid)
+
+      return mark_for_review(order, expected_content_revision, expected_checkout_revision, submission_uuid)
+    end
 
     client = Lulu::Client.new
     return unless fresh_quote_confirmed?(order, client, expected_content_revision, expected_checkout_revision,

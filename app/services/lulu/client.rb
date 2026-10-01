@@ -19,9 +19,9 @@ module Lulu
       MAX_DESCRIPTION_LENGTH = 1_000
       attr_reader :status, :details
 
-      def initialize(status:, details:)
+      def initialize(status:, details:, sensitive_values: [])
         @status = status
-        @details = self.class.sanitize(details)
+        @details = self.class.sanitize(details, sensitive_values:)
         super("Lulu request failed (#{status}): #{self.class.describe(@details)}")
       end
 
@@ -40,24 +40,56 @@ module Lulu
         (description.presence || "No provider details were returned.").truncate(MAX_DESCRIPTION_LENGTH)
       end
 
-      def self.sanitize(value, key = nil)
+      def self.sanitize(value, key = nil, sensitive_values: [])
         return "[FILTERED]" if key && SENSITIVE_KEYS.include?(key.to_s.downcase)
 
         case value
         when Hash
-          value.to_h { |nested_key, nested_value| [ nested_key, sanitize(nested_value, nested_key) ] }
+          value.to_h do |nested_key, nested_value|
+            [ nested_key, sanitize(nested_value, nested_key, sensitive_values:) ]
+          end
         when Array
-          value.map { |item| sanitize(item) }
+          value.map { |item| sanitize(item, sensitive_values:) }
         when String
-          value
+          sanitized = value
             .gsub(%r{https?://[^\s"'<>\]]+}, "[FILTERED]")
             .gsub(/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i, "[FILTERED]")
             .gsub(/(?<!\w)\+?\d[\d\s().\-]{6,}\d/, "[FILTERED]")
-            .truncate(MAX_DESCRIPTION_LENGTH)
+          sensitive_values.compact.map(&:to_s).reject(&:blank?).sort_by { |item| -item.length }.each do |item|
+            sanitized = sanitized.gsub(/#{Regexp.escape(item)}/i, "[FILTERED]")
+          end
+          sanitized.truncate(MAX_DESCRIPTION_LENGTH)
         else
           value
         end
       end
+
+      def self.sensitive_values(value, key = nil)
+        if key && SENSITIVE_KEYS.include?(key.to_s.downcase)
+          return scalar_values(value)
+        end
+
+        case value
+        when Hash
+          value.flat_map { |nested_key, nested_value| sensitive_values(nested_value, nested_key) }
+        when Array
+          value.flat_map { |item| sensitive_values(item) }
+        else
+          []
+        end
+      end
+
+      def self.scalar_values(value)
+        case value
+        when Hash
+          value.values.flat_map { |item| scalar_values(item) }
+        when Array
+          value.flat_map { |item| scalar_values(item) }
+        else
+          value.nil? ? [] : [ value ]
+        end
+      end
+      private_class_method :scalar_values
     end
 
     def initialize(
@@ -161,7 +193,7 @@ module Lulu
         return request(method, path, body:, query:, retry_auth: false)
       end
 
-      parse_response(response)
+      parse_response(response, sensitive_values: RequestError.sensitive_values(body))
     rescue Faraday::Error
       raise RequestError.new(status: 0, details: "The Lulu sandbox did not respond.")
     end
@@ -185,11 +217,11 @@ module Lulu
       @token_expires_at = nil
     end
 
-    def parse_response(response)
+    def parse_response(response, sensitive_values: [])
       payload = response.body.present? ? JSON.parse(response.body) : {}
       return payload if response.status.between?(200, 299)
 
-      raise RequestError.new(status: response.status, details: payload)
+      raise RequestError.new(status: response.status, details: payload, sensitive_values:)
     rescue JSON::ParserError
       raise RequestError.new(status: response.status, details: "The provider returned an unreadable response.")
     end

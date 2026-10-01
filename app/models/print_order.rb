@@ -112,7 +112,13 @@ class PrintOrder < ApplicationRecord
   end
 
   def retryable_submission?
-    workflow_state == "submission_failed" && submission_started? && lulu_print_job_id.blank?
+    return false unless workflow_state == "submission_failed" && submission_started? &&
+      submission_attempted_at.present? && lulu_print_job_id.blank?
+
+    matching_attempt = Array(submission_attempts).reverse_each.find do |attempt|
+      attempt["external_id"] == submission_uuid
+    end
+    matching_attempt&.fetch("outcome", nil) == "rejected"
   end
 
   def retry_submission!

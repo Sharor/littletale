@@ -67,6 +67,24 @@ class ValidatePrintOrderJobTest < ActiveJob::TestCase
     assert_equal "not_started", @order.reload.validation_state
   end
 
+  test "does not persist validation after submission starts during the provider request" do
+    client = FakeValidationClient.new
+    order = @order
+    client.define_singleton_method(:create_interior_validation) do |**|
+      order.update!(workflow_state: "submitting", submission_uuid: SecureRandom.uuid)
+      { "id" => 41, "status" => "NORMALIZING", "errors" => [] }
+    end
+
+    Lulu::Client.stub(:new, client) do
+      ValidatePrintOrderJob.perform_now(@order.id, @order.content_revision, @order.checkout_revision, 0)
+    end
+
+    @order.reload
+    assert_equal "submitting", @order.workflow_state
+    assert_equal "not_started", @order.validation_state
+    assert_empty @order.validation_details
+  end
+
   test "fails visibly after the bounded validation poll limit" do
     client = FakeValidationClient.new
 

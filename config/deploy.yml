@@ -18,6 +18,13 @@ servers:
 proxy:
   ssl: true
   host: littletale.com
+  run:
+    # Signed Lulu artifact capabilities can appear in the proxy's host-local log.
+    # Retain only one tightly bounded file; Rails and Alloy redact the path.
+    log_max_size: "1m"
+    options:
+      log-opt:
+        - "max-file=1"
 
 # The Rails 8.1 generator defaults to a local registry. Replace this block when
 # using Docker Hub, GHCR, or another authenticated registry.

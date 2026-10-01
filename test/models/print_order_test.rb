@@ -138,4 +138,19 @@ class PrintOrderTest < ActiveSupport::TestCase
     assert_equal external_id, order.submission_attempts.last.fetch("external_id")
     assert_equal "rejected", order.submission_attempts.last.fetch("outcome")
   end
+
+  test "a failed state without a matching rejected attempt cannot clear its submission identifier" do
+    order = PrintOrder.start_for!(user: @admin, book: @book)
+    external_id = SecureRandom.uuid
+    order.update!(
+      workflow_state: "submission_failed",
+      submission_uuid: external_id,
+      submission_attempted_at: 1.minute.ago,
+      submission_attempts: [ { "external_id" => "another-id", "outcome" => "rejected" } ]
+    )
+
+    refute order.retry_submission!
+
+    assert_equal external_id, order.reload.submission_uuid
+  end
 end

@@ -5,14 +5,13 @@ class PreparePrintOrderJob < ApplicationJob
 
   def perform(order_id, expected_revision)
     order = PrintOrder.find_by(id: order_id)
-    return unless order && Lulu::Configuration.enabled? && order.user.admin?
-    return unless order.content_revision == expected_revision
+    return unless current?(order, expected_revision)
 
     result = Lulu::BookletPdf.new(order).render
 
     order.with_lock do
       order.reload
-      return unless order.content_revision == expected_revision
+      return unless current?(order, expected_revision)
 
       order.interior_pdf.attach(
         io: StringIO.new(result.interior),
@@ -42,9 +41,14 @@ class PreparePrintOrderJob < ApplicationJob
 
   private
 
+  def current?(order, expected_revision)
+    order && Lulu::Configuration.enabled? && order.user.admin? && order.editable? &&
+      order.content_revision == expected_revision
+  end
+
   def fail_current(order, expected_revision, message)
     order&.with_lock do
-      if order.reload.content_revision == expected_revision
+      if current?(order.reload, expected_revision)
         order.update!(workflow_state: "failed", failure_message: message)
       end
     end
