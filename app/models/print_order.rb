@@ -83,6 +83,27 @@ class PrintOrder < ApplicationRecord
     valid?(:delivery)
   end
 
+  def artifacts_current?
+    artifacts_revision == content_revision && interior_pdf.attached? && cover_pdf.attached?
+  end
+
+  def enqueue_preparation!
+    with_lock do
+      return true if artifacts_current?
+      return false unless address_complete?
+
+      update!(workflow_state: "preparing", failure_message: nil)
+      job = PreparePrintOrderJob.perform_later(id, content_revision)
+      return true if job&.successfully_enqueued?
+
+      update!(workflow_state: "failed", failure_message: I18n.t("print_orders.errors.preparation_queue"))
+      false
+    end
+  rescue ActiveJob::EnqueueError, SolidQueue::Job::EnqueueError
+    update_columns(workflow_state: "failed", failure_message: I18n.t("print_orders.errors.preparation_queue"))
+    false
+  end
+
   def self.eligible_pages(user:, book:)
     pages = book.current_pages.includes(:illustration).to_a
     eligible = user.admin? && book.user_id == user.id && book.completed? && pages.length == book.total_pages &&

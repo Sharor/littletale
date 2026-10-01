@@ -3,6 +3,7 @@
 require "test_helper"
 
 class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
   include Devise::Test::IntegrationHelpers
 
   setup do
@@ -161,6 +162,39 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
         assert_response :not_found
       end
     end
+  end
+
+  test "the print step queues revision-specific PDF preparation" do
+    order = addressed_order
+
+    with_lulu_orders_enabled do
+      assert_enqueued_with(job: PreparePrintOrderJob, args: [ order.id, order.content_revision ]) do
+        post "/orders/#{order.id}/prepare"
+      end
+    end
+
+    assert_redirected_to "/orders/#{order.id}/options"
+    assert_equal "preparing", order.reload.workflow_state
+  end
+
+  test "an admin can preview prepared PDFs and required blank pages" do
+    order = addressed_order
+    with_lulu_orders_enabled do
+      PreparePrintOrderJob.perform_now(order.id, order.content_revision)
+      get "/orders/#{order.id}/options"
+    end
+
+    assert_response :success
+    assert_select "[data-print-page-count='4']", text: /4 interior pages.*1 binding-required blank page/m
+    assert_select "a[href='/orders/#{order.id}/interior_pdf']", text: "Preview interior PDF"
+    assert_select "a[href='/orders/#{order.id}/cover_pdf']", text: "Preview cover PDF"
+
+    with_lulu_orders_enabled do
+      get "/orders/#{order.id}/interior_pdf"
+    end
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    assert response.body.start_with?("%PDF-")
   end
 
   private

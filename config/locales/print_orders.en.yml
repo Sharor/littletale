@@ -68,10 +68,27 @@ en:
       uncoated_white: 60# uncoated white
       finish: Cover finish
       glossy: Glossy
+      preview_title: Print preview
+      preview_help: Build the PDFs to review every printed page before requesting a quote.
+      prepare: Build print preview
+      page_count:
+        one: 1 interior page
+        other: "%{count} interior pages"
+      blank_page_count:
+        one: 1 binding-required blank page
+        other: "%{count} binding-required blank pages"
+      preview_interior: Preview interior PDF
+      preview_cover: Preview cover PDF
     reader:
       back: Back to order
     status:
       draft: Draft
+      preparing: Preparing files
+      prepared: Files ready
+      failed: Needs attention
+    notices:
+      preparing: Your print preview is being prepared.
     errors:
       ineligible_book: Choose one of your completed, fully illustrated books.
       complete_address: Complete the delivery address before choosing print options.
+      preparation_queue: The print preview could not be queued. Please try again.

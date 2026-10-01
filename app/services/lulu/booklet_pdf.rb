@@ -1,0 +1,176 @@
+# frozen_string_literal: true
+
+require "prawn"
+
+module Lulu
+  class BookletPdf
+    class PageLimitExceeded < StandardError; end
+
+    Result = Data.define(:interior, :cover, :page_count, :blank_page_count)
+
+    POINTS_PER_INCH = 72
+    INTERIOR_SIZE = [ 5.25 * POINTS_PER_INCH, 8.25 * POINTS_PER_INCH ].freeze
+    COVER_SIZE = [ 10.25 * POINTS_PER_INCH, 8.25 * POINTS_PER_INCH ].freeze
+    SAFE_MARGIN = 0.5 * POINTS_PER_INCH
+    MAX_ILLUSTRATION = 3.4 * POINTS_PER_INCH
+    MAX_PAGES = 48
+
+    def initialize(order)
+      @order = order
+    end
+
+    def render
+      interior, page_count, blank_page_count = render_interior
+      Result.new(
+        interior:,
+        cover: render_cover,
+        page_count:,
+        blank_page_count:
+      )
+    end
+
+    private
+
+    attr_reader :order
+
+    def render_interior
+      document = document_for(INTERIOR_SIZE)
+      render_title_page(document)
+      order.print_order_pages.each { |page| render_story_page(document, page) }
+      render_end_page(document)
+
+      blank_page_count = (4 - (document.page_count % 4)) % 4
+      final_page_count = document.page_count + blank_page_count
+      raise PageLimitExceeded, "The booklet exceeds Lulu's 48-page saddle-stitch limit" if final_page_count > MAX_PAGES
+
+      blank_page_count.times { document.start_new_page }
+      [ document.render, final_page_count, blank_page_count ]
+    end
+
+    def render_title_page(document)
+      document.start_new_page
+      paper_background(document)
+      document.font("EB Garamond") do
+        document.fill_color "742D38"
+        document.text_box(
+          order.title,
+          at: [ SAFE_MARGIN, INTERIOR_SIZE.last - 2.5 * POINTS_PER_INCH ],
+          width: INTERIOR_SIZE.first - (2 * SAFE_MARGIN),
+          height: 2 * POINTS_PER_INCH,
+          align: :center,
+          valign: :center,
+          size: 28,
+          overflow: :shrink_to_fit,
+          min_font_size: 14
+        )
+      end
+    end
+
+    def render_story_page(document, page)
+      document.start_new_page
+      paper_background(document)
+      document.bounding_box(
+        [ SAFE_MARGIN, INTERIOR_SIZE.last - SAFE_MARGIN ],
+        width: INTERIOR_SIZE.first - (2 * SAFE_MARGIN),
+        height: INTERIOR_SIZE.last - (2 * SAFE_MARGIN)
+      ) do
+        document.image(
+          StringIO.new(page.image.download),
+          fit: [ MAX_ILLUSTRATION, MAX_ILLUSTRATION ],
+          position: :center
+        )
+        document.move_down 16
+        document.font("Inter") do
+          document.fill_color "302820"
+          document.text page.text, size: 11, leading: 4, align: :left
+        end
+      end
+    end
+
+    def render_end_page(document)
+      document.start_new_page
+      paper_background(document)
+      document.font("EB Garamond") do
+        document.fill_color "742D38"
+        document.text_box(
+          I18n.t("books.reader.the_end", locale: order.language.presence_in(I18n.available_locales.map(&:to_s)) || :en),
+          at: [ SAFE_MARGIN, INTERIOR_SIZE.last / 2.0 ],
+          width: INTERIOR_SIZE.first - (2 * SAFE_MARGIN),
+          height: POINTS_PER_INCH,
+          align: :center,
+          size: 24
+        )
+      end
+    end
+
+    def render_cover
+      document = document_for(COVER_SIZE)
+      document.start_new_page
+      paper_background(document, size: COVER_SIZE)
+      fold = COVER_SIZE.first / 2.0
+      document.stroke_color "B69763"
+      document.dash 3, space: 3
+      document.stroke_vertical_line 0, COVER_SIZE.last, at: fold
+      document.undash
+
+      document.font("EB Garamond") do
+        document.fill_color "742D38"
+        document.text_box(
+          order.title,
+          at: [ fold + SAFE_MARGIN, COVER_SIZE.last - 1.25 * POINTS_PER_INCH ],
+          width: fold - (2 * SAFE_MARGIN),
+          height: 1.5 * POINTS_PER_INCH,
+          align: :center,
+          valign: :center,
+          size: 25,
+          overflow: :shrink_to_fit,
+          min_font_size: 13
+        )
+      end
+
+      cover_page = order.print_order_pages.detect { |page| page.image.attached? }
+      if cover_page
+        document.image(
+          StringIO.new(cover_page.image.download),
+          fit: [ 2.8 * POINTS_PER_INCH, 2.8 * POINTS_PER_INCH ],
+          at: [ fold + ((fold - 2.8 * POINTS_PER_INCH) / 2.0), COVER_SIZE.last - 3 * POINTS_PER_INCH ]
+        )
+      end
+
+      document.font("Inter") do
+        document.fill_color "786044"
+        document.text_box(
+          "LittleStories",
+          at: [ SAFE_MARGIN, SAFE_MARGIN + 18 ],
+          width: fold - (2 * SAFE_MARGIN),
+          height: 24,
+          align: :center,
+          size: 9
+        )
+      end
+      document.render
+    end
+
+    def document_for(size)
+      Prawn::Document.new(page_size: size, margin: 0, skip_page_creation: true, info: {
+        Title: order.title,
+        Creator: "LittleStories",
+        Producer: "LittleStories Lulu sandbox integration"
+      }).tap do |document|
+        document.font_families.update(
+          "Inter" => { normal: font_path("Inter.ttf") },
+          "EB Garamond" => { normal: font_path("EBGaramond.ttf") }
+        )
+      end
+    end
+
+    def paper_background(document, size: INTERIOR_SIZE)
+      document.fill_color "FFF9EB"
+      document.fill_rectangle [ 0, size.last ], size.first, size.last
+    end
+
+    def font_path(filename)
+      Rails.root.join("app/assets/fonts/print", filename).to_s
+    end
+  end
+end

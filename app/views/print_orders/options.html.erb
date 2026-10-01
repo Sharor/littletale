@@ -37,5 +37,25 @@
         <div><dt><%= t("print_orders.options.finish") %></dt><dd><%= t("print_orders.options.glossy") %></dd></div>
       </dl>
     </section>
+
+    <section class="fable-panel print-order-artifacts">
+      <h2><%= t("print_orders.options.preview_title") %></h2>
+      <% if @order.artifacts_current? %>
+        <p data-print-page-count="<%= @order.interior_page_count %>">
+          <%= t("print_orders.options.page_count", count: @order.interior_page_count) %>
+          · <%= t("print_orders.options.blank_page_count", count: @order.blank_page_count) %>
+        </p>
+        <div class="print-orders-actions">
+          <%= link_to t("print_orders.options.preview_interior"), interior_pdf_print_order_path(@order),
+            class: "print-orders-secondary", target: "_blank" %>
+          <%= link_to t("print_orders.options.preview_cover"), cover_pdf_print_order_path(@order),
+            class: "print-orders-secondary", target: "_blank" %>
+        </div>
+      <% else %>
+        <p><%= @order.failure_message.presence || t("print_orders.options.preview_help") %></p>
+        <%= button_to t("print_orders.options.prepare"), prepare_print_order_path(@order), method: :post,
+          class: "print-orders-primary", disabled: @order.workflow_state == "preparing" %>
+      <% end %>
+    </section>
   </main>
 </div>

@@ -68,10 +68,27 @@ da:
       uncoated_white: 60# ubestrøget hvidt
       finish: Omslagets finish
       glossy: Blank
+      preview_title: Trykvisning
+      preview_help: Byg PDF-filerne, så du kan gennemgå alle trykte sider, før du beder om en pris.
+      prepare: Byg trykvisning
+      page_count:
+        one: 1 inderside
+        other: "%{count} indersider"
+      blank_page_count:
+        one: 1 tom side krævet til indbinding
+        other: "%{count} tomme sider krævet til indbinding"
+      preview_interior: Vis indholds-PDF
+      preview_cover: Vis omslags-PDF
     reader:
       back: Tilbage til ordren
     status:
       draft: Kladde
+      preparing: Forbereder filer
+      prepared: Filer klar
+      failed: Kræver handling
+    notices:
+      preparing: Din trykvisning bliver forberedt.
     errors:
       ineligible_book: Vælg en af dine færdige, fuldt illustrerede bøger.
       complete_address: Udfyld leveringsadressen, før du vælger trykmuligheder.
+      preparation_queue: Trykvisningen kunne ikke sættes i kø. Prøv igen.

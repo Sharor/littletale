@@ -62,6 +62,9 @@ Rails.application.routes.draw do
       patch :address, action: :update_address
       get :options
       get :read
+      post :prepare
+      get :interior_pdf
+      get :cover_pdf
     end
   end
   resources :book_gifts, only: [] do

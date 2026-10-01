@@ -3,7 +3,7 @@
 class PrintOrdersController < ApplicationController
   before_action :authenticate_user!
   before_action :require_lulu_orders_access!
-  before_action :set_order, only: %i[show address update_address options read]
+  before_action :set_order, only: %i[show address update_address options read prepare interior_pdf cover_pdf]
 
   def index
     @orders = current_user.print_orders.order(created_at: :desc)
@@ -54,6 +54,23 @@ class PrintOrdersController < ApplicationController
     end
   end
 
+  def prepare
+    if @order.enqueue_preparation!
+      redirect_to options_print_order_path(@order), notice: I18n.t("print_orders.notices.preparing")
+    else
+      redirect_to options_print_order_path(@order), alert: @order.failure_message.presence ||
+        I18n.t("print_orders.errors.preparation_queue")
+    end
+  end
+
+  def interior_pdf
+    send_order_pdf(@order.interior_pdf, "#{@order.title}-interior.pdf")
+  end
+
+  def cover_pdf
+    send_order_pdf(@order.cover_pdf, "#{@order.title}-cover.pdf")
+  end
+
   private
 
   def require_lulu_orders_access!
@@ -75,5 +92,11 @@ class PrintOrdersController < ApplicationController
       :recipient_name, :street1, :street2, :city, :postcode, :country_code,
       :state_code, :recipient_email, :phone_number
     )
+  end
+
+  def send_order_pdf(attachment, filename)
+    return head :not_found unless attachment.attached? && @order.artifacts_current?
+
+    send_data attachment.download, filename:, type: "application/pdf", disposition: "inline"
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_30_213000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_30_214000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -437,6 +437,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_30_213000) do
     t.datetime "last_status_checked_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "blank_page_count"
     t.index ["lulu_print_job_id"], name: "index_print_orders_on_lulu_print_job_id", unique: true
     t.index ["source_book_id"], name: "index_print_orders_on_source_book_id"
     t.index ["submission_uuid"], name: "index_print_orders_on_submission_uuid", unique: true
