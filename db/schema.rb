@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_01_110000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_03_120000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -349,6 +349,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_110000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["visitor_id"], name: "index_events_on_visitor_id"
+  end
+
+  create_table "generation_provider_requests", force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "operation", null: false
+    t.string "model", null: false
+    t.string "outcome", null: false
+    t.integer "http_status"
+    t.string "error_class"
+    t.string "external_request_id"
+    t.datetime "started_at", null: false
+    t.datetime "finished_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "outcome", "started_at", "id"], name: "index_generation_provider_requests_for_failover"
+  end
+
+  create_table "generation_provider_settings", force: :cascade do |t|
+    t.string "key", default: "global", null: false
+    t.string "mode", default: "openai", null: false
+    t.string "active_provider", default: "openai", null: false
+    t.datetime "automatic_window_started_at"
+    t.datetime "switched_at"
+    t.string "switch_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_generation_provider_settings_on_key", unique: true
   end
 
   create_table "gift_pages", force: :cascade do |t|
