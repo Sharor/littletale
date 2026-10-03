@@ -47,4 +47,22 @@ class Admin::DashboardControllerTest < ActionDispatch::IntegrationTest
       assert_select "[data-admin-character-credits='5']", text: /5/
     end
   end
+
+  test "dashboard shows manual production health actions without running them" do
+    admin = users(:three)
+    admin.update!(admin: true)
+    sign_in admin
+
+    get admin_root_url
+
+    assert_response :success
+    assert_select "section[data-health-checks]" do
+      assert_select "h2", "Production health"
+      assert_select "[data-health-check='object_storage'][data-health-status='not_checked']"
+      assert_select "[data-health-check='openai'][data-health-status='not_checked']"
+      assert_select "form[action='#{admin_health_check_path}'][method='post']"
+      assert_select "form[action='#{admin_test_email_path}'][method='post']"
+      assert_select "button[data-turbo-submits-with]", minimum: 2
+    end
+  end
 end

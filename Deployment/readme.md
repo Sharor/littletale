@@ -1,0 +1,1 @@
+This folder contains all instructions for post domain purchase and deployment.

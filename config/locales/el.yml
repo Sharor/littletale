@@ -82,6 +82,51 @@ el:
       books_available: Διαθέσιμα βιβλία
       character_credits: Πιστώσεις χαρακτήρων
       trial_allowance: Όριο δοκιμής
+    health:
+      eyebrow: Ζωντανές συνδέσεις
+      title: Υγεία παραγωγής
+      introduction: Εκτελέστε άμεσους ελέγχους από αυτή τη διεργασία ιστού. Δεν δημιουργούν εργασίες worker ούτε παραγωγές OpenAI.
+      run_checks: Έλεγχος συνδέσεων
+      running: Έλεγχος…
+      not_checked_description: Εκτελέστε τους ελέγχους για να δοκιμάσετε την τρέχουσα ρύθμιση παραγωγής.
+      checked: "Ελέγχθηκε %{time} · %{duration} ms"
+      statuses:
+        not_checked: Δεν ελέγχθηκε
+        connected: Συνδεδεμένο
+        not_configured: Δεν έχει ρυθμιστεί
+        failed: Απέτυχε
+      object_storage:
+        title: Αποθήκευση αντικειμένων (συμβατή με S3)
+        description: Ελέγχει την πιστοποιημένη πρόσβαση στο ρυθμισμένο bucket χωρίς ανάγνωση ή εγγραφή αντικειμένου.
+      openai:
+        title: OpenAI
+        description: Πιστοποιείται μέσω του endpoint μεταδεδομένων μοντέλων χωρίς παραγωγή token, κειμένου ή εικόνων.
+      messages:
+        storage_connected: Η σύνδεση και η πρόσβαση στο bucket επιβεβαιώθηκαν.
+        storage_missing: "Λείπουν τα %{settings}."
+        storage_timeout: Το αίτημα προς την αποθήκευση αντικειμένων έληξε.
+        storage_unreachable: Δεν ήταν δυνατή η σύνδεση με την αποθήκευση αντικειμένων.
+        storage_forbidden: Τα ρυθμισμένα διαπιστευτήρια δεν έχουν πρόσβαση στο bucket.
+        storage_rejected: Η αποθήκευση αντικειμένων απέρριψε το αίτημα.
+        storage_failed: Ο έλεγχος της αποθήκευσης αντικειμένων απέτυχε.
+        openai_connected: Η πιστοποίηση και η πρόσβαση API επιβεβαιώθηκαν.
+        openai_missing: Λείπει το OPENAI_ACCESS_TOKEN.
+        openai_forbidden: Το OpenAI απέρριψε τα ρυθμισμένα διαπιστευτήρια.
+        openai_unexpected: Το OpenAI επέστρεψε μη αναμενόμενη απόκριση.
+        openai_timeout: Το αίτημα προς το OpenAI έληξε.
+        openai_unreachable: Δεν ήταν δυνατή η σύνδεση με το OpenAI.
+      email:
+        title: Παράδοση email
+        description: Στείλτε ένα πραγματικό δοκιμαστικό μήνυμα στον λογαριασμό διαχειριστή %{email}. Χρησιμοποιεί τον ρυθμισμένο πάροχο email.
+        send: Αποστολή δοκιμαστικού email
+        sending: Αποστολή…
+        submitted: Υποβλήθηκε δοκιμαστικό email στο %{email}.
+        failed: Δεν ήταν δυνατή η υποβολή του δοκιμαστικού email.
+        subject: Έλεγχος email παραγωγής LittleStories
+        heading: Το email παραγωγής είναι συνδεδεμένο
+        body_html: Αυτό το email επιβεβαιώνει ότι το LittleStories μπορεί να στείλει μήνυμα στο <strong>%{email}</strong> μέσω του ρυθμισμένου παρόχου.
+        body_text: Αυτό το email επιβεβαιώνει ότι το LittleStories μπορεί να στείλει μήνυμα στο %{email} μέσω του ρυθμισμένου παρόχου.
+        confirmation: Η λήψη αυτού του μηνύματος επιβεβαιώνει την παράδοση έως τα εισερχόμενά σας.
     failed_books:
       title: Αποτυχημένες δημιουργίες βιβλίων
       owner: Κάτοχος
@@ -262,6 +307,8 @@ el:
       existing: Υπάρχοντες χαρακτήρες
       book_credit_required: Αγοράστε μια πίστωση βιβλίου στις Ρυθμίσεις για να δημιουργήσετε άλλο βιβλίο.
       character_credit_required: Αγοράστε μια πίστωση βιβλίου στις Ρυθμίσεις για να προσθέσετε περισσότερους χαρακτήρες.
+      make_book_with_characters: Δημιουργία βιβλίου με αυτούς τους χαρακτήρες
+      make_book_without_characters: Δημιουργία βιβλίου χωρίς χαρακτήρες
       select_named: "Επιλογή του %{name}"
       edit_named: "Επεξεργασία του %{name}"
       delete_named: "Διαγραφή του %{name}"

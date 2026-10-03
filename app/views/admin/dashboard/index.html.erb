@@ -11,6 +11,49 @@
     <% end %>
   </div>
 
+  <section class="fable-panel mt-10" aria-labelledby="production-health-heading" data-health-checks>
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="max-w-2xl">
+        <p class="text-sm uppercase tracking-widest text-cyan-300"><%= t("admin.health.eyebrow") %></p>
+        <h2 id="production-health-heading" class="mt-2 text-2xl"><%= t("admin.health.title") %></h2>
+        <p class="mt-2 text-gray-500"><%= t("admin.health.introduction") %></p>
+      </div>
+      <%= button_to t("admin.health.run_checks"), admin_health_check_path, method: :post,
+        class: "min-h-11",
+        data: { turbo_submits_with: t("admin.health.running") } %>
+    </div>
+
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <% [["object_storage", t("admin.health.object_storage.title"), t("admin.health.object_storage.description")], ["openai", t("admin.health.openai.title"), t("admin.health.openai.description")]].each do |name, title, description| %>
+        <% check = @health_check_results[name] %>
+        <% status = check&.fetch("status", nil) || "not_checked" %>
+        <% status_classes = { "connected" => "border-green-700 bg-green-950/40", "failed" => "border-red-700 bg-red-950/40", "not_configured" => "border-amber-700 bg-amber-950/40", "not_checked" => "border-white/20 bg-black/20" } %>
+        <article class="border p-5 <%= status_classes.fetch(status, status_classes.fetch("failed")) %>"
+          data-health-check="<%= name %>" data-health-status="<%= status %>">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <h3 class="text-xl"><%= title %></h3>
+            <span class="rounded-full border px-3 py-1 text-sm font-semibold"><%= t("admin.health.statuses.#{status}") %></span>
+          </div>
+          <p class="mt-3 text-gray-500"><%= description %></p>
+          <p class="mt-3"><%= check ? check.fetch("message") : t("admin.health.not_checked_description") %></p>
+          <% if check %>
+            <time class="mt-3 block text-sm text-gray-500" datetime="<%= check.fetch("checked_at") %>">
+              <%= t("admin.health.checked", time: l(Time.iso8601(check.fetch("checked_at")), format: :short), duration: check.fetch("duration_ms")) %>
+            </time>
+          <% end %>
+        </article>
+      <% end %>
+    </div>
+
+    <div class="mt-6 border-t pt-6">
+      <h3 class="text-xl"><%= t("admin.health.email.title") %></h3>
+      <p class="mt-2 text-gray-500"><%= t("admin.health.email.description", email: current_user.email) %></p>
+      <%= button_to t("admin.health.email.send"), admin_test_email_path, method: :post,
+        class: "mt-4 min-h-11",
+        data: { turbo_submits_with: t("admin.health.email.sending") } %>
+    </div>
+  </section>
+
   <section class="mt-10" aria-labelledby="user-access-heading">
     <h2 id="user-access-heading" class="text-2xl font-semibold"><%= t("admin.dashboard.user_access") %></h2>
     <div class="mt-4 overflow-x-auto rounded-xl border border-white/20 bg-black/20">

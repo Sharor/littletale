@@ -45,6 +45,24 @@ class BookWardrobePreparationTest < ActiveSupport::TestCase
     assert_equal source, @character.illustration.reload.original_image.identifier
   end
 
+  test "a book without selected characters skips outfits and dispatches its pages" do
+    @book.characters.clear
+
+    BookStoryGeneration.stub :call, @story do
+      BookWardrobePlanner.stub :call, ->(*) { flunk "a reference-free book does not need a wardrobe plan" } do
+        assert_enqueued_jobs 2, only: GeneratePageJob do
+          GenerateBookJob.perform_now(@book.id)
+        end
+      end
+    end
+
+    plan = @book.current_wardrobe_plan
+    assert_predicate plan, :ready?
+    assert_empty plan.character_snapshots
+    assert_empty plan.book_outfits
+    assert_equal [1, 2], @book.current_pages.pluck(:story_position)
+  end
+
   test "invalid wardrobe never starts reference or page generation" do
     BookStoryGeneration.stub :call, @story do
       BookWardrobePlanner.stub :call, { "outfits" => [] } do

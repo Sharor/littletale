@@ -22,7 +22,7 @@ class CharactersControllerTest < ActionDispatch::IntegrationTest
     assert_select "main.fable-character-overview"
     assert_select "form .fable-character-overview-header + .fable-character-grid"
     assert_select ".fable-character-overview-header button.fable-character-book-cta[type='submit'] span:first-child",
-      I18n.t("helpers.submit.character.add", default: "Create Book with Selected Characters")
+      I18n.t("characters.index.make_book_without_characters")
     assert_select "a[href='#{new_character_path}']", text: /New Character/
     assert_select "h2", text: @character.name
     assert_select "h2", text: other_character.name, count: 0

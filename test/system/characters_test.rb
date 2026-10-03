@@ -25,6 +25,18 @@ class CharactersTest < ApplicationSystemTestCase
     assert_text "Character Appearance"
   end
 
+  test "book action follows whether characters are selected" do
+    character = characters(:hernandes)
+    visit characters_url
+
+    assert_button "Make a book without characters"
+    find("#character_#{character.id} .fable-character-card").click
+    assert_button "Make a book with these characters"
+    page.current_window.resize_to(375, 900)
+    find("#character_#{character.id} .fable-character-card").click
+    assert_button "Make a book without characters"
+  end
+
   test "delete dialog can be cancelled then confirmed without leaving the character list" do
     character = characters(:hernandes)
     page.current_window.resize_to(1440, 1000)

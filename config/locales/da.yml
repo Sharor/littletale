@@ -82,6 +82,51 @@ da:
       books_available: Tilgængelige bøger
       character_credits: Figurkreditter
       trial_allowance: Prøvekvote
+    health:
+      eyebrow: Liveforbindelser
+      title: Produktionsstatus
+      introduction: Kør direkte kontroller fra denne webproces. De sætter ikke worker-job i kø og opretter ikke OpenAI-genereringer.
+      run_checks: Kontrollér forbindelser
+      running: Kontrollerer…
+      not_checked_description: Kør kontrollerne for at teste den aktuelle produktionsopsætning.
+      checked: "Kontrolleret %{time} · %{duration} ms"
+      statuses:
+        not_checked: Ikke kontrolleret
+        connected: Forbundet
+        not_configured: Ikke konfigureret
+        failed: Mislykkedes
+      object_storage:
+        title: Objektlager (S3-kompatibelt)
+        description: Tester godkendt adgang til den konfigurerede bucket uden at læse eller skrive et objekt.
+      openai:
+        title: OpenAI
+        description: Godkender via endpointet med modelmetadata uden at generere tokens, tekst eller billeder.
+      messages:
+        storage_connected: Forbindelse og adgang til bucket er bekræftet.
+        storage_missing: "Mangler %{settings}."
+        storage_timeout: Forespørgslen til objektlageret fik timeout.
+        storage_unreachable: Objektlageret kunne ikke nås.
+        storage_forbidden: De konfigurerede loginoplysninger har ikke adgang til objektlagerets bucket.
+        storage_rejected: Objektlageret afviste forespørgslen.
+        storage_failed: Kontrollen af objektlageret mislykkedes.
+        openai_connected: Godkendelse og API-adgang er bekræftet.
+        openai_missing: OPENAI_ACCESS_TOKEN mangler.
+        openai_forbidden: OpenAI afviste de konfigurerede loginoplysninger.
+        openai_unexpected: OpenAI returnerede et uventet svar.
+        openai_timeout: Forespørgslen til OpenAI fik timeout.
+        openai_unreachable: OpenAI kunne ikke nås.
+      email:
+        title: Levering af e-mail
+        description: Send en rigtig testmail direkte til din administratorkonto på %{email}. Den bruger den konfigurerede mailudbyder.
+        send: Send testmail
+        sending: Sender…
+        submitted: En testmail blev sendt til %{email}.
+        failed: Testmailen kunne ikke sendes.
+        subject: LittleStories kontrol af produktionsmail
+        heading: Produktionsmail er forbundet
+        body_html: Denne mail bekræfter, at LittleStories kan sende mail til <strong>%{email}</strong> via den konfigurerede udbyder.
+        body_text: Denne mail bekræfter, at LittleStories kan sende mail til %{email} via den konfigurerede udbyder.
+        confirmation: Modtagelsen af denne mail bekræfter levering hele vejen til din indbakke.
     failed_books:
       title: Mislykkede boggenereringer
       owner: Ejer
@@ -262,6 +307,8 @@ da:
       existing: Eksisterende figurer
       book_credit_required: Køb en bogkredit under Indstillinger for at lave en ny bog.
       character_credit_required: Køb en bogkredit under Indstillinger for at tilføje flere figurer.
+      make_book_with_characters: Lav en bog med disse figurer
+      make_book_without_characters: Lav en bog uden figurer
       select_named: "Vælg %{name}"
       edit_named: "Rediger %{name}"
       delete_named: "Slet %{name}"

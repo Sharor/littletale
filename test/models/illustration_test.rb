@@ -7,7 +7,7 @@ class IllustrationTest < ActiveSupport::TestCase
   test "page image request constrains repeated actions to one depiction of each character" do
     received = nil
     images = Object.new
-    images.define_singleton_method(:edit) do |parameters:|
+    images.define_singleton_method(:generate) do |parameters:|
       received = parameters
       { "data" => [] }
     end
@@ -30,7 +30,7 @@ class IllustrationTest < ActiveSupport::TestCase
   test "book image provider calls do not silently retry uncertain failures" do
     calls = 0
     images = Object.new
-    images.define_singleton_method(:edit) do |parameters:|
+    images.define_singleton_method(:generate) do |parameters:|
       calls += 1
       raise Timeout::Error, "uncertain response"
     end

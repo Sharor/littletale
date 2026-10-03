@@ -86,6 +86,17 @@ class ChatgptTest < ActiveSupport::TestCase
     assert_includes instructions, "appearance, not morality"
   end
 
+  test "structured generation treats an empty reference cast as permission to invent story characters" do
+    @book.characters.clear
+
+    input = JSON.parse(@chatgpt.jsonify)
+    instructions = @chatgpt.storytellergpt_instructions
+
+    assert_empty input.fetch("characters")
+    assert_includes instructions, 'When the "characters" array is empty, invent characters that fit the plot'
+    assert_includes instructions, "keep their names and appearance consistent"
+  end
+
   test "structured story examples use optional lists from the role catalog" do
     [ @chatgpt.input, @chatgpt.example_input ].each do |example|
       JSON.parse(example).fetch("characters").each do |character|

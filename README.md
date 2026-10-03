@@ -112,6 +112,12 @@ For a production restore, stop the app, preserve the current volume, replace eac
 database from its verified snapshot, confirm `PRAGMA integrity_check` returns `ok`,
 and start the app. Do not copy only a live `.sqlite3` file while writes are active.
 
+### Droplet config
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
 ## Character image screening
 
 New and edited character images are screened before image generation. A review

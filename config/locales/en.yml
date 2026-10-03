@@ -164,6 +164,51 @@ en:
       books_available: Books available
       character_credits: Character credits
       trial_allowance: Trial allowance
+    health:
+      eyebrow: Live connections
+      title: Production health
+      introduction: Run direct checks from this web process. They do not enqueue worker jobs or create OpenAI generations.
+      run_checks: Run connection checks
+      running: Checking…
+      not_checked_description: Run the checks to test the current production configuration.
+      checked: "Checked %{time} · %{duration} ms"
+      statuses:
+        not_checked: Not checked
+        connected: Connected
+        not_configured: Not configured
+        failed: Failed
+      object_storage:
+        title: Object storage (S3-compatible)
+        description: Tests authenticated access to the configured bucket without reading or writing an object.
+      openai:
+        title: OpenAI
+        description: Authenticates through the models metadata endpoint without generating tokens, text, or images.
+      messages:
+        storage_connected: Connection and bucket access confirmed.
+        storage_missing: "Missing %{settings}."
+        storage_timeout: The object storage request timed out.
+        storage_unreachable: The object storage service could not be reached.
+        storage_forbidden: The configured credentials cannot access the object storage bucket.
+        storage_rejected: The object storage service rejected the request.
+        storage_failed: The object storage check failed.
+        openai_connected: Authentication and API access confirmed.
+        openai_missing: Missing OPENAI_ACCESS_TOKEN.
+        openai_forbidden: OpenAI rejected the configured credentials.
+        openai_unexpected: OpenAI returned an unexpected response.
+        openai_timeout: The OpenAI request timed out.
+        openai_unreachable: The OpenAI service could not be reached.
+      email:
+        title: Delivery email
+        description: Send a real test message directly to your admin account at %{email}. This uses the configured email provider.
+        send: Send test email
+        sending: Sending…
+        submitted: A test email was submitted to %{email}.
+        failed: The test email could not be submitted.
+        subject: LittleStories production email check
+        heading: Production email is connected
+        body_html: This email confirms that LittleStories can submit mail to <strong>%{email}</strong> through the configured provider.
+        body_text: This email confirms that LittleStories can submit mail to %{email} through the configured provider.
+        confirmation: Receiving this message confirms end-to-end delivery to your inbox.
     failed_books:
       title: Failed book generations
       owner: Owner
@@ -344,6 +389,8 @@ en:
       existing: Existing characters
       book_credit_required: Buy a book credit in Settings to make another book.
       character_credit_required: Buy a book credit in Settings to add more characters.
+      make_book_with_characters: Make a book with these characters
+      make_book_without_characters: Make a book without characters
       select_named: "Select %{name}"
       edit_named: "Edit %{name}"
       delete_named: "Delete %{name}"

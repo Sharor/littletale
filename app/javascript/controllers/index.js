@@ -18,3 +18,5 @@ application.register("gift-modal", GiftModalController)
 
 import CharacterDeleteController from "./character_delete_controller"
 application.register("character-delete", CharacterDeleteController)
+import CharacterSelectionController from "./character_selection_controller"
+application.register("character-selection", CharacterSelectionController)

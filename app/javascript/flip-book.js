@@ -7,7 +7,10 @@ function initializeBook() {
     const bookEl = document.getElementById('storybook');
     if (!bookEl || initializedBooks.has(bookEl)) return;
 
+    // Turbo must cache the original pages, not PageFlip's wrappers and clip paths.
+    const cleanBook = bookEl.cloneNode(true);
     const pageFlip = new PageFlip(bookEl, {
+        startPage: Number(bookEl.dataset.currentPage || 0),
         width: 550,
         height: 800,
         size: "stretch",
@@ -25,13 +28,12 @@ function initializeBook() {
 
     pageFlip.loadFromHTML(bookEl.querySelectorAll('.page'));
 
-    document.getElementById('prevPage')?.addEventListener('click', () => {
-        pageFlip.flipPrev();
-    });
-
-    document.getElementById('nextPage')?.addEventListener('click', () => {
-        pageFlip.flipNext();
-    });
+    const prevButton = document.getElementById('prevPage');
+    const nextButton = document.getElementById('nextPage');
+    const flipPrev = () => pageFlip.flipPrev();
+    const flipNext = () => pageFlip.flipNext();
+    prevButton?.addEventListener('click', flipPrev);
+    nextButton?.addEventListener('click', flipNext);
 
     // Sidebar and container changes can resize the book without a window resize.
     const resizeObserver = new ResizeObserver(() => {
@@ -39,7 +41,15 @@ function initializeBook() {
         else resizeObserver.disconnect();
     });
     resizeObserver.observe(bookEl);
-    document.addEventListener('turbo:before-cache', () => resizeObserver.disconnect(), { once: true });
+    document.addEventListener('turbo:before-cache', () => {
+        resizeObserver.disconnect();
+        prevButton?.removeEventListener('click', flipPrev);
+        nextButton?.removeEventListener('click', flipNext);
+        cleanBook.dataset.currentPage = pageFlip.getCurrentPageIndex();
+        bookEl.replaceWith(cleanBook);
+        // destroy removes the old root too, so replace it before teardown.
+        pageFlip.destroy();
+    }, { once: true });
 
     const toggleState = () => {
         const index = pageFlip.getCurrentPageIndex();

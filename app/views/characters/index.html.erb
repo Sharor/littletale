@@ -7,7 +7,12 @@
 
   <main class="fable-main fable-ui fable-character-overview">
     <%# START FORM: Collects character IDs via GET request (URL parameters) %>
-    <%= form_with url: new_book_path, method: :get, local: true, html: { class: "fable-character-picker" } do |form| %>
+    <%= form_with url: new_book_path, method: :get, local: true,
+      html: { class: "fable-character-picker", data: {
+        controller: "character-selection",
+        "character-selection-with-characters-value": t("characters.index.make_book_with_characters"),
+        "character-selection-without-characters-value": t("characters.index.make_book_without_characters")
+      } } do |form| %>
       <header class="fable-character-overview-header">
         <div>
           <p class="fable-character-eyebrow"><%= t("characters.index.eyebrow") %></p>
@@ -15,7 +20,7 @@
           <p class="fable-character-intro"><%= t("characters.index.introduction") %></p>
         </div>
         <button type="submit" class="fable-character-book-cta" <%= "disabled aria-disabled=true title='#{t("characters.index.book_credit_required")}'" unless current_user.book_generation_available? %>>
-          <span><%= t("helpers.submit.character.add", default: "Create Book with Selected Characters") %></span>
+          <span data-character-selection-target="label"><%= t("characters.index.make_book_without_characters") %></span>
           <span aria-hidden="true">→</span>
         </button>
       </header>
@@ -59,7 +64,7 @@
           <%# Wrapper div is important to ensure relationship for tailwind peer toggling the hidden checkbox. %>
           <div id="<%= dom_id(character) %>"> 
             <%# 1. Hidden Checkbox (The Peer) %>
-            <%= form.check_box :character_ids, { multiple: true, class: "peer sr-only", aria: { label: t("characters.index.select_named", name: character.name) }, id: "character_checkbox_#{character.id}" }, character.id, nil %>
+            <%= form.check_box :character_ids, { multiple: true, class: "peer sr-only", aria: { label: t("characters.index.select_named", name: character.name) }, id: "character_checkbox_#{character.id}", data: { character_selection_target: "checkbox", action: "change->character-selection#update" } }, character.id, nil %>
 
             <%# 2. Visual Card (The Adjacent Sibling) - Holds all styling and the manual click handler %>
             <div class="fable-character-card cursor-pointer group block rounded-xl border p-4 text-center transition-all duration-200 relative

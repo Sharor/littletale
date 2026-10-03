@@ -27,14 +27,17 @@ env:
   secret:
     - RAILS_MASTER_KEY
     # - OPENAI_ACCESS_TOKEN
-    # - MINIO_ACCESS_KEY
-    # - MINIO_SECRET_KEY
-    # - MINIO_BUCKET
-    # - MINIO_ENDPOINT
+    # - OBJECT_STORAGE_ACCESS_KEY
+    # - OBJECT_STORAGE_SECRET_KEY
+    # - OBJECT_STORAGE_BUCKET
+    # - OBJECT_STORAGE_ENDPOINT
+    # - OBJECT_STORAGE_REGION
+    # - OBJECT_STORAGE_FORCE_PATH_STYLE
     # - HOSTS
 
   clear:
     SOLID_QUEUE_IN_PUMA: true
+    HOSTS: minortale.com
 
     # Lulu Orders remains an admin-only sandbox pilot until explicitly enabled.
     # Lulu fetches signed PDFs from this public HTTPS application host.

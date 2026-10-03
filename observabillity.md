@@ -74,3 +74,14 @@ Ruby
 │ ERROR ActiveRecord::QueryCanceled ...       │
 │ WARN  Job retry ...                         │
 └─────────────────────────────────────────────┘
+
+
+
+
+
+docker run --rm -it \
+  -e RAILS_MASTER_KEY='8bc6480b5a1c3c9d8f5e47693ef66ae2' \
+  -e HOSTS=minortale.com \
+  -e SOLID_QUEUE_IN_PUMA=true \
+  -v minortale_storage:/rails/storage \
+  sharor/minortale:latest

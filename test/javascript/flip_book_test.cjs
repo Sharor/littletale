@@ -13,7 +13,8 @@ function readerHarness() {
   const document = {
     addEventListener: (name, handler) => { listeners[name] = handler; },
     getElementById: (id) => id === 'storybook' ? book : {
-      addEventListener: (_event, handler) => { controls[id] = handler; }
+      addEventListener: (_event, handler) => { controls[id] = handler; },
+      removeEventListener: () => { delete controls[id]; }
     },
     querySelectorAll: () => [...pages, { unrelatedPage: true }]
   };
@@ -21,7 +22,7 @@ function readerHarness() {
     constructor(element, settings) {
       assert.equal(element, book);
       this.settings = settings;
-      this.currentPage = 0;
+      this.currentPage = settings.startPage;
       this.updates = 0;
       instances.push(this);
     }
@@ -31,6 +32,7 @@ function readerHarness() {
     flipNext() { this.currentPage++; }
     flipPrev() { this.currentPage--; }
     update() { this.updates++; }
+    destroy() {}
     on() {}
   }
   class ResizeObserver {
@@ -45,6 +47,9 @@ function readerHarness() {
     book = {
       clientWidth: 704,
       isConnected: true,
+      dataset: {},
+      cloneNode() { return { ...this, dataset: { ...this.dataset } }; },
+      replaceWith(replacement) { book = replacement; this.isConnected = false; },
       classList: { add() {}, remove() {} },
       querySelectorAll: () => pages
     };

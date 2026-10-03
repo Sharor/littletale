@@ -73,6 +73,17 @@ class BookWardrobePageImagesTest < ActiveSupport::TestCase
     end
   end
 
+  test "a legacy page without selected characters generates without empty image references" do
+    @page.required = false
+    images = Object.new
+    images.define_singleton_method(:generate) { |parameters:| { "model" => parameters[:model] } }
+    images.define_singleton_method(:edit) { |parameters:| raise "image edit received no references" }
+
+    @illustration.stub :client, Struct.new(:images).new(images) do
+      assert_equal "gpt-image-1", @illustration.gpt_image_1_edit([]).fetch("model")
+    end
+  end
+
   test "missing wardrobe prevents original reservation and direct paid image call" do
     @page.ready = false
     assert_nil PageIllustrationGeneration.reserve!(@illustration, retrying: false)

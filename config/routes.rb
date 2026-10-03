@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   post "pages/:id/regenerate_illustration", to: "page_illustration_controls#regenerate", as: :regenerate_illustration_page
   namespace :admin do
     root to: "dashboard#index"
+    resource :health_check, only: :create
+    resource :test_email, only: :create
     resources :page_illustrations, only: [] do
       post :regenerate, on: :member
     end

@@ -191,6 +191,7 @@ class Chatgpt < ApplicationRecord
     "Use the optional roles list as character metadata: family roles describe family position; Hero, Villain and Supporting describe narrative function. "\
     "Tattoos, Piercings and Freckles describe appearance, not morality. Honor family, appearance and story roles independently: a Father can be the Villain with any appearance traits. "\
     "Use family roles consistently with the plot without assuming every character belongs to the same family. Empty roles leave story casting open. "\
+    "When the \"characters\" array is empty, invent characters that fit the plot and keep their names and appearance consistent across every story and image description. "\
     "Your input will always be a collection of characters and a plot outline in a consistent JSON format,"\
     " and your output will be a collection of pages, describing the story and the image with its characters and"\
     " the output must always be valid JSON. EXAMPLE:\n"\

@@ -69,7 +69,7 @@ class Illustration < ApplicationRecord
         model: "gpt-image-1",
         size: "1024x1024"
       }
-      if page&.wardrobe_required? && images.empty?
+      if images.empty?
         client.images.generate(parameters: parameters)
       else
         client.images.edit(parameters: parameters.merge(image: images))
