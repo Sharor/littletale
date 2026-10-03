@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   namespace :admin do
     root to: "dashboard#index"
     resource :health_check, only: :create
+    resource :generation_provider, only: :update
     resource :test_email, only: :create
     resources :page_illustrations, only: [] do
       post :regenerate, on: :member

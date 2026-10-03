@@ -82,10 +82,40 @@ el:
       books_available: Διαθέσιμα βιβλία
       character_credits: Πιστώσεις χαρακτήρων
       trial_allowance: Όριο δοκιμής
+    generation_provider:
+      eyebrow: Ανθεκτική δημιουργία
+      title: Πάροχος δημιουργίας
+      introduction: Επιλέξτε τον πάροχο για μελλοντικά αιτήματα ιστοριών και εικόνων. Η αυτόματη λειτουργία ξεκινά με το OpenAI και μεταφέρει τα επόμενα αιτήματα στο Gemini μετά από 16 αποτυχίες διαθεσιμότητας στα τελευταία 20 κατάλληλα αιτήματα OpenAI.
+      selected_mode: Επιλεγμένη λειτουργία
+      active_provider: Ενεργός πάροχος
+      window: Αυτόματο παράθυρο αποτυχιών
+      window_summary: "%{failures} αποτυχίες σε %{observations} από %{size} κατάλληλα αιτήματα OpenAI"
+      switch_audit: Τελευταία απόφαση δρομολόγησης
+      never_switched: Δεν έχει καταγραφεί αλλαγή παρόχου.
+      switched_at: "Καταγράφηκε %{time}"
+      credentials: Διαπιστευτήρια
+      configured: Ρυθμισμένο
+      missing: Λείπει
+      save: Αποθήκευση λειτουργίας παρόχου
+      saving: Αποθήκευση…
+      updated: "Η λειτουργία παρόχου δημιουργίας άλλαξε σε %{mode}."
+      invalid_mode: Επιλέξτε έγκυρη λειτουργία παρόχου δημιουργίας.
+      missing_openai: Το OpenAI δεν έχει ρυθμιστεί. Προσθέστε το OPENAI_ACCESS_TOKEN πριν επιλέξετε αυτή τη λειτουργία.
+      missing_gemini: Το Gemini δεν έχει ρυθμιστεί. Προσθέστε το GEMINI_API_KEY πριν επιλέξετε αυτή τη λειτουργία.
+      modes:
+        openai:
+          title: OpenAI
+          description: Στείλτε τα μελλοντικά αιτήματα δημιουργίας στο OpenAI.
+        gemini:
+          title: Gemini
+          description: Στείλτε τα μελλοντικά αιτήματα δημιουργίας στο Gemini.
+        automatic:
+          title: Αυτόματη
+          description: Ξεκινήστε με το OpenAI και μεταφέρετε τα επόμενα αιτήματα στο Gemini όταν συμπληρωθεί το όριο αποτυχιών.
     health:
       eyebrow: Ζωντανές συνδέσεις
       title: Υγεία παραγωγής
-      introduction: Εκτελέστε άμεσους ελέγχους από αυτή τη διεργασία ιστού. Δεν δημιουργούν εργασίες worker ούτε παραγωγές OpenAI.
+      introduction: Εκτελέστε άμεσους ελέγχους από αυτή τη διεργασία ιστού. Δεν δημιουργούν εργασίες worker ούτε παραγωγές από πάροχο.
       run_checks: Έλεγχος συνδέσεων
       running: Έλεγχος…
       not_checked_description: Εκτελέστε τους ελέγχους για να δοκιμάσετε την τρέχουσα ρύθμιση παραγωγής.
@@ -101,6 +131,9 @@ el:
       openai:
         title: OpenAI
         description: Πιστοποιείται μέσω του endpoint μεταδεδομένων μοντέλων χωρίς παραγωγή token, κειμένου ή εικόνων.
+      gemini:
+        title: Gemini
+        description: Πιστοποιείται και ελέγχει την πρόσβαση στο ρυθμισμένο μοντέλο κειμένου χωρίς παραγωγή token, κειμένου ή εικόνων.
       messages:
         storage_connected: Η σύνδεση και η πρόσβαση στο bucket επιβεβαιώθηκαν.
         storage_missing: "Λείπουν τα %{settings}."
@@ -115,6 +148,12 @@ el:
         openai_unexpected: Το OpenAI επέστρεψε μη αναμενόμενη απόκριση.
         openai_timeout: Το αίτημα προς το OpenAI έληξε.
         openai_unreachable: Δεν ήταν δυνατή η σύνδεση με το OpenAI.
+        gemini_connected: Η πιστοποίηση και η πρόσβαση στο μοντέλο επιβεβαιώθηκαν.
+        gemini_missing: Λείπει το GEMINI_API_KEY.
+        gemini_forbidden: Το Gemini απέρριψε τα ρυθμισμένα διαπιστευτήρια.
+        gemini_unexpected: Το Gemini επέστρεψε μη αναμενόμενη απόκριση.
+        gemini_timeout: Το αίτημα προς το Gemini έληξε.
+        gemini_unreachable: Δεν ήταν δυνατή η σύνδεση με το Gemini.
       email:
         title: Παράδοση email
         description: Στείλτε ένα πραγματικό δοκιμαστικό μήνυμα στον λογαριασμό διαχειριστή %{email}. Χρησιμοποιεί τον ρυθμισμένο πάροχο email.

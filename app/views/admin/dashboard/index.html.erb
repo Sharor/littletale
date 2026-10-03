@@ -11,6 +11,80 @@
     <% end %>
   </div>
 
+  <section class="fable-panel mt-10" aria-labelledby="generation-provider-heading"
+    data-generation-provider data-provider-mode="<%= @generation_provider_setting.mode %>"
+    data-active-provider="<%= @generation_provider_setting.provider %>">
+    <div class="max-w-3xl">
+      <p class="text-sm uppercase tracking-widest text-cyan-300"><%= t("admin.generation_provider.eyebrow") %></p>
+      <h2 id="generation-provider-heading" class="mt-2 text-2xl"><%= t("admin.generation_provider.title") %></h2>
+      <p class="mt-2 text-gray-500"><%= t("admin.generation_provider.introduction") %></p>
+    </div>
+
+    <dl class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded border bg-black/20 p-4">
+        <dt class="text-sm text-gray-500"><%= t("admin.generation_provider.selected_mode") %></dt>
+        <dd class="mt-1 text-lg font-semibold"><%= t("admin.generation_provider.modes.#{@generation_provider_setting.mode}.title") %></dd>
+      </div>
+      <div class="rounded border bg-black/20 p-4">
+        <dt class="text-sm text-gray-500"><%= t("admin.generation_provider.active_provider") %></dt>
+        <dd class="mt-1 text-lg font-semibold"><%= t("admin.generation_provider.modes.#{@generation_provider_setting.provider}.title") %></dd>
+      </div>
+      <div class="rounded border bg-black/20 p-4 sm:col-span-2" data-provider-window>
+        <dt class="text-sm text-gray-500"><%= t("admin.generation_provider.window") %></dt>
+        <dd class="mt-1 text-lg font-semibold"><%= t("admin.generation_provider.window_summary",
+          failures: @generation_provider_failures, observations: @generation_provider_window.length,
+          size: GenerationProviderSetting::WINDOW_SIZE) %></dd>
+      </div>
+    </dl>
+
+    <div class="mt-5 grid gap-4 md:grid-cols-2">
+      <div class="rounded border bg-black/20 p-4" data-provider-switch-reason>
+        <h3 class="text-lg"><%= t("admin.generation_provider.switch_audit") %></h3>
+        <% if @generation_provider_setting.switch_reason.present? %>
+          <p class="mt-2"><%= @generation_provider_setting.switch_reason.humanize %></p>
+          <% if @generation_provider_setting.switched_at %>
+            <time class="mt-1 block text-sm text-gray-500" datetime="<%= @generation_provider_setting.switched_at.iso8601 %>">
+              <%= t("admin.generation_provider.switched_at", time: l(@generation_provider_setting.switched_at, format: :short)) %>
+            </time>
+          <% end %>
+        <% else %>
+          <p class="mt-2 text-gray-500"><%= t("admin.generation_provider.never_switched") %></p>
+        <% end %>
+      </div>
+      <div class="rounded border bg-black/20 p-4">
+        <h3 class="text-lg"><%= t("admin.generation_provider.credentials") %></h3>
+        <ul class="mt-2 space-y-2">
+          <% @generation_provider_credentials.each do |provider, configured| %>
+            <li class="flex items-center justify-between gap-3" data-provider-credential="<%= provider %>"
+              data-configured="<%= configured %>">
+              <span><%= t("admin.generation_provider.modes.#{provider}.title") %></span>
+              <strong><%= t("admin.generation_provider.#{configured ? "configured" : "missing"}") %></strong>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+    <%= form_with url: admin_generation_provider_path, method: :patch, class: "mt-6" do %>
+      <fieldset>
+        <legend class="fable-form-legend"><%= t("admin.generation_provider.selected_mode") %></legend>
+        <div class="grid gap-3 md:grid-cols-3">
+          <% GenerationProviderSetting::MODES.each do |mode| %>
+            <label class="relative block cursor-pointer">
+              <%= radio_button_tag :mode, mode, @generation_provider_setting.mode == mode, class: "peer sr-only" %>
+              <span class="block min-h-full rounded border bg-black/20 p-4">
+                <strong class="block"><%= t("admin.generation_provider.modes.#{mode}.title") %></strong>
+                <span class="mt-1 block text-sm text-gray-500"><%= t("admin.generation_provider.modes.#{mode}.description") %></span>
+              </span>
+            </label>
+          <% end %>
+        </div>
+      </fieldset>
+      <%= submit_tag t("admin.generation_provider.save"), class: "mt-4",
+        data: { turbo_submits_with: t("admin.generation_provider.saving") } %>
+    <% end %>
+  </section>
+
   <section class="fable-panel mt-10" aria-labelledby="production-health-heading" data-health-checks>
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div class="max-w-2xl">
@@ -23,8 +97,8 @@
         data: { turbo_submits_with: t("admin.health.running") } %>
     </div>
 
-    <div class="mt-6 grid gap-4 md:grid-cols-2">
-      <% [["object_storage", t("admin.health.object_storage.title"), t("admin.health.object_storage.description")], ["openai", t("admin.health.openai.title"), t("admin.health.openai.description")]].each do |name, title, description| %>
+    <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <% [["object_storage", t("admin.health.object_storage.title"), t("admin.health.object_storage.description")], ["openai", t("admin.health.openai.title"), t("admin.health.openai.description")], ["gemini", t("admin.health.gemini.title"), t("admin.health.gemini.description")]].each do |name, title, description| %>
         <% check = @health_check_results[name] %>
         <% status = check&.fetch("status", nil) || "not_checked" %>
         <% status_classes = { "connected" => "border-green-700 bg-green-950/40", "failed" => "border-red-700 bg-red-950/40", "not_configured" => "border-amber-700 bg-amber-950/40", "not_checked" => "border-white/20 bg-black/20" } %>

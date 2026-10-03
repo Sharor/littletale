@@ -164,10 +164,40 @@ en:
       books_available: Books available
       character_credits: Character credits
       trial_allowance: Trial allowance
+    generation_provider:
+      eyebrow: Resilient generation
+      title: Generation provider
+      introduction: Choose the provider for future story and image requests. Automatic starts with OpenAI and switches future requests to Gemini after 16 availability failures among the latest 20 eligible OpenAI requests.
+      selected_mode: Selected mode
+      active_provider: Active provider
+      window: Automatic failure window
+      window_summary: "%{failures} failures among %{observations} of %{size} eligible OpenAI requests"
+      switch_audit: Last routing decision
+      never_switched: No provider switch has been recorded.
+      switched_at: "Recorded %{time}"
+      credentials: Credentials
+      configured: Configured
+      missing: Missing
+      save: Save provider mode
+      saving: Saving…
+      updated: "Generation provider mode changed to %{mode}."
+      invalid_mode: Choose a valid generation provider mode.
+      missing_openai: OpenAI is not configured. Add OPENAI_ACCESS_TOKEN before selecting this mode.
+      missing_gemini: Gemini is not configured. Add GEMINI_API_KEY before selecting this mode.
+      modes:
+        openai:
+          title: OpenAI
+          description: Send future generation requests to OpenAI.
+        gemini:
+          title: Gemini
+          description: Send future generation requests to Gemini.
+        automatic:
+          title: Automatic
+          description: Start with OpenAI and switch future requests to Gemini when the failure threshold is reached.
     health:
       eyebrow: Live connections
       title: Production health
-      introduction: Run direct checks from this web process. They do not enqueue worker jobs or create OpenAI generations.
+      introduction: Run direct checks from this web process. They do not enqueue worker jobs or create provider generations.
       run_checks: Run connection checks
       running: Checking…
       not_checked_description: Run the checks to test the current production configuration.
@@ -183,6 +213,9 @@ en:
       openai:
         title: OpenAI
         description: Authenticates through the models metadata endpoint without generating tokens, text, or images.
+      gemini:
+        title: Gemini
+        description: Authenticates and checks access to the configured text model without generating tokens, text, or images.
       messages:
         storage_connected: Connection and bucket access confirmed.
         storage_missing: "Missing %{settings}."
@@ -197,6 +230,12 @@ en:
         openai_unexpected: OpenAI returned an unexpected response.
         openai_timeout: The OpenAI request timed out.
         openai_unreachable: The OpenAI service could not be reached.
+        gemini_connected: Authentication and model access confirmed.
+        gemini_missing: Missing GEMINI_API_KEY.
+        gemini_forbidden: Gemini rejected the configured credentials.
+        gemini_unexpected: Gemini returned an unexpected response.
+        gemini_timeout: The Gemini request timed out.
+        gemini_unreachable: The Gemini service could not be reached.
       email:
         title: Delivery email
         description: Send a real test message directly to your admin account at %{email}. This uses the configured email provider.

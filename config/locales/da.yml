@@ -82,10 +82,40 @@ da:
       books_available: Tilgængelige bøger
       character_credits: Figurkreditter
       trial_allowance: Prøvekvote
+    generation_provider:
+      eyebrow: Robust generering
+      title: Genereringsudbyder
+      introduction: Vælg udbyder til fremtidige historie- og billedanmodninger. Automatisk starter med OpenAI og skifter fremtidige anmodninger til Gemini efter 16 tilgængelighedsfejl blandt de seneste 20 relevante OpenAI-anmodninger.
+      selected_mode: Valgt tilstand
+      active_provider: Aktiv udbyder
+      window: Automatisk fejlvindue
+      window_summary: "%{failures} fejl blandt %{observations} af %{size} relevante OpenAI-anmodninger"
+      switch_audit: Seneste routingbeslutning
+      never_switched: Der er ikke registreret et skift af udbyder.
+      switched_at: "Registreret %{time}"
+      credentials: Loginoplysninger
+      configured: Konfigureret
+      missing: Mangler
+      save: Gem udbydertilstand
+      saving: Gemmer…
+      updated: "Genereringsudbyderen blev ændret til %{mode}."
+      invalid_mode: Vælg en gyldig tilstand for genereringsudbyderen.
+      missing_openai: OpenAI er ikke konfigureret. Tilføj OPENAI_ACCESS_TOKEN, før du vælger denne tilstand.
+      missing_gemini: Gemini er ikke konfigureret. Tilføj GEMINI_API_KEY, før du vælger denne tilstand.
+      modes:
+        openai:
+          title: OpenAI
+          description: Send fremtidige genereringsanmodninger til OpenAI.
+        gemini:
+          title: Gemini
+          description: Send fremtidige genereringsanmodninger til Gemini.
+        automatic:
+          title: Automatisk
+          description: Start med OpenAI, og skift fremtidige anmodninger til Gemini, når fejlgrænsen nås.
     health:
       eyebrow: Liveforbindelser
       title: Produktionsstatus
-      introduction: Kør direkte kontroller fra denne webproces. De sætter ikke worker-job i kø og opretter ikke OpenAI-genereringer.
+      introduction: Kør direkte kontroller fra denne webproces. De sætter ikke worker-job i kø og opretter ikke genereringer hos udbyderne.
       run_checks: Kontrollér forbindelser
       running: Kontrollerer…
       not_checked_description: Kør kontrollerne for at teste den aktuelle produktionsopsætning.
@@ -101,6 +131,9 @@ da:
       openai:
         title: OpenAI
         description: Godkender via endpointet med modelmetadata uden at generere tokens, tekst eller billeder.
+      gemini:
+        title: Gemini
+        description: Godkender og kontrollerer adgang til den konfigurerede tekstmodel uden at generere tokens, tekst eller billeder.
       messages:
         storage_connected: Forbindelse og adgang til bucket er bekræftet.
         storage_missing: "Mangler %{settings}."
@@ -115,6 +148,12 @@ da:
         openai_unexpected: OpenAI returnerede et uventet svar.
         openai_timeout: Forespørgslen til OpenAI fik timeout.
         openai_unreachable: OpenAI kunne ikke nås.
+        gemini_connected: Godkendelse og modeladgang er bekræftet.
+        gemini_missing: GEMINI_API_KEY mangler.
+        gemini_forbidden: Gemini afviste de konfigurerede loginoplysninger.
+        gemini_unexpected: Gemini returnerede et uventet svar.
+        gemini_timeout: Forespørgslen til Gemini fik timeout.
+        gemini_unreachable: Gemini kunne ikke nås.
       email:
         title: Levering af e-mail
         description: Send en rigtig testmail direkte til din administratorkonto på %{email}. Den bruger den konfigurerede mailudbyder.
