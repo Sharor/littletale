@@ -26,7 +26,8 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
-    # - OPENAI_ACCESS_TOKEN
+    - OPENAI_ACCESS_TOKEN
+    - GEMINI_API_KEY
     # - OBJECT_STORAGE_ACCESS_KEY
     # - OBJECT_STORAGE_SECRET_KEY
     # - OBJECT_STORAGE_BUCKET
@@ -38,6 +39,8 @@ env:
   clear:
     SOLID_QUEUE_IN_PUMA: true
     HOSTS: minortale.com
+    GEMINI_TEXT_MODEL: gemini-3.8-flash
+    GEMINI_IMAGE_MODEL: gemini-3.1-flash-image
 
     # Lulu Orders remains an admin-only sandbox pilot until explicitly enabled.
     # Lulu fetches signed PDFs from this public HTTPS application host.

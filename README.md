@@ -54,7 +54,76 @@ PostgreSQL volumes were not changed.
 
 ```sh
 OPENAI_ACCESS_TOKEN='sk....'
+GEMINI_API_KEY='...'
+
+# Optional overrides; these are the defaults.
+GEMINI_TEXT_MODEL='gemini-3.8-flash'
+GEMINI_IMAGE_MODEL='gemini-3.1-flash-image'
 ```
+
+## Generation provider failover
+
+Every story, illustration, wardrobe, categorization, prompt-revision, and
+character-screening request uses the global provider mode shown on `/admin`:
+
+- **OpenAI** sends future requests to OpenAI.
+- **Gemini** sends future requests to Gemini.
+- **Automatic** starts on OpenAI and changes future requests to Gemini after at
+  least 16 availability failures among the latest 20 eligible OpenAI requests
+  observed since Automatic was enabled.
+
+Timeouts, connection failures, HTTP 429 responses, and HTTP 5xx responses count
+as availability failures. Successful requests count toward the same 20-request
+window. Content refusals, malformed responses, credential failures, other HTTP
+4xx responses, and health checks do not count. The request that reaches the
+threshold stays with OpenAI and is never replayed automatically. Automatic mode
+does not switch back to OpenAI; an administrator must do that explicitly.
+
+Gemini requests use the stateless Interactions API with `store: false`. The text
+and image model names can be changed through the optional environment variables
+above. Provider history stores operational metadata only: provider, model,
+operation, outcome, status, error class, request ID, and timing. It does not store
+prompts, uploaded images, story text, or response bodies.
+
+### Production rollout
+
+Gemini image generation requires a paid Gemini API project. Before activating
+Gemini in production, resolve Google's Gemini API restriction for applications
+directed toward or likely accessed by people under 18. LittleStories currently
+permits users aged 13 and older. Deploying this code does not change that audience
+or make Gemini active; the persisted default remains OpenAI.
+
+After that product and policy prerequisite is resolved:
+
+1. Put `GEMINI_API_KEY` and `OPENAI_ACCESS_TOKEN` in `.kamal/secrets`. Keep the
+   default models in `config/deploy.yml`, or replace them with model IDs enabled
+   for the paid Gemini project.
+2. Deploy the additive migrations and restart every web and worker process. For
+   local verification from WSL, run `bin/rails db:migrate`,
+   `bin/rails db:prepare RAILS_ENV=test`, and `bin/rails restart`.
+3. Confirm `/admin` still reports **OpenAI** as the selected and active provider.
+   Run the production health checks; OpenAI and Gemini must both report connected.
+   The Gemini check reads model metadata and does not create a generation.
+4. Select **Gemini** and manually exercise representative story text, character
+   screening with and without a photo, character generation, wardrobe reference
+   generation, and a page illustration. These are real paid requests.
+5. Review results and provider-history outcomes, switch back to **OpenAI**, then
+   select **Automatic**. Enabling Automatic starts a fresh 20-request window on
+   OpenAI.
+
+Inspect routing without exposing customer content:
+
+```sh
+bin/rails runner 'puts GenerationProviderSetting.current.attributes.slice("mode", "active_provider", "switch_reason", "switched_at").to_json'
+bin/rails runner 'puts GenerationProviderRequest.order(id: :desc).limit(20).pluck(:provider, :operation, :outcome, :http_status).to_json'
+```
+
+For immediate provider rollback, select **OpenAI** on `/admin`; this affects new
+requests and leaves in-flight requests on their starting provider. If an
+application rollback is required, roll back the application before considering
+the database migration. The migration is additive and can safely remain during
+an application rollback. Reverting it deletes routing settings and request
+history, so take a database backup first and do it only when that loss is intended.
 
 ## Kamal deployment
 
