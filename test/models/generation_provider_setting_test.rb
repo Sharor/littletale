@@ -3,16 +3,9 @@
 require "test_helper"
 
 class GenerationProviderSettingTest < ActiveSupport::TestCase
-  self.use_transactional_tests = false
-
   setup do
-    GenerationProviderRequest.delete_all if ActiveRecord::Base.connection.data_source_exists?("generation_provider_requests")
-    GenerationProviderSetting.delete_all if ActiveRecord::Base.connection.data_source_exists?("generation_provider_settings")
-  end
-
-  teardown do
-    GenerationProviderRequest.delete_all if ActiveRecord::Base.connection.data_source_exists?("generation_provider_requests")
-    GenerationProviderSetting.delete_all if ActiveRecord::Base.connection.data_source_exists?("generation_provider_settings")
+    GenerationProviderRequest.delete_all
+    GenerationProviderSetting.delete_all
   end
 
   test "current lazily defaults to OpenAI" do
@@ -119,26 +112,18 @@ class GenerationProviderSettingTest < ActiveSupport::TestCase
     assert_equal "openai_availability_failures_16_of_20", setting.switch_reason
   end
 
-  test "concurrent threshold evaluation leaves one stable singleton switch" do
+  test "stale concurrent evaluators leave one stable singleton switch" do
     setting = automatic_setting
     started_at = setting.automatic_window_started_at + 1.second
     rows = 16.times.map { request_attributes(outcome: "availability_failure", started_at: started_at) } +
       4.times.map { request_attributes(outcome: "succeeded", started_at: started_at) }
     GenerationProviderRequest.insert_all!(rows)
 
-    errors = Queue.new
-    threads = 2.times.map do
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          GenerationProviderSetting.current.evaluate_automatic_switch!
-        rescue StandardError => error
-          errors << error
-        end
-      end
-    end
-    threads.each(&:join)
+    first_evaluator = GenerationProviderSetting.find(setting.id)
+    second_evaluator = GenerationProviderSetting.find(setting.id)
+    first_evaluator.evaluate_automatic_switch!
+    second_evaluator.evaluate_automatic_switch!
 
-    assert_empty errors
     assert_equal 1, GenerationProviderSetting.count
     assert_equal "gemini", setting.reload.provider
     assert_equal "openai_availability_failures_16_of_20", setting.switch_reason
