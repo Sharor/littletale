@@ -136,7 +136,7 @@ class GenerationProvidersClientTest < ActiveSupport::TestCase
   private
 
   def build_client(adapters)
-    GenerationProviders::Client.new(operation: "story", adapter_factory: ->(provider) { adapters.fetch(provider.to_sym) })
+    GenerationProviders::Client.new(operation: "story", adapter_factory: ->(provider, _operation) { adapters.fetch(provider.to_sym) })
   end
 
   def response(status:)

@@ -2,7 +2,7 @@
 
 module GenerationProviders
   class Client
-    def initialize(operation:, adapter_factory: ->(provider) { GenerationProviders.adapter_for(provider) })
+    def initialize(operation:, adapter_factory: ->(provider, operation) { GenerationProviders.adapter_for(provider, operation: operation) })
       @operation = operation
       @adapter_factory = adapter_factory
     end
@@ -31,7 +31,7 @@ module GenerationProviders
 
     def dispatch(capability, parameters)
       provider = GenerationProviderSetting.current.provider
-      adapter = @adapter_factory.call(provider)
+      adapter = @adapter_factory.call(provider, @operation)
       model = adapter.model_for(capability, parameters)
       started_at = Time.current
       response = nil

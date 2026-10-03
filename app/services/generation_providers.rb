@@ -7,10 +7,10 @@ module GenerationProviders
     Client.new(operation: operation)
   end
 
-  def self.adapter_for(provider)
+  def self.adapter_for(provider, operation:)
     case provider
     when "openai" then Openai.new
-    when "gemini" then Gemini.new
+    when "gemini" then Gemini.new(operation: operation)
     else raise ArgumentError, "Unknown generation provider"
     end
   end
