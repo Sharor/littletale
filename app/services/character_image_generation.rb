@@ -213,7 +213,7 @@ class CharacterImageGeneration
   end
 
   def client
-    @client ||= OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
+    @client ||= GenerationProviders.client(operation: "character_image")
   end
 
   def explicit_refusal?(error)

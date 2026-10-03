@@ -25,11 +25,15 @@ class BookWardrobePlannerTest < ActiveSupport::TestCase
       captured = parameters
       { "choices" => [{ "message" => { "content" => plan.to_json } }] }
     end
+    operations = []
 
-    OpenAI::Client.stub :new, client do
-      assert_equal plan, BookWardrobePlanner.call(@book, @story)
+    GenerationProviders.stub :client, ->(operation:) { operations << operation; client } do
+      OpenAI::Client.stub :new, client do
+        assert_equal plan, BookWardrobePlanner.call(@book, @story)
+      end
     end
 
+    assert_equal [ "book_wardrobe_plan" ], operations
     assert_equal "gpt-4.1", captured[:model]
     assert_equal({ type: "json_object" }, captured[:response_format])
     assert_equal "system", captured[:messages].first[:role]

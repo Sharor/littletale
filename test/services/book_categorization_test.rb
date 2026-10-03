@@ -3,6 +3,23 @@
 require "test_helper"
 
 class BookCategorizationTest < ActiveSupport::TestCase
+  test "uses the routed categorization client by default" do
+    book = completed_book_with_story("Mira explored the forest.")
+    routed_client = Object.new
+    routed_client.define_singleton_method(:chat) do |parameters:|
+      { "choices" => [ { "message" => { "content" => { categories: [ "Adventure" ] }.to_json } } ] }
+    end
+    operations = []
+
+    GenerationProviders.stub :client, ->(operation:) { operations << operation; routed_client } do
+      OpenAI::Client.stub(:new, routed_client) do
+        BookCategorization.call(book, generation_attempt: book.generation_attempt)
+      end
+    end
+
+    assert_equal [ "book_categorization" ], operations
+  end
+
   test "classifies a completed book from its saved story" do
     book = completed_book_with_story("Mira sailed across the sea with a friendly dragon.")
     request = nil

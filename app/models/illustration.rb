@@ -186,7 +186,7 @@ class Illustration < ApplicationRecord
   end
 
   def client
-    OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
+    GenerationProviders.client(operation: "page_illustration")
   end
 
   private

@@ -20,8 +20,13 @@ class BookWardrobeImageGenerationTest < ActiveSupport::TestCase
         [ "gpt-image-1", "1024x1024", "yellow raincoat and green boots", "Ava", "7", "curly", "neutral background", "age-appropriate swimwear", "full character", "same character", "\x89PNG".b ].all? { |part| body.include?(part) }
       end.to_return(status: 200, headers: { "Content-Type" => "application/json" }, body: { id: "req_outfit", data: [ { b64_json: Base64.strict_encode64(png) } ] }.to_json)
 
-    result = BookWardrobeImageGeneration.call(outfit)
+    operations = []
+    result = GenerationProviders.stub(:client, ->(operation:) {
+      operations << operation
+      GenerationProviders::Client.new(operation: operation)
+    }) { BookWardrobeImageGeneration.call(outfit) }
 
+    assert_equal [ "book_wardrobe_image" ], operations
     assert_equal png, result.fetch(:io).read
     assert_equal Encoding::BINARY, result.fetch(:io).external_encoding
     assert_equal "outfit.png", result.fetch(:filename)

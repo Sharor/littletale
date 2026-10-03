@@ -16,9 +16,13 @@ class PageIllustrationPromptTest < ActiveSupport::TestCase
       params = parameters
       { "choices" => [{ "message" => { "content" => "Children cycling in jackets and helmets" } }] }
     end
-    illustration.stub :client, client do
-      assert_equal "Children cycling in jackets and helmets", PageIllustrationPrompt.call(illustration)
+    operations = []
+    GenerationProviders.stub :client, ->(operation:) { operations << operation; client } do
+      illustration.stub :client, client do
+        assert_equal "Children cycling in jackets and helmets", PageIllustrationPrompt.call(illustration)
+      end
     end
+    assert_equal [ "page_prompt_revision" ], operations
     context = JSON.parse(params[:messages].last[:content])
     assert_equal page.id, context["page_id"]
     assert_equal 2, context["pages"].length
@@ -39,7 +43,7 @@ class PageIllustrationPromptTest < ActiveSupport::TestCase
     client.define_singleton_method(:chat) do |parameters:|
       { "choices" => [{ "message" => { "refusal" => "Cannot provide a safe depiction" } }] }
     end
-    illustration.stub :client, client do
+    GenerationProviders.stub :client, client do
       assert_raises(RuntimeError) { PageIllustrationPrompt.call(illustration) }
     end
   end

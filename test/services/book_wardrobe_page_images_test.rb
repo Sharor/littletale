@@ -114,7 +114,9 @@ class BookWardrobePageImagesTest < ActiveSupport::TestCase
       captured = parameters
       { "choices" => [{ "message" => { "content" => "Ada swims safely" } }] }
     end
-    @illustration.stub(:client, client) { assert_equal "Ada swims safely", PageIllustrationPrompt.call(@illustration) }
+    GenerationProviders.stub(:client, client) do
+      assert_equal "Ada swims safely", PageIllustrationPrompt.call(@illustration)
+    end
     context = JSON.parse(captured[:messages].last[:content])
     assert_equal "blue swimsuit", context.fetch("wardrobe").first.fetch("description")
     assert_equal "Ada", context.fetch("wardrobe").first.fetch("character_snapshot").fetch("name")

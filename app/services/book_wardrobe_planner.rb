@@ -35,7 +35,7 @@ class BookWardrobePlanner
       page_count: story.length,
       characters: character_snapshots || book.characters.map(&:book_generation_metadata)
     }
-    response = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil)).chat(parameters: {
+    response = GenerationProviders.client(operation: "book_wardrobe_plan").chat(parameters: {
       model: "gpt-4.1",
       response_format: { type: "json_object" },
       messages: [
@@ -53,7 +53,7 @@ class BookWardrobePlanner
     raise Error, "Wardrobe planning must return a JSON object" unless plan.is_a?(Hash)
 
     plan
-  rescue JSON::ParserError
+  rescue JSON::ParserError, GenerationProviders::InvalidResponse
     raise Error, "Wardrobe planning returned invalid JSON"
   end
 end

@@ -108,20 +108,17 @@ class ChatgptTest < ActiveSupport::TestCase
   end
 
   test "stores a mocked chat completion without making an external request" do
-    completion = Struct.new(:choices).new([ Struct.new(:message).new(Struct.new(:content).new("A generated story")) ])
-    completions = Minitest::Mock.new
-    completions.expect :create, completion do |parameters|
+    client = Minitest::Mock.new
+    client.expect :chat, { "choices" => [ { "message" => { "content" => "A generated story" } } ] } do |parameters:|
       parameters[:model] == "gpt-3.5-turbo" && parameters[:messages].is_a?(Array)
     end
-    chat = Struct.new(:completions).new(completions)
-    client = Struct.new(:chat).new(chat)
 
     @chatgpt.stub :openai_client, client do
       assert @chatgpt.generate
     end
 
     assert_equal "A generated story", @chatgpt.answer
-    completions.verify
+    client.verify
   end
 
   test "does not request a completion when an answer already exists" do
@@ -152,5 +149,16 @@ class ChatgptTest < ActiveSupport::TestCase
     assert JSON.parse(@chatgpt.output)
     assert JSON.parse(@chatgpt.example_input)
     assert JSON.parse(@chatgpt.example_output)
+  end
+
+  test "uses the routed book story client by default" do
+    routed_client = Object.new
+    operations = []
+
+    GenerationProviders.stub :client, ->(operation:) { operations << operation; routed_client } do
+      assert_same routed_client, @chatgpt.openai_client
+    end
+
+    assert_equal [ "book_story" ], operations
   end
 end

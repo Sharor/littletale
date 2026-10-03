@@ -126,7 +126,7 @@ class CharacterImageModeration
   end
 
   def client
-    @client ||= OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
+    @client ||= GenerationProviders.client(operation: "character_screening")
   end
 
   def decision?(value)

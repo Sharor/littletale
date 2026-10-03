@@ -64,8 +64,13 @@ class CharacterImageGenerationTest < ActiveSupport::TestCase
       photo: Photo.new(GIF_BYTES)
     )
 
-    result = CharacterImageGeneration.call(assessment)
+    operations = []
+    result = GenerationProviders.stub(:client, ->(operation:) {
+      operations << operation
+      GenerationProviders::Client.new(operation: operation)
+    }) { CharacterImageGeneration.call(assessment) }
 
+    assert_equal [ "character_image" ], operations
     assert_equal GENERATED_BYTES, result.fetch(:io).read
     assert_equal Encoding::BINARY, result.fetch(:io).external_encoding
     assert_equal "character.png", result.fetch(:filename)
@@ -286,6 +291,27 @@ class CharacterImageGenerationTest < ActiveSupport::TestCase
 
     assert_equal "The image service declined this request without a more specific reason.", error.public_reason
     assert_equal({ "code" => "moderation_blocked", "category" => "other" }, error.metadata)
+  end
+
+  test "routes a normalized Gemini safety rejection through the existing refusal path" do
+    provider_error = GenerationProviders::ContentRejected.new(response: {
+      status: 400,
+      headers: { "x-request-id" => "gem_blocked_1" },
+      body: { "error" => { "code" => "moderation_blocked", "category" => "other" } }
+    })
+    images = Object.new
+    images.define_singleton_method(:generate) { |parameters:| raise provider_error }
+    client = Struct.new(:images).new(images)
+    assessment = Assessment.new(prompt: "A character", generation_model: "gemini-image", photo: nil)
+    service = CharacterImageGeneration.new(assessment)
+
+    error = service.stub(:client, client) do
+      assert_raises(CharacterImageGeneration::Refused) { service.call }
+    end
+
+    assert_equal "The image service declined this request without a more specific reason.", error.public_reason
+    assert_equal({ "code" => "moderation_blocked", "request_id" => "gem_blocked_1", "category" => "other" },
+      error.metadata)
   end
 
   test "recognizes the documented content filter refusal code" do

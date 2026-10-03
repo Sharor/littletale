@@ -11,7 +11,7 @@ class BookCategorization
     return false unless book.completed? && book.generation_attempt == generation_attempt
     return true if book.categories.present?
 
-    client ||= OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
+    client ||= GenerationProviders.client(operation: "book_categorization")
     response = client.chat(parameters: {
       messages: messages_for(book),
       model: MODEL,

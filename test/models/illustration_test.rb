@@ -4,6 +4,17 @@ require "test_helper"
 require "minitest/mock"
 
 class IllustrationTest < ActiveSupport::TestCase
+  test "uses the routed page illustration client by default" do
+    routed_client = Object.new
+    operations = []
+
+    GenerationProviders.stub :client, ->(operation:) { operations << operation; routed_client } do
+      assert_same routed_client, Illustration.new.client
+    end
+
+    assert_equal [ "page_illustration" ], operations
+  end
+
   test "page image request constrains repeated actions to one depiction of each character" do
     received = nil
     images = Object.new

@@ -48,6 +48,18 @@ class CharacterImageModerationTest < ActiveSupport::TestCase
     ]
   }.freeze
 
+  test "uses the routed character screening client by default" do
+    routed_client = Object.new
+    operations = []
+    service = CharacterImageModeration.new(Result.new(prompt: "A child reading", photo: nil))
+
+    GenerationProviders.stub :client, ->(operation:) { operations << operation; routed_client } do
+      assert_same routed_client, service.send(:client)
+    end
+
+    assert_equal [ "character_screening" ], operations
+  end
+
   test "approves a clear text prompt and returns only sanitized evidence" do
     client = moderation_client_for(
       { model: "omni-moderation-latest", input: [ { type: "text", text: "A cheerful child explorer" } ] },

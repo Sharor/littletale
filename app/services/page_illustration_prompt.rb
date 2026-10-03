@@ -26,7 +26,7 @@ class PageIllustrationPrompt
       "Choose clothing appropriate to the setting and helmets or other protective equipment where appropriate. " \
         "Reference images guide identity, not clothing. "
     end
-    response = illustration.client.chat(parameters: {
+    response = GenerationProviders.client(operation: "page_prompt_revision").chat(parameters: {
       model: "gpt-4.1",
       messages: [
         { role: "system", content: "Write a revised children's-book illustration prompt for the identified page. " \

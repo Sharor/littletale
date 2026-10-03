@@ -6,14 +6,14 @@ class Chatgpt < ApplicationRecord
 
     client = openai_client
 
-    chat_completion = client.chat.completions.create(
+    chat_completion = client.chat(parameters: {
       messages: chat_prompt_instruction(5), # page_count set here: page_count:5
       model: "gpt-3.5-turbo",
       max_tokens: 400,
       temperature: 0.7
-    )
+    })
 
-    self.answer = chat_completion.choices.first.message.content
+    self.answer = chat_completion.dig("choices", 0, "message", "content")
     # self.answer = response.dig('choices', 0, 'message', 'content')
     # self.reason_for_termination = response['choices'].first['finish_reason']
     # self.usage = response['usage']
@@ -216,6 +216,6 @@ class Chatgpt < ApplicationRecord
   end
 
   def openai_client
-    OpenAI::Client.new(access_token: ENV.fetch("OPENAI_ACCESS_TOKEN", nil))
+    GenerationProviders.client(operation: "book_story")
   end
 end
