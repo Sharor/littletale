@@ -95,13 +95,15 @@
           class: "w-24 bg-gray-900 border-gray-700 rounded text-center focus:ring-yellow-500",
           data: { action: "change->form#updateLimitHint" } %>
       
-      <span class="text-sm text-gray-400">
-        <%= t("books.form.maximum") %>: <strong class="text-yellow-500"><%= t("books.form.pages", count: limit) %></strong>
-        (<%= t("books.form.tier", tier: current_user.tier.capitalize) %>)
-      </span>
+      <% if limit %>
+        <span class="text-sm text-gray-400">
+          <%= t("books.form.maximum") %>: <strong class="text-yellow-500"><%= t("books.form.pages", count: limit) %></strong>
+          (<%= t("books.form.tier", tier: current_user.tier.capitalize) %>)
+        </span>
+      <% end %>
     </div>
 
-    <% if current_user.tier != "premium" %>
+    <% if limit && current_user.tier != "premium" %>
       <p class="text-xs italic text-blue-400">
         <%= t("books.form.want_more") %> <a href="/pricing" class="underline"><%= t("books.form.upgrade") %></a>
       </p>

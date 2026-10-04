@@ -6,6 +6,85 @@ da:
     administration: Administration
     subscription: Prøveperiode og abonnement
     profile: Brugerprofil
+    parent_dashboard: Forældredashboard
+  parent:
+    not_enabled: Forældrebegrænset tilstand er ikke aktiveret.
+    session:
+      eyebrow: Kun forældre
+      title: Lås forældrekontrol op
+      explanation: Indtast forældre-PIN for at gennemgå anmodninger eller ændre reglerne.
+      pin: Forældre-PIN
+      unlock: Lås dashboard op
+      incorrect: PIN-koden er forkert.
+      locked: For mange forkerte forsøg. Prøv igen om 15 minutter, eller gendan PIN-koden via e-mail.
+      locked_again: Forældrekontrollen blev låst.
+    dashboard:
+      eyebrow: Familiens rammer
+      title: Forældredashboard
+      introduction: Bestem, hvordan nye historier startes, mens kreditter, sikkerhedstjek og tekniske gentagelser fortsætter uændret.
+      lock: Lås forældrekontrol
+      today: Dagens generering
+      successful_today: Færdige bøger i dag
+      in_progress: Bøger i gang
+      awaiting_approval: Afventer godkendelse
+      remaining_today: Resterende bogpladser i dag
+    control:
+      eyebrow: Regler for generering
+      title: Vælg, hvordan oprettelse tillades
+      mode: Begrænsningstype
+      approval_title: Godkend hver generering
+      approval_description: En forælder godkender hver ny bog og figur. Gentagelser bruger den oprindelige godkendelse.
+      daily_title: Dagligt antal færdige bøger
+      daily_description: Angiv hvor mange bøger der må blive færdige hver dag. Figurer bruger eksisterende kreditter. Kræver et aktivt abonnement.
+      daily_limit: Færdige bøger pr. dag
+      time_zone: Tidszone for daglig nulstilling
+      time_zone_hint: Antallet nulstilles ved midnat i denne tidszone.
+      save: Gem regler
+      updated: Reglerne for generering blev opdateret.
+      subscription_required: Et aktivt abonnement kræves for en daglig boggrænse.
+      subscription_fallback: Abonnementet er ikke længere aktivt, så nye bøger og figurer kræver en forælders godkendelse.
+    requests:
+      eyebrow: Venter på svar
+      title: Anmodninger til gennemgang
+      empty: Ingen genereringer venter på godkendelse.
+      book: Bog
+      character: Figur
+      book_title: Titel
+      book_plot: Handling
+      no_plot: Der er ikke angivet nogen handling.
+      approve: Godkend
+      decline: Afvis
+      approve_declined_title: Godkend afvist bog?
+      approve_declined_confirmation: Er du sikker? Du har allerede afvist denne bog, og dette vil oprette bogen med det samme i stedet.
+      cancel: Annuller
+      approved: Genereringen blev godkendt og sat i kø.
+      declined: Genereringen blev afvist.
+      stale: Anmodningen er ændret og kan ikke længere godkendes.
+      allowance_required: Kontoen mangler en tilgængelig genereringskredit.
+      queue_failed: Genereringen blev godkendt, men kunne ikke sættes i kø. Kreditten blev frigivet, hvor det var muligt.
+    pin_reset:
+      eyebrow: Gendan PIN
+      title: Gendan forældre-PIN
+      explanation: Vi sender et sikkert nulstillingslink til %{email}.
+      send: Send nulstillingslink
+      sent: Instruktioner blev sendt til kontoens registrerede e-mailadresse.
+      forgot: Glemt eller vil du ændre PIN-koden?
+      choose_title: Vælg en ny forældre-PIN
+      new_pin: Ny forældre-PIN
+      confirm_pin: Bekræft ny forældre-PIN
+      update: Opdater PIN
+      updated: Din forældre-PIN blev opdateret.
+      invalid: Linket er ugyldigt eller udløbet.
+      request_another: Bed om en ny e-mail
+    history:
+      eyebrow: Seneste aktivitet
+      title: Seneste beslutninger
+      empty: Der er endnu ikke registreret nogen beslutninger.
+      status:
+        approved: Godkendt
+        declined: Afvist
+        released: Frigivet
+        completed: Færdig
   authentication:
     welcome_back: Velkommen tilbage!
     next_adventure: Klar til det næste eventyr?
@@ -282,6 +361,24 @@ da:
     reader_age:
       label: Tiltænkt læsers alder (valgfrit)
       hint: Det hjælper os med at vælge passende ord og sætningslængde.
+    parent_control:
+      eyebrow: Forældrekontrol
+      title: Forældrebegrænset tilstand
+      explanation: Angiv et dagligt antal bøger, eller kræv godkendelse før hver ny bog eller figur genereres. Nye forsøg kræver ikke en ny godkendelse. Daglige grænser kræver et aktivt abonnement, og figurer bruger fortsat kontoens eksisterende figurkreditter.
+      toggle: Slå forældrebegrænset tilstand til eller fra
+      "on": Til
+      "off": Fra
+      new_pin: Forældre-PIN
+      confirm_pin: Bekræft forældre-PIN
+      current_pin: Nuværende forældre-PIN
+      setup_hint: Vælg 4 til 8 cifre. PIN-koden kan gendannes via kontoens registrerede e-mailadresse.
+      change_hint: Når du ændrer kontakten, åbnes en sikker PIN-bekræftelse.
+      dialog_title: Bekræft forældreindstilling
+      dialog_explanation: Indtast forældre-PIN-koden for at slå forældrebegrænset tilstand til eller fra. Når du bekræfter, gemmes dine profilændringer.
+      confirm_change: Bekræft ændring
+      pin_incorrect: PIN-koden er forkert.
+      open_dashboard: Åbn forældredashboard
+      forgot_pin: Skift eller gendan PIN
   books:
     new:
       title: Ny bog
@@ -290,6 +387,7 @@ da:
     index:
       eyebrow: Små fabler
       title: Nuværende bibliotek
+      awaiting_approval: "Bøger, der afventer godkendelse (%{count})"
       create: Lav en ny bog
       credit_required: Køb en bogkredit under Indstillinger for at lave en ny bog.
       read: Læs
@@ -300,6 +398,20 @@ da:
       category_label: Kategori
       all_categories: Alle kategorier
       filter_category: Vis
+    awaiting:
+      eyebrow: Forældregodkendelse
+      title: Bøger, der afventer godkendelse
+      current_library: Nuværende bibliotek
+      empty: Ingen bøger afventer forældregodkendelse.
+      waiting: Afventer forældregodkendelse
+      review: Gennemgå godkendelse
+    parent_approval:
+      eyebrow: Forældregodkendelse
+      title: En forælder skal godkende denne bog.
+      explanation: Indtast forældre-PIN-koden for at godkende “%{book}” og starte genereringen.
+      pin: Forældre-PIN
+      approve: Godkend som forælder
+      back: Tilbage til bøger, der afventer godkendelse
     reader:
       chronicles: Fortællingerne om
       illustration_unavailable: Illustrationen er ikke tilgængelig
@@ -327,6 +439,7 @@ da:
       upgrade: Opgrader og få op til 20 sider!
       create: Opret bog
     status:
+      parent_approval: Denne bog venter på en forælders godkendelse.
       getting_ready: Vi gør din bog klar…
       starts_shortly: Genereringen begynder snart. Siden opdateres automatisk.
       preparing: Vi forbereder historien og figurernes tøj…
@@ -441,6 +554,7 @@ da:
       villain: Skurk
       supporting: Birolle
   illustrations:
+    parent_approval: Venter på en forælders godkendelse af denne figur.
     rejected: "Dit figurbillede blev afvist: %{reason}"
     edit: Rediger eller udskift billedet
     needs_review: Dit figurbillede venter på at blive gennemgået af en administrator.
@@ -511,6 +625,10 @@ da:
     delete: Slet
   notices:
     trial_ended: Din prøveperiode er slut. Abonner for at fortsætte.
+    parental_generation:
+      book_pending: Denne bog venter på en forælders godkendelse.
+      character_pending: Denne figur venter på en forælders godkendelse.
+      daily_limit: Den daglige boggrænse er nået. Prøv igen efter næste nulstilling.
     book:
       created: Bogen blev oprettet.
       writing: Bogen bliver skrevet!

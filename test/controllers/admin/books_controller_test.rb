@@ -90,4 +90,22 @@ class Admin::BooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "held", reservation.reload.status
     assert_equal 0, owner.reload.available_book_credits
   end
+
+  test "a daily-limit retry reserves capacity without requiring parent approval" do
+    owner = users(:one)
+    owner.user_subscriptions.create!(status: "active", product_id: UserSubscription::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid)
+    owner.create_parent_control!(enabled: true, mode: "daily_limit", daily_book_limit: 1,
+      pin: "4826", pin_confirmation: "4826")
+    book = owner.books.create!(name: "Retry under daily limit", total_pages: 1, generation_status: :failed)
+    admin = users(:three)
+    admin.update!(admin: true)
+    sign_in admin
+
+    post rerun_generation_admin_book_url(book)
+
+    request = book.parental_generation_requests.approved.last
+    assert_not_nil request
+    assert_equal "daily_limit", request.policy_mode
+  end
 end

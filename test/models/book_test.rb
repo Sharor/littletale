@@ -182,6 +182,15 @@ class BookTest < ActiveSupport::TestCase
     assert_includes book.errors[:total_pages], "cannot exceed 5 pages for the Free tier"
   end
 
+  test "does not apply a tier page limit to an administrator" do
+    user = users(:one)
+    user.update!(tier: "free", admin: true)
+    book = Book.new(user: user, name: "Long admin tale", total_pages: 21)
+
+    assert_predicate book, :valid?
+    assert_nil book.tier_limit
+  end
+
   test "maps completed page counts to construction levels" do
     book = Book.new(user: users(:one), name: "Tale", total_pages: 5)
 

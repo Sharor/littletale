@@ -27,5 +27,8 @@ class PageIllustrationControlsController < ApplicationController
   rescue BookCredit::LimitReached
     redirect_to settings_path(payment_required: "book"),
       alert: I18n.t("notices.illustration.credit_required")
+  rescue ParentalGenerationGate::LimitReached
+    redirect_back fallback_location: book_path(page.book),
+      alert: I18n.t("notices.parental_generation.daily_limit")
   end
 end

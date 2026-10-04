@@ -131,6 +131,56 @@ class CharactersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to characters_url
   end
 
+  test "approval mode saves a character without spending funding or queueing generation" do
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+    params = { character: { name: "Waiting hero", age: 9, gender: "Girl", ethnicity: "Asian",
+      hair_color: "Black", hair_style: "Long", eye_color: "Brown", creation_mode: "form", roles: [ "Hero" ] } }
+
+    assert_difference("Character.count", 1) do
+      assert_no_enqueued_jobs do
+        post characters_url, params: params
+      end
+    end
+
+    character = @user.characters.find_by!(name: "Waiting hero")
+    assert_predicate character, :awaiting_parental_approval?
+    assert_nil character.current_image_request
+    assert_redirected_to characters_url
+  end
+
+  test "daily mode lets existing character credits govern generation" do
+    @user.user_subscriptions.create!(status: "active", product_id: UserSubscription::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid)
+    @user.create_parent_control!(enabled: true, mode: "daily_limit", daily_book_limit: 1,
+      pin: "4826", pin_confirmation: "4826")
+    params = { character: { name: "Daily hero", age: 9, gender: "Girl", ethnicity: "Asian",
+      hair_color: "Black", hair_style: "Long", eye_color: "Brown", creation_mode: "form", roles: [ "Hero" ] } }
+
+    assert_enqueued_jobs 1 do
+      post characters_url, params: params
+    end
+
+    assert_not @user.characters.find_by!(name: "Daily hero").awaiting_parental_approval?
+  end
+
+  test "changing a failed approved character creates a new approval request" do
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+    request = ParentalGenerationGate.authorize(@character).request
+    request.approve!
+    @character.update!(generation_status: :failed)
+
+    assert_no_enqueued_jobs do
+      patch character_url(@character), params: { character: {
+        name: @character.name, age: @character.age, gender: @character.gender, ethnicity: @character.ethnicity,
+        hair_color: @character.hair_color, hair_style: @character.hair_style, eye_color: "Blue",
+        creation_mode: "form", roles: @character.roles
+      } }
+    end
+
+    assert_predicate @character.reload, :awaiting_parental_approval?
+    assert_equal "released", request.reload.status
+  end
+
   test "create renders validation errors for an incomplete descriptive character" do
     post characters_url, params: { character: { name: "Elara", creation_mode: "form" } }
 
@@ -173,6 +223,16 @@ class CharactersControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     post save_selected_characters_url, params: { book_id: book.id, character_ids: [@character.id] }
     assert_response :unprocessable_content
+  end
+
+  test "deleting a character releases its pending parent approval" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    request = ParentalGenerationGate.authorize(@character).request
+
+    delete character_url(@character)
+
+    assert_redirected_to characters_url
+    assert_equal "released", request.reload.status
   end
 
   test "HTML deletion returns to the character list" do

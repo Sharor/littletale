@@ -2,7 +2,9 @@
   <div class="absolute inset-0 overflow-auto">
     <% request = character.current_image_request %>
     <% state = request&.screening_status %>
-    <% if state == "rejected" %>
+    <% if character.awaiting_parental_approval? %>
+      <p class="p-4 text-sm text-amber-100"><%= t("illustrations.parent_approval") %></p>
+    <% elsif state == "rejected" %>
       <div class="rounded-lg bg-red-950 p-4 text-sm text-red-100">
         <p><%= t("illustrations.rejected", reason: request.public_reason) %></p>
         <%= link_to t("illustrations.edit"), edit_character_path(character), class: "underline", data: { turbo_frame: "_top" }, onclick: "event.stopPropagation();" %>

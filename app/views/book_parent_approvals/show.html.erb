@@ -1,0 +1,22 @@
+<% content_for :body_class, "library-page" %>
+
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui" id="main">
+    <section class="parent-book-approval fable-panel">
+      <p class="fable-character-eyebrow"><%= t("books.parent_approval.eyebrow") %></p>
+      <h1><%= t("books.parent_approval.title") %></h1>
+      <p><%= t("books.parent_approval.explanation", book: @book.name) %></p>
+      <%= render "books/parent_approval_details", book: @book %>
+
+      <%= form_with url: book_parent_approval_path(@book), class: "parent-book-approval__form" do |form| %>
+        <%= form.label :pin, t("books.parent_approval.pin"), class: "fable-form-label" %>
+        <%= form.password_field :pin, inputmode: "numeric", autocomplete: "current-password",
+          minlength: 4, maxlength: 8, required: true %>
+        <%= form.button t("books.parent_approval.approve"), type: :submit %>
+      <% end %>
+
+      <%= link_to t("books.parent_approval.back"), awaiting_approval_books_path, class: "parent-text-link" %>
+    </section>
+  </main>
+</div>

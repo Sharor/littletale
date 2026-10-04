@@ -37,6 +37,89 @@
           class: "mt-2 w-full rounded bg-gray-800 p-3 text-white" %>
       </div>
 
+      <% parent_restricted_enabled = @parent_control&.enabled? || false %>
+      <section class="parent-restricted-setting <%= "parent-restricted-setting--disabled" unless parent_restricted_enabled %>"
+        aria-labelledby="parent-restricted-heading"
+        data-controller="parent-restriction"
+        data-parent-restriction-initial-enabled-value="<%= parent_restricted_enabled %>"
+        data-parent-restriction-on-label-value="<%= t("profile.parent_control.on") %>"
+        data-parent-restriction-off-label-value="<%= t("profile.parent_control.off") %>">
+        <div class="parent-restricted-setting__heading">
+          <div>
+            <p class="fable-character-eyebrow"><%= t("profile.parent_control.eyebrow") %></p>
+            <h2 id="parent-restricted-heading"><%= t("profile.parent_control.title") %></h2>
+          </div>
+          <div class="parent-restricted-switch">
+            <span class="parent-restricted-switch__status" data-parent-restriction-target="status">
+              <%= t(parent_restricted_enabled ? "profile.parent_control.on" : "profile.parent_control.off") %>
+            </span>
+            <%= hidden_field_tag "user[parent_restricted_mode]", "0" %>
+            <label class="parent-restricted-switch__control">
+              <span class="sr-only"><%= t("profile.parent_control.toggle") %></span>
+              <%= check_box_tag "user[parent_restricted_mode]", "1", parent_restricted_enabled,
+                class: "parent-restricted-switch__input", role: "switch",
+                data: { parent_restriction_target: "toggle", action: "change->parent-restriction#toggle" },
+                aria: { describedby: "parent-restricted-explanation" } %>
+              <span class="parent-restricted-switch__track" aria-hidden="true">
+                <span class="parent-restricted-switch__thumb"></span>
+              </span>
+            </label>
+          </div>
+        </div>
+        <p id="parent-restricted-explanation" data-parent-restricted-explanation>
+          <%= t("profile.parent_control.explanation") %>
+        </p>
+
+        <% if @parent_control.nil? %>
+          <div class="parent-restricted-setting__pin-grid">
+            <div>
+              <%= label_tag "user_parent_pin", t("profile.parent_control.new_pin"), class: "fable-form-label" %>
+              <%= password_field_tag "user[parent_pin]", nil, id: "user_parent_pin", inputmode: "numeric",
+                autocomplete: "new-password", minlength: 4, maxlength: 8 %>
+            </div>
+            <div>
+              <%= label_tag "user_parent_pin_confirmation", t("profile.parent_control.confirm_pin"), class: "fable-form-label" %>
+              <%= password_field_tag "user[parent_pin_confirmation]", nil, id: "user_parent_pin_confirmation",
+                inputmode: "numeric", autocomplete: "new-password", minlength: 4, maxlength: 8 %>
+            </div>
+          </div>
+          <p class="parent-restricted-setting__hint"><%= t("profile.parent_control.setup_hint") %></p>
+        <% else %>
+          <p class="parent-restricted-setting__hint"><%= t("profile.parent_control.change_hint") %></p>
+          <div class="parent-restricted-setting__actions">
+            <% if @parent_control.enabled? %>
+              <%= link_to t("profile.parent_control.open_dashboard"), parent_path %>
+            <% end %>
+            <%= link_to t("profile.parent_control.forgot_pin"), new_parent_pin_reset_path %>
+          </div>
+
+          <dialog class="fable-ui parent-restricted-dialog" aria-labelledby="parent-restricted-dialog-title"
+            data-parent-restriction-target="dialog"
+            data-action="cancel->parent-restriction#cancel click->parent-restriction#closeOnBackdrop">
+            <div class="parent-restricted-dialog__heading">
+              <h3 id="parent-restricted-dialog-title"><%= t("profile.parent_control.dialog_title") %></h3>
+              <button type="button" class="fable-dialog-close" aria-label="<%= t("common.close") %>"
+                data-action="parent-restriction#cancel">×</button>
+            </div>
+            <p><%= t("profile.parent_control.dialog_explanation") %></p>
+            <div class="parent-restricted-dialog__pin">
+              <%= label_tag "user_current_parent_pin", t("profile.parent_control.current_pin"), class: "fable-form-label" %>
+              <%= password_field_tag "user[current_parent_pin]", nil, id: "user_current_parent_pin",
+                inputmode: "numeric", autocomplete: "current-password", minlength: 4, maxlength: 8,
+                data: { parent_restriction_target: "pin" } %>
+            </div>
+            <div class="parent-restricted-dialog__actions">
+              <button type="button" class="bg-gray-700" data-action="parent-restriction#cancel">
+                <%= t("common.cancel") %>
+              </button>
+              <button type="button" data-action="parent-restriction#confirm">
+                <%= t("profile.parent_control.confirm_change") %>
+              </button>
+            </div>
+          </dialog>
+        <% end %>
+      </section>
+
       <%= form.submit t(params[:onboarding].present? ? "profile.continue" : "profile.save"),
         class: "min-h-11 rounded bg-amber-500 px-5 py-3 font-semibold text-gray-950 hover:bg-amber-400" %>
     <% end %>

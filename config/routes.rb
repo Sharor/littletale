@@ -40,12 +40,26 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   resource :settings, only: :show
   resource :profile, only: %i[show update]
+  get "parent", to: "parent/dashboard#show", as: :parent
+  namespace :parent do
+    resource :session, only: %i[new create destroy]
+    resource :control, only: :update
+    resource :pin_reset, only: %i[new create edit update]
+    resources :generation_requests, only: [] do
+      member do
+        post :approve
+        post :decline
+      end
+    end
+  end
   post "settings/book_purchase", to: "purchases#create", as: :settings_book_purchase
   post "settings/subscription", to: "subscriptions#create", as: :settings_subscription
   post "settings/billing_portal", to: "billing_portal#create", as: :settings_billing_portal
   get "settings/checkout/success", to: "purchases#success", as: :settings_checkout_success
   post "webhooks/stripe", to: "stripe_webhooks#create", as: :stripe_webhook
   resources :books do
+    get :awaiting_approval, on: :collection
+    resource :parent_approval, only: %i[show create], controller: "book_parent_approvals"
     resources :book_gifts, only: %i[new create] do
       collection do
         post :prepare

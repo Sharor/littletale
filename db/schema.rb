@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_03_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_04_122000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -189,6 +189,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_03_120000) do
     t.string "art_style", default: "western_book_style", null: false
     t.json "categories", default: [], null: false
     t.datetime "categorization_enqueued_at"
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_books_on_deleted_at"
     t.index ["user_id"], name: "index_books_on_user_id"
   end
 
@@ -417,6 +419,41 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_03_120000) do
     t.index ["book_wardrobe_plan_id"], name: "index_pages_on_book_wardrobe_plan_id"
   end
 
+  create_table "parent_controls", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.boolean "enabled", default: false, null: false
+    t.string "mode", default: "approval_required", null: false
+    t.integer "daily_book_limit", default: 1, null: false
+    t.string "time_zone", default: "UTC", null: false
+    t.string "pin_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "failed_pin_attempts", default: 0, null: false
+    t.datetime "locked_until"
+    t.index ["user_id"], name: "index_parent_controls_on_user_id", unique: true
+  end
+
+  create_table "parental_generation_requests", force: :cascade do |t|
+    t.integer "parent_control_id", null: false
+    t.integer "user_id", null: false
+    t.string "generatable_type", null: false
+    t.integer "generatable_id", null: false
+    t.string "kind", null: false
+    t.string "policy_mode", null: false
+    t.string "request_key", null: false
+    t.string "status", default: "pending", null: false
+    t.date "reserved_on"
+    t.datetime "decided_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["generatable_type", "generatable_id", "request_key"], name: "index_active_parental_generation_requests", unique: true, where: "status IN ('pending', 'approved')"
+    t.index ["generatable_type", "generatable_id"], name: "index_parental_generation_requests_on_generatable"
+    t.index ["parent_control_id", "kind", "status", "completed_at"], name: "index_parental_generation_usage"
+    t.index ["parent_control_id"], name: "index_parental_generation_requests_on_parent_control_id"
+    t.index ["user_id"], name: "index_parental_generation_requests_on_user_id"
+  end
+
   create_table "print_order_pages", force: :cascade do |t|
     t.integer "print_order_id", null: false
     t.integer "position", null: false
@@ -630,6 +667,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_03_120000) do
   add_foreign_key "illustrations", "pages", on_delete: :cascade
   add_foreign_key "pages", "book_wardrobe_plans"
   add_foreign_key "pages", "books", on_delete: :cascade
+  add_foreign_key "parent_controls", "users"
+  add_foreign_key "parental_generation_requests", "parent_controls"
+  add_foreign_key "parental_generation_requests", "users"
   add_foreign_key "print_order_pages", "print_orders", on_delete: :cascade
   add_foreign_key "print_orders", "books", column: "source_book_id", on_delete: :nullify
   add_foreign_key "print_orders", "users"

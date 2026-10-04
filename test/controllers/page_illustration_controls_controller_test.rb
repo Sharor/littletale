@@ -111,4 +111,21 @@ class PageIllustrationControlsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{regenerate_illustration_page_path(@page)}']", count: 0
     assert_select "p", text: /3 of 3 attempts used/
   end
+
+  test "a daily-limit illustration retry waits for capacity without another approval" do
+    @user.user_subscriptions.create!(status: "active", product_id: UserSubscription::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid)
+    control = @user.create_parent_control!(enabled: true, mode: "daily_limit", daily_book_limit: 1,
+      pin: "4826", pin_confirmation: "4826")
+    completed = @user.books.create!(name: "Today's completed story", total_pages: 1)
+    control.generation_requests.create!(user: @user, generatable: completed, kind: "book",
+      policy_mode: "daily_limit", request_key: "complete", status: "completed", completed_at: Time.current)
+
+    assert_no_enqueued_jobs only: RegeneratePageIllustrationJob do
+      post regenerate_illustration_page_url(@page), headers: { "HTTP_REFERER" => book_url(@book) }
+    end
+
+    assert_redirected_to book_url(@book)
+    assert_equal I18n.t("notices.parental_generation.daily_limit"), flash[:alert]
+  end
 end

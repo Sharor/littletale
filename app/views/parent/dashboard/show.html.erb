@@ -1,0 +1,162 @@
+<% content_for :body_class, "library-page" %>
+
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui parent-dashboard" id="main">
+    <header class="parent-dashboard__header">
+      <div>
+        <p class="fable-character-eyebrow"><%= t("parent.dashboard.eyebrow") %></p>
+        <h1><%= t("parent.dashboard.title") %></h1>
+        <p><%= t("parent.dashboard.introduction") %></p>
+      </div>
+      <%= button_to t("parent.dashboard.lock"), parent_session_path, method: :delete, class: "bg-gray-700" %>
+    </header>
+
+    <section class="parent-dashboard__metrics" aria-label="<%= t("parent.dashboard.today") %>">
+      <article data-successful-books-today="<%= @successful_books_today %>">
+        <strong><%= @successful_books_today %></strong>
+        <span><%= t("parent.dashboard.successful_today") %></span>
+      </article>
+      <article data-in-progress-books="<%= @in_progress_books %>">
+        <strong><%= @in_progress_books %></strong>
+        <span><%= t("parent.dashboard.in_progress") %></span>
+      </article>
+      <article>
+        <strong><%= @pending_requests.size %></strong>
+        <span><%= t("parent.dashboard.awaiting_approval") %></span>
+      </article>
+      <% if @remaining_book_slots %>
+        <article data-remaining-book-slots="<%= @remaining_book_slots %>">
+          <strong><%= @remaining_book_slots %></strong>
+          <span><%= t("parent.dashboard.remaining_today") %></span>
+        </article>
+      <% end %>
+    </section>
+
+    <section class="fable-panel parent-dashboard__rules">
+      <div>
+        <p class="fable-character-eyebrow"><%= t("parent.control.eyebrow") %></p>
+        <h2><%= t("parent.control.title") %></h2>
+      </div>
+      <% if @parent_control.errors.any? %>
+        <div role="alert"><%= @parent_control.errors.full_messages.to_sentence %></div>
+      <% end %>
+      <% if @parent_control.mode == "daily_limit" && @parent_control.effective_mode == "approval_required" %>
+        <p class="fable-notice p-4" data-effective-parent-mode="approval_required">
+          <%= t("parent.control.subscription_fallback") %>
+        </p>
+      <% end %>
+      <%= form_with model: @parent_control, url: parent_control_path, method: :patch do |form| %>
+        <fieldset class="parent-mode-options">
+          <legend class="fable-form-legend"><%= t("parent.control.mode") %></legend>
+          <label>
+            <%= form.radio_button :mode, "approval_required", checked: @parent_control.effective_mode == "approval_required" %>
+            <span><strong><%= t("parent.control.approval_title") %></strong><%= t("parent.control.approval_description") %></span>
+          </label>
+          <label>
+            <%= form.radio_button :mode, "daily_limit", checked: @parent_control.effective_mode == "daily_limit",
+              disabled: !@parent_control.subscription_features_available? %>
+            <span><strong><%= t("parent.control.daily_title") %></strong><%= t("parent.control.daily_description") %></span>
+          </label>
+        </fieldset>
+        <div class="parent-dashboard__limit">
+          <%= form.label :daily_book_limit, t("parent.control.daily_limit"), class: "fable-form-label" %>
+          <%= form.number_field :daily_book_limit, min: 1, max: 100 %>
+        </div>
+        <div class="parent-dashboard__limit">
+          <%= form.label :time_zone, t("parent.control.time_zone"), class: "fable-form-label" %>
+          <%= form.time_zone_select :time_zone, ActiveSupport::TimeZone.all, {}, { autocomplete: "off" } %>
+          <p class="parent-restricted-setting__hint"><%= t("parent.control.time_zone_hint") %></p>
+        </div>
+        <%= form.submit t("parent.control.save") %>
+      <% end %>
+    </section>
+
+    <section class="fable-panel">
+      <p class="fable-character-eyebrow"><%= t("parent.requests.eyebrow") %></p>
+      <h2><%= t("parent.requests.title") %></h2>
+      <% if @pending_requests.empty? %>
+        <p><%= t("parent.requests.empty") %></p>
+      <% else %>
+        <div class="parent-request-list">
+          <% @pending_requests.each do |generation_request| %>
+            <article data-parental-request-id="<%= generation_request.id %>">
+              <div>
+                <span><%= t("parent.requests.#{generation_request.kind}") %></span>
+                <% if generation_request.generatable.is_a?(Book) %>
+                  <%= render "books/parent_approval_details", book: generation_request.generatable %>
+                <% else %>
+                  <h3><%= generation_request.generatable.name %></h3>
+                <% end %>
+                <p><%= l(generation_request.created_at, format: :long) %></p>
+              </div>
+              <div class="parent-request-list__actions">
+                <%= button_to t("parent.requests.approve"), approve_parent_generation_request_path(generation_request),
+                  method: :post, class: "parent-request-action" %>
+                <%= button_to t("parent.requests.decline"), decline_parent_generation_request_path(generation_request),
+                  method: :post, class: "parent-request-action bg-gray-700" %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <section class="fable-panel">
+      <p class="fable-character-eyebrow"><%= t("parent.history.eyebrow") %></p>
+      <h2><%= t("parent.history.title") %></h2>
+      <% if @recent_requests.empty? %>
+        <p><%= t("parent.history.empty") %></p>
+      <% else %>
+        <div class="parent-request-list">
+          <% @recent_requests.each do |generation_request| %>
+            <article data-recent-parental-request-id="<%= generation_request.id %>">
+              <div>
+                <span><%= t("parent.requests.#{generation_request.kind}") %></span>
+                <% if generation_request.generatable.is_a?(Book) %>
+                  <%= render "books/parent_approval_details", book: generation_request.generatable %>
+                <% else %>
+                  <h3><%= generation_request.generatable.name %></h3>
+                <% end %>
+              </div>
+              <div class="parent-request-list__actions">
+                <% if generation_request.status == "declined" && generation_request.kind == "book" %>
+                  <button type="button" class="parent-request-action parent-request-action--declined" disabled>
+                    <%= t("parent.history.status.declined") %>
+                  </button>
+                  <div data-controller="confirmation-dialog">
+                    <button type="button" class="parent-request-action"
+                      data-action="confirmation-dialog#open"><%= t("parent.requests.approve") %></button>
+                    <dialog class="parent-restricted-dialog parent-confirmation-dialog"
+                      data-confirmation-dialog-target="dialog"
+                      data-action="click->confirmation-dialog#closeOnBackdrop"
+                      aria-labelledby="approve-declined-title-<%= generation_request.id %>">
+                      <div class="parent-restricted-dialog__heading">
+                        <h3 id="approve-declined-title-<%= generation_request.id %>">
+                          <%= t("parent.requests.approve_declined_title") %>
+                        </h3>
+                        <button type="button" class="fable-dialog-close"
+                          data-action="confirmation-dialog#close"
+                          aria-label="<%= t("parent.requests.cancel") %>">×</button>
+                      </div>
+                      <p><%= t("parent.requests.approve_declined_confirmation") %></p>
+                      <div class="parent-restricted-dialog__actions">
+                        <button type="button" class="parent-request-action bg-gray-700"
+                          data-action="confirmation-dialog#close"><%= t("parent.requests.cancel") %></button>
+                        <%= button_to t("parent.requests.approve"),
+                          approve_parent_generation_request_path(generation_request), method: :post,
+                          class: "parent-request-action" %>
+                      </div>
+                    </dialog>
+                  </div>
+                <% else %>
+                  <strong><%= t("parent.history.status.#{generation_request.status}") %></strong>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  </main>
+</div>

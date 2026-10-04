@@ -37,6 +37,85 @@ en:
     administration: Administration
     subscription: Trial & subscription
     profile: User profile
+    parent_dashboard: Parent dashboard
+  parent:
+    not_enabled: Parent restricted mode is not enabled.
+    session:
+      eyebrow: Parents only
+      title: Unlock parent controls
+      explanation: Enter the parent PIN to review requests or change generation rules.
+      pin: Parent PIN
+      unlock: Unlock dashboard
+      incorrect: PIN is incorrect.
+      locked: Too many incorrect attempts. Try again in 15 minutes or recover the PIN by email.
+      locked_again: Parent controls were locked.
+    dashboard:
+      eyebrow: Family guardrails
+      title: Parent dashboard
+      introduction: Decide how new stories are started while leaving credits, safety checks, and technical retries unchanged.
+      lock: Lock parent controls
+      today: Today's generation activity
+      successful_today: Successful books today
+      in_progress: Books in progress
+      awaiting_approval: Awaiting approval
+      remaining_today: Book slots remaining today
+    control:
+      eyebrow: Generation rules
+      title: Choose how creation is allowed
+      mode: Restriction mode
+      approval_title: Approve each generation
+      approval_description: A parent approves every new book and character. Retries reuse the original approval.
+      daily_title: Daily successful books
+      daily_description: Set the number of books that may finish each day. Characters use existing credits. Requires an active subscription.
+      daily_limit: Successful books per day
+      time_zone: Daily reset time zone
+      time_zone_hint: The successful-book count resets at midnight in this time zone.
+      save: Save rules
+      updated: Parent generation rules were updated.
+      subscription_required: An active subscription is required for a daily book allowance.
+      subscription_fallback: The subscription is no longer active, so new books and characters require parent approval.
+    requests:
+      eyebrow: Waiting room
+      title: Requests to review
+      empty: No generations are waiting for approval.
+      book: Book
+      character: Character
+      book_title: Title
+      book_plot: Plot
+      no_plot: No plot provided.
+      approve: Approve
+      decline: Decline
+      approve_declined_title: Approve declined book?
+      approve_declined_confirmation: Are you sure? You already declined this book, and this will make the book immediately instead.
+      cancel: Cancel
+      approved: Generation was approved and queued.
+      declined: Generation was declined.
+      stale: This request changed and can no longer be approved.
+      allowance_required: The account needs an available generation credit before this request can start.
+      queue_failed: Generation was approved, but it could not be queued. Its credit was released when possible.
+    pin_reset:
+      eyebrow: PIN recovery
+      title: Recover the parent PIN
+      explanation: We will send a secure reset link to %{email}.
+      send: Email reset link
+      sent: PIN recovery instructions were sent to the registered email address.
+      forgot: Forgot or change the PIN?
+      choose_title: Choose a new parent PIN
+      new_pin: New parent PIN
+      confirm_pin: Confirm new parent PIN
+      update: Update PIN
+      updated: Your parent PIN was updated.
+      invalid: This recovery link is invalid or has expired.
+      request_another: Request another email
+    history:
+      eyebrow: Recent activity
+      title: Recent decisions
+      empty: No parent decisions have been recorded yet.
+      status:
+        approved: Approved
+        declined: Declined
+        released: Released
+        completed: Completed
   authentication:
     welcome_back: Create the story only they could star in.
     next_adventure: Sign in to begin a personalized story or return to your family library.
@@ -364,6 +443,24 @@ en:
     reader_age:
       label: Intended reader age (optional)
       hint: This helps us choose suitable vocabulary and sentence length.
+    parent_control:
+      eyebrow: Parent controls
+      title: Parent restricted mode
+      explanation: Set a daily book allowance or require approval before each new book or character is generated. Retries never need another approval. Daily limits require an active subscription, and characters still use the account's existing character credits.
+      toggle: Toggle Parent restricted mode
+      "on": "On"
+      "off": "Off"
+      new_pin: Parent PIN
+      confirm_pin: Confirm parent PIN
+      current_pin: Current parent PIN
+      setup_hint: Choose 4 to 8 digits. You can recover the PIN through the registered email address.
+      change_hint: Changing the switch opens a secure PIN confirmation.
+      dialog_title: Confirm parent setting
+      dialog_explanation: Enter the parent PIN to turn Parent restricted mode on or off. Confirming saves your profile changes.
+      confirm_change: Confirm change
+      pin_incorrect: PIN is incorrect.
+      open_dashboard: Open parent dashboard
+      forgot_pin: Change or recover PIN
   books:
     new:
       title: New Book
@@ -372,6 +469,7 @@ en:
     index:
       eyebrow: Little Fables
       title: Current Library
+      awaiting_approval: "Books awaiting approval (%{count})"
       create: Make a new book
       credit_required: Buy a book credit in Settings to make another book.
       read: Read
@@ -382,6 +480,20 @@ en:
       category_label: Category
       all_categories: All categories
       filter_category: Browse
+    awaiting:
+      eyebrow: Parent review
+      title: Books awaiting approval
+      current_library: Current library
+      empty: No books are waiting for parent approval.
+      waiting: Awaiting parent approval
+      review: Review approval
+    parent_approval:
+      eyebrow: Parent approval
+      title: A parent needs to approve this book.
+      explanation: Enter the parent PIN to approve “%{book}” and start generation.
+      pin: Parent PIN
+      approve: Approve as parent
+      back: Back to books awaiting approval
     reader:
       chronicles: The Chronicles of
       illustration_unavailable: Illustration unavailable
@@ -409,6 +521,7 @@ en:
       upgrade: Upgrade for up to 20 pages!
       create: Create Book
     status:
+      parent_approval: This book is waiting for a parent to approve generation.
       getting_ready: Getting your book ready…
       starts_shortly: Generation will begin shortly. This page will update automatically.
       preparing: Preparing the story and character outfits…
@@ -523,6 +636,7 @@ en:
       villain: Villain
       supporting: Supporting
   illustrations:
+    parent_approval: Waiting for a parent to approve this character generation.
     rejected: "Your character image was rejected: %{reason}"
     edit: Edit or replace image
     needs_review: Your character image is waiting for an administrator to review it.
@@ -593,6 +707,10 @@ en:
     delete: Delete
   notices:
     trial_ended: Your trial has ended. Subscribe to continue.
+    parental_generation:
+      book_pending: This book is waiting for parent approval.
+      character_pending: This character is waiting for parent approval.
+      daily_limit: The daily book limit has been reached. Try again after the next daily reset.
     book:
       created: Book was successfully created.
       writing: Book is being written!
@@ -702,6 +820,8 @@ en:
             total_pages:
               tier_limit: "cannot exceed %{limit} pages for the %{tier} tier"
     attributes:
+      parent_control:
+        pin: PIN
       book: 
         user_prompt: 'Outline the story'
         create: 'Continue'

@@ -8,6 +8,8 @@ import TabsController from "./tabs_controller"
 import ArtStylePickerController from "./art_style_picker_controller"
 import GiftMessageController from "./gift_message_controller"
 import GiftModalController from "./gift_modal_controller"
+import ParentRestrictionController from "./parent_restriction_controller"
+import ConfirmationDialogController from "./confirmation_dialog_controller"
 
 
 application.register("image-upload", ImageUploadController)
@@ -15,6 +17,8 @@ application.register("tabs", TabsController)
 application.register("art-style-picker", ArtStylePickerController)
 application.register("gift-message", GiftMessageController)
 application.register("gift-modal", GiftModalController)
+application.register("parent-restriction", ParentRestrictionController)
+application.register("confirmation-dialog", ConfirmationDialogController)
 
 import CharacterDeleteController from "./character_delete_controller"
 application.register("character-delete", CharacterDeleteController)

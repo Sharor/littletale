@@ -1,0 +1,10 @@
+<dl class="parent-book-details" data-parent-book-details>
+  <div>
+    <dt><%= t("parent.requests.book_title") %>:</dt>
+    <dd><%= book.name %></dd>
+  </div>
+  <div>
+    <dt><%= t("parent.requests.book_plot") %>:</dt>
+    <dd><%= book.plot.presence || t("parent.requests.no_plot") %></dd>
+  </div>
+</dl>

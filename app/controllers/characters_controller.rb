@@ -91,10 +91,11 @@ class CharactersController < ApplicationController
 
       respond_to do |format|
           if @character.save
-              # 1. Kick off the asynchronous job, passing the frontend ID for the later broadcast
-              @character.setup_illustration(char_id_from_frontend)
+              decision = ParentalGenerationGate.authorize(@character)
+              @character.setup_illustration(char_id_from_frontend) if decision.allowed?
               target_id = "character-#{char_id_from_frontend}"
-              format.html { redirect_to characters_url, notice: I18n.t("illustrations.checking") }
+              notice = decision.pending? ? I18n.t("notices.parental_generation.character_pending") : I18n.t("illustrations.checking")
+              format.html { redirect_to characters_url, notice: notice }
           else
               # 3. Handle validation errors
               target_id = "character-#{char_id_from_frontend}"
@@ -119,9 +120,11 @@ class CharactersController < ApplicationController
             errors: @character.errors.to_hash }, status: :payment_required
         end
       elsif @character.save
-        @character.setup_illustration
+        decision = ParentalGenerationGate.authorize(@character)
+        @character.setup_illustration if decision.allowed?
         format.turbo_stream { redirect_to(@book ? book_url(@book) : characters_url, status: :see_other) }
-        format.html { redirect_to(@book ? book_url(@book) : characters_url, notice: I18n.t("notices.characters.updated")) }
+        notice = decision.pending? ? I18n.t("notices.parental_generation.character_pending") : I18n.t("notices.characters.updated")
+        format.html { redirect_to(@book ? book_url(@book) : characters_url, notice: notice) }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @character.errors, status: :unprocessable_entity }

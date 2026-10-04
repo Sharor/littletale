@@ -1,0 +1,26 @@
+<% content_for :body_class, "library-page" %>
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui" id="main">
+    <section class="parent-unlock fable-panel">
+      <p class="fable-character-eyebrow"><%= t("parent.pin_reset.eyebrow") %></p>
+      <h1><%= t("parent.pin_reset.choose_title") %></h1>
+      <% if @valid_token %>
+        <% if @parent_control.errors.any? %>
+          <div role="alert"><%= @parent_control.errors.full_messages.to_sentence %></div>
+        <% end %>
+        <%= form_with model: @parent_control, url: parent_pin_reset_path, method: :patch do |form| %>
+          <%= hidden_field_tag :token, @token %>
+          <%= form.label :pin, t("parent.pin_reset.new_pin"), class: "fable-form-label" %>
+          <%= form.password_field :pin, inputmode: "numeric", autocomplete: "new-password", required: true %>
+          <%= form.label :pin_confirmation, t("parent.pin_reset.confirm_pin"), class: "fable-form-label" %>
+          <%= form.password_field :pin_confirmation, inputmode: "numeric", autocomplete: "new-password", required: true %>
+          <%= form.submit t("parent.pin_reset.update") %>
+        <% end %>
+      <% else %>
+        <p role="alert"><%= t("parent.pin_reset.invalid") %></p>
+        <%= link_to t("parent.pin_reset.request_another"), new_parent_pin_reset_path, class: "parent-text-link" %>
+      <% end %>
+    </section>
+  </main>
+</div>

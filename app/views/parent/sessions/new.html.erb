@@ -1,0 +1,19 @@
+<% content_for :body_class, "library-page" %>
+
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui" id="main">
+    <section class="parent-unlock fable-panel">
+      <p class="fable-character-eyebrow"><%= t("parent.session.eyebrow") %></p>
+      <h1><%= t("parent.session.title") %></h1>
+      <p><%= t("parent.session.explanation") %></p>
+      <%= form_with url: parent_session_path, class: "parent-unlock__form" do |form| %>
+        <%= form.label :pin, t("parent.session.pin"), class: "fable-form-label" %>
+        <%= form.password_field :pin, inputmode: "numeric", autocomplete: "current-password",
+          minlength: 4, maxlength: 8, autofocus: true, required: true %>
+        <%= form.submit t("parent.session.unlock") %>
+      <% end %>
+      <%= link_to t("parent.pin_reset.forgot"), new_parent_pin_reset_path, class: "parent-text-link" %>
+    </section>
+  </main>
+</div>

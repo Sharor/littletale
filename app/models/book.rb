@@ -1,6 +1,9 @@
 class Book < ApplicationRecord
   attr_reader :prepared_funding_reservation, :prepared_funding_newly_acquired
 
+  scope :active, -> { where(deleted_at: nil) }
+  scope :deleted, -> { where.not(deleted_at: nil) }
+
   before_validation :apply_generation_preferences, on: :create
   before_validation :normalize_categories
 
@@ -13,6 +16,7 @@ class Book < ApplicationRecord
   has_many :print_orders, foreign_key: :source_book_id, dependent: :nullify, inverse_of: :source_book
 
   has_many :book_wardrobe_plans, dependent: :destroy
+  has_many :parental_generation_requests, as: :generatable, dependent: :destroy
 
   def current_wardrobe_plan
     book_wardrobe_plans.find_by(generation_attempt: generation_attempt)
@@ -29,6 +33,7 @@ class Book < ApplicationRecord
 
   after_update_commit :finalize_owner_funding, if: -> { saved_change_to_generation_status? && completed? }
   after_update_commit :enqueue_categorization!, if: -> { saved_change_to_generation_status? && completed? }
+  after_update_commit :record_parental_generation_outcome, if: :saved_change_to_generation_status?
 
   # after_update_commit -> {
   #   broadcast_replace_later_to self,
@@ -53,6 +58,8 @@ class Book < ApplicationRecord
   }.freeze
 
   def tier_limit
+    return if user.admin?
+
     TIER_LIMITS.fetch(user.tier, 5)
   end
 
@@ -66,6 +73,7 @@ class Book < ApplicationRecord
 
   def giftable?
     return false unless completed?
+    return true if user.admin?
 
     book_credit_reservations.where(status: "consumed").includes(book_credit: [ :book_purchase, :subscription_period ])
       .any? do |reservation|
@@ -78,8 +86,21 @@ class Book < ApplicationRecord
     completed?
   end
 
+  def awaiting_parental_approval?
+    parental_generation_requests.pending.exists?
+  end
+
+  def soft_delete!
+    update!(deleted_at: Time.current)
+  end
+
+  def restore!
+    update!(deleted_at: nil)
+  end
+
   def total_pages_within_tier_limit
     return unless total_pages.present?
+    return unless tier_limit
 
     if total_pages > tier_limit
       errors.add(:total_pages, I18n.t("activerecord.errors.models.book.attributes.total_pages.tier_limit",
@@ -118,6 +139,7 @@ class Book < ApplicationRecord
     update_columns(generation_status: self.class.generation_statuses.fetch("failed"),
       generation_failed_at: Time.current,
       generation_failure: failure)
+    record_parental_generation_outcome
     broadcast_generation_state
     false
   end
@@ -236,6 +258,10 @@ class Book < ApplicationRecord
     reservation_details = with_lock do
       return false unless PageIllustrationGeneration.available?(illustration, admin: actor)
 
+      parental_decision = ParentalGenerationGate.authorize(self, retrying: true)
+      raise ParentalGenerationGate::LimitReached if parental_decision.limit_reached?
+      parental_request = parental_decision.request
+      parental_request_newly_acquired = parental_request&.previously_new_record? || false
       attempts_before = PageIllustrationGeneration.attempts(illustration).length
       book_attempts_before = current_illustration_attempt_count
       reservation = reserve_generation_funding!
@@ -246,18 +272,21 @@ class Book < ApplicationRecord
         if newly_reserved && attempts_after == attempts_before
           reservation.release!(reason: "illustration_retry_enqueue_failed")
         end
+        parental_request.release! if parental_request_newly_acquired && parental_request&.approved?
         return false
       end
 
-      [ token, reservation, newly_reserved, attempts_before, book_attempts_before, generation_attempt ]
+      [ token, reservation, newly_reserved, attempts_before, book_attempts_before, generation_attempt,
+        parental_request, parental_request_newly_acquired ]
     end
 
     token, reservation, newly_reserved, attempts_before, book_attempts_before,
-      reserved_generation_attempt = reservation_details
+      reserved_generation_attempt, parental_request, parental_request_newly_acquired = reservation_details
     queued = PageIllustrationGeneration.enqueue_reserved!(illustration, token)
     release_unused_illustration_retry_slot!(reservation, illustration,
       attempts_before: attempts_before, book_attempts_before: book_attempts_before,
       generation_attempt: reserved_generation_attempt) if !queued && newly_reserved
+    parental_request.release! if !queued && parental_request_newly_acquired && parental_request&.approved?
     queued
   end
 
@@ -414,5 +443,13 @@ class Book < ApplicationRecord
     else
       book_credit_reservations.held.order(:id).last&.consume!
     end
+  end
+
+  def record_parental_generation_outcome
+    request = parental_generation_requests.approved.order(:id).last
+    return unless request
+
+    request.complete! if completed?
+    request.release! if failed? && request.policy_mode == "daily_limit"
   end
 end

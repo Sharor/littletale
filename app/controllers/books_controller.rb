@@ -6,7 +6,9 @@ class BooksController < ApplicationController
 
   # GET /books or /books.json
   def index
-    all_books = current_user.books.order(:id).to_a
+    pending_book_ids = current_user.parental_generation_requests.pending.where(kind: "book").select(:generatable_id)
+    @awaiting_books_count = pending_book_ids.count
+    all_books = current_user.books.active.where.not(id: pending_book_ids).order(:id).to_a
     @categories = all_books.flat_map(&:categories).uniq.sort
     @selected_category = params[:category].presence_in(@categories)
     @books = if @selected_category
@@ -17,6 +19,11 @@ class BooksController < ApplicationController
     @gifted_books = current_user.received_book_gifts.where.not(claimed_at: nil).order(claimed_at: :desc)
     @book = Book.new if all_books.none?
     @tutorial = "new_book_tutorial" if all_books.none?
+  end
+
+  def awaiting_approval
+    @books = current_user.books.active.joins(:parental_generation_requests)
+      .merge(ParentalGenerationRequest.pending).distinct.order(:id)
   end
 
   # GET /books/1 or /books/1.json
@@ -41,14 +48,19 @@ class BooksController < ApplicationController
   # POST /books or /books.json
   def create
     @book = current_user.books.build(book_params)
-    @book.total_pages = [ @book.total_pages, @book.tier_limit ].min
+    @book.total_pages = [ @book.total_pages, @book.tier_limit ].min if @book.tier_limit
 
     respond_to do |format|
       if save_with_generation_funding
-        queued = @book.enqueue_generation!(reservation: @generation_reservation,
-          release_on_failure: @generation_reservation_newly_acquired)
-        notice = queued ? I18n.t("notices.book.created") : @book.generation_failure["message"]
-        format.html { redirect_to book_url(@book, format: :html), notice: notice }
+        if @parental_decision.pending?
+          notice = I18n.t("notices.parental_generation.book_pending")
+        else
+          queued = @book.enqueue_generation!(reservation: @generation_reservation,
+            release_on_failure: @generation_reservation_newly_acquired)
+          notice = queued ? I18n.t("notices.book.created") : @book.generation_failure["message"]
+        end
+        destination = @parental_decision.pending? ? book_parent_approval_url(@book) : book_url(@book, format: :html)
+        format.html { redirect_to destination, notice: notice }
         format.json { render :show, status: :created, location: @book }
       else
         status = @funding_required ? :payment_required : :unprocessable_content
@@ -63,16 +75,25 @@ class BooksController < ApplicationController
     @book.page_count = 5
     respond_to do |format|
       if update_with_generation_funding
-        queued = @book.enqueue_generation!(reservation: @generation_reservation,
-          release_on_failure: @generation_reservation_newly_acquired)
+        queued = unless @parental_decision.pending?
+          @book.enqueue_generation!(reservation: @generation_reservation,
+            release_on_failure: @generation_reservation_newly_acquired)
+        end
         format.turbo_stream {
           render turbo_stream: turbo_stream.replace(
             "book_#{@book.id}",
             partial: "books/book_editor",
             locals: { book: @book })}
         format.html do
-          notice = queued ? I18n.t("notices.book.writing") : @book.generation_failure["message"]
-          redirect_to book_url(@book), notice: notice
+          notice = if @parental_decision.pending?
+            I18n.t("notices.parental_generation.book_pending")
+          elsif queued
+            I18n.t("notices.book.writing")
+          else
+            @book.generation_failure["message"]
+          end
+          destination = @parental_decision.pending? ? book_parent_approval_url(@book) : book_url(@book)
+          redirect_to destination, notice: notice
         end
       else
         status = @funding_required ? :payment_required : :unprocessable_entity
@@ -110,7 +131,7 @@ class BooksController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
     def set_book
-      @book = current_user.books.find(params[:id])
+      @book = current_user.books.active.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
@@ -119,10 +140,16 @@ class BooksController < ApplicationController
     end
 
     def save_with_generation_funding
+      new_book = @book.new_record?
       Book.transaction do
         @book.save!
-        @generation_reservation = @book.reserve_generation_funding!
-        @generation_reservation_newly_acquired = @generation_reservation&.previously_new_record? || false
+        @parental_decision = ParentalGenerationGate.authorize(@book)
+        raise ParentalGenerationGate::LimitReached if @parental_decision.limit_reached?
+        ensure_new_book_allowance! if new_book && @parental_decision.pending?
+        unless @parental_decision.pending?
+          @generation_reservation = @book.reserve_generation_funding!
+          @generation_reservation_newly_acquired = @generation_reservation&.previously_new_record? || false
+        end
       end
       true
     rescue TrialBookReservation::LimitReached
@@ -137,13 +164,28 @@ class BooksController < ApplicationController
       false
     rescue ActiveRecord::RecordInvalid
       false
+    rescue ParentalGenerationGate::LimitReached
+      @book.errors.add(:base, I18n.t("notices.parental_generation.daily_limit"))
+      false
+    end
+
+    def ensure_new_book_allowance!
+      return if current_user.book_generation_available?
+      raise TrialBookReservation::TrialExpired if current_user.trial_expired?
+      raise TrialBookReservation::LimitReached if current_user.trial?
+
+      raise BookCredit::LimitReached
     end
 
     def update_with_generation_funding
       Book.transaction do
         @book.update!(book_params)
-        @generation_reservation = @book.reserve_generation_funding!
-        @generation_reservation_newly_acquired = @generation_reservation&.previously_new_record? || false
+        @parental_decision = ParentalGenerationGate.authorize(@book)
+        raise ParentalGenerationGate::LimitReached if @parental_decision.limit_reached?
+        unless @parental_decision.pending?
+          @generation_reservation = @book.reserve_generation_funding!
+          @generation_reservation_newly_acquired = @generation_reservation&.previously_new_record? || false
+        end
       end
       true
     rescue TrialBookReservation::LimitReached
@@ -157,6 +199,9 @@ class BooksController < ApplicationController
       @book.errors.add(:base, I18n.t("notices.book.credit_required"))
       false
     rescue ActiveRecord::RecordInvalid
+      false
+    rescue ParentalGenerationGate::LimitReached
+      @book.errors.add(:base, I18n.t("notices.parental_generation.daily_limit"))
       false
     end
 

@@ -1,0 +1,12 @@
+<% content_for :body_class, "library-page" %>
+<div class="fable-layout">
+  <%= render "layouts/sidebar" %>
+  <main class="fable-main fable-ui" id="main">
+    <section class="parent-unlock fable-panel">
+      <p class="fable-character-eyebrow"><%= t("parent.pin_reset.eyebrow") %></p>
+      <h1><%= t("parent.pin_reset.title") %></h1>
+      <p><%= t("parent.pin_reset.explanation", email: current_user.email) %></p>
+      <%= button_to t("parent.pin_reset.send"), parent_pin_reset_path, method: :post %>
+    </section>
+  </main>
+</div>

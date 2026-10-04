@@ -54,6 +54,22 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "held", trial_reservation.reload.status
   end
 
+  test "an administrator can gift a completed book without paid funding" do
+    @sender.update!(tier: "free", admin: true)
+    admin_book = @sender.books.create!(name: "Admin gift", total_pages: 1,
+      generation_status: :completed, language: "en")
+
+    assert_no_difference([ "BookCredit.count", "BookCreditReservation.count" ]) do
+      post prepare_book_book_gifts_url(admin_book)
+    end
+
+    assert_redirected_to new_book_book_gift_url(admin_book)
+    assert_predicate admin_book.reload, :giftable?
+
+    get new_book_book_gift_url(admin_book)
+    assert_response :success
+  end
+
   test "trial account sees the purchase explanation even if an available credit exists" do
     trial_book = @sender.books.create!(name: "Trial gift", total_pages: 1,
       generation_status: :completed, language: "en")

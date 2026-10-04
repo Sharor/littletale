@@ -37,6 +37,15 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select "header", text: /Reading List|Filters|Sci-Fi|Fantasy|History/, count: 0
   end
 
+  test "enabled parent controls are linked from desktop and mobile settings" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+
+    get books_path
+
+    assert_select "aside section[aria-label='Settings'] a[href='#{parent_path}']", "Parent dashboard"
+    assert_select "header section[aria-label='Settings'] a[href='#{parent_path}']", "Parent dashboard"
+  end
+
   test "administration is available only under settings on app and admin screens" do
     @user.update!(admin: true)
 

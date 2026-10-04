@@ -6,7 +6,13 @@ class Admin::BooksController < ApplicationController
 
   def rerun_generation
     book = Book.find(params[:id])
-    attempt = book.prepare_failed_regeneration!
+    attempt = nil
+    Book.transaction do
+      parental_decision = ParentalGenerationGate.authorize(book, retrying: true)
+      raise ParentalGenerationGate::LimitReached if parental_decision.limit_reached?
+      attempt = book.prepare_failed_regeneration!
+      raise ActiveRecord::Rollback unless attempt
+    end
     unless attempt
       redirect_back fallback_location: admin_failed_books_path,
         notice: I18n.t("admin.notices.book_not_failed")
@@ -26,6 +32,9 @@ class Admin::BooksController < ApplicationController
   rescue BookCredit::LimitReached
     redirect_back fallback_location: admin_failed_books_path,
       alert: I18n.t("admin.notices.no_book_credits")
+  rescue ParentalGenerationGate::LimitReached
+    redirect_back fallback_location: admin_failed_books_path,
+      alert: I18n.t("notices.parental_generation.daily_limit")
   end
 
   def release_trial_slot

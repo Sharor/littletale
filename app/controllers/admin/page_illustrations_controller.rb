@@ -19,5 +19,8 @@ class Admin::PageIllustrationsController < ApplicationController
   rescue BookCredit::LimitReached
     redirect_back fallback_location: admin_failed_books_path,
       alert: I18n.t("admin.notices.no_book_credits")
+  rescue ParentalGenerationGate::LimitReached
+    redirect_back fallback_location: admin_failed_books_path,
+      alert: I18n.t("notices.parental_generation.daily_limit")
   end
 end

@@ -38,6 +38,17 @@ body.storybook-theme {
   font-weight: 400;
   line-height: 1.12;
 }
+.library-heading__row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.library-heading__action {
+  flex: 0 0 auto;
+  padding: .65rem 1rem;
+  color: var(--fable-wine);
+  border: 1px solid var(--fable-wine);
+  border-radius: 3px;
+  font-size: .78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
 .library-rule { display: flex; align-items: center; gap: .8rem; margin-top: 1.25rem; color: #947340; }
 .library-rule::before, .library-rule::after { content: ""; height: 1px; background: var(--fable-line); }
 .library-rule::before { width: 2rem; }
@@ -235,6 +246,7 @@ body.storybook-theme {
   .library-cover:hover { transform: translateY(-4px); }
   .library-read:hover, .library-gift-action:hover { color: var(--fable-paper); background: var(--fable-wine); border-color: var(--fable-wine); }
   .library-create:hover { background: #fffaf080; border-color: var(--fable-wine); }
+  .library-heading__action:hover { color: var(--fable-paper); background: var(--fable-wine); }
   :is(.library-layout, .fable-layout) .site-sidebar nav a:hover,
   :is(.library-layout, .fable-layout) .site-mobile-header nav a:hover,
   :is(.library-layout, .fable-layout) .site-sidebar button:hover,
@@ -242,7 +254,10 @@ body.storybook-theme {
 }
 @media (prefers-reduced-motion: no-preference) {
   .library-cover { transition: transform 180ms ease; }
-  .library-read, .library-gift-action, .library-create { transition: background-color 180ms ease, color 180ms ease; }
+  .library-read, .library-gift-action, .library-create, .library-heading__action { transition: background-color 180ms ease, color 180ms ease; }
+}
+@media (max-width: 599px) {
+  .library-heading__row { align-items: start; flex-direction: column; }
 }
 @media (min-width: 600px) {
   .library-main { padding: 2.5rem 2rem 4rem; }

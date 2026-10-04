@@ -10,9 +10,12 @@ class Character < ApplicationRecord
     has_many :action_logs, as: :trackable
     belongs_to :current_image_request, class_name: "CharacterImageRequest", optional: true
     has_many :character_image_requests, dependent: :nullify
+    has_many :parental_generation_requests, as: :generatable, dependent: :restrict_with_exception
     has_one_attached :photo
     # Updates
     after_update_commit :broadcast_status_change, if: :saved_change_to_generation_status?
+    after_update_commit :record_parental_generation_outcome, if: :saved_change_to_generation_status?
+    after_update_commit :release_parental_generation_requests, if: -> { saved_change_to_deleted_at? && deleted_at.present? }
 
     # Virtual fields
     attr_accessor :creation_mode
@@ -103,6 +106,10 @@ class Character < ApplicationRecord
           current_image_request.generation_attempt.illustration_id == illustration.id
     end
 
+    def awaiting_parental_approval?
+        parental_generation_requests.pending.exists?
+    end
+
     private
 
     def normalize_roles
@@ -133,5 +140,15 @@ class Character < ApplicationRecord
 
     def broadcast_status_change
         broadcast_image_status
+    end
+
+    def record_parental_generation_outcome
+        request = parental_generation_requests.approved.order(:id).last
+        request&.complete! if completed?
+    end
+
+    def release_parental_generation_requests
+        parental_generation_requests.where(status: %w[pending approved])
+            .update_all(status: "released", updated_at: Time.current)
     end
 end

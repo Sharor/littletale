@@ -26,6 +26,8 @@ class BookFunding
     raise IncompleteBook unless book.completed?
 
     user = book.user
+    return if user.admin?
+
     user.with_lock do
       book.reload
       existing = paid_reservation_for(book)

@@ -1,0 +1,42 @@
+<% content_for :body_class, "library-page" %>
+
+<div class="library-layout">
+  <%= render "layouts/sidebar" %>
+
+  <main class="library-main">
+    <header class="library-heading">
+      <p class="library-eyebrow"><%= t("books.awaiting.eyebrow") %></p>
+      <div class="library-heading__row">
+        <h1><%= t("books.awaiting.title") %></h1>
+        <%= link_to t("books.awaiting.current_library"), books_path, class: "library-heading__action" %>
+      </div>
+      <div class="library-rule" aria-hidden="true"><span>✦</span></div>
+    </header>
+
+    <% if @books.empty? %>
+      <section class="fable-panel fable-ui">
+        <p><%= t("books.awaiting.empty") %></p>
+      </section>
+    <% else %>
+      <div class="library-grid">
+        <% @books.each do |book| %>
+          <article class="library-book">
+            <%= link_to book_parent_approval_path(book), class: "library-cover" do %>
+              <span class="library-ribbon" aria-hidden="true"></span>
+              <span class="library-cover-eyebrow"><%= t("books.awaiting.waiting") %></span>
+              <span class="library-artwork">
+                <span class="library-cover-emblem" aria-hidden="true">✦</span>
+              </span>
+              <h3><%= book.name %></h3>
+              <span class="library-cover-flourish" aria-hidden="true">❧</span>
+            <% end %>
+            <%= render "books/parent_approval_details", book: book %>
+            <div class="library-book-actions">
+              <%= link_to t("books.awaiting.review"), book_parent_approval_path(book), class: "library-read" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% end %>
+  </main>
+</div>

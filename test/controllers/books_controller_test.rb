@@ -91,6 +91,18 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_select "main h3", count: 0
   end
 
+  test "deleting a guarded book removes its parent request" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    guarded_book = @user.books.create!(name: "Delete guarded story", total_pages: 1)
+    ParentalGenerationGate.authorize(guarded_book)
+
+    assert_difference([ "Book.count", "ParentalGenerationRequest.count" ], -1) do
+      delete book_url(guarded_book)
+    end
+
+    assert_redirected_to books_url
+  end
+
   test "library renders accessible navigation for mobile devices in either orientation" do
     get books_url, headers: { "User-Agent" => "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1" }
 
@@ -107,6 +119,16 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{books_path}']"
     assert_select "input[name='book[total_pages]'][max='5']"
     assert_select "strong", "5 pages"
+  end
+
+  test "new does not show an administrator a page limit or upgrade prompt" do
+    @user.update!(admin: true)
+
+    get new_book_url
+
+    assert_response :success
+    assert_select "input[name='book[total_pages]'][max]", count: 0
+    assert_select "a[href='/pricing']", count: 0
   end
 
   test "new books inherit the user's generation preferences" do
@@ -146,6 +168,114 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 5, book.total_pages
     assert_equal book, @user.trial_book_reservations.held.find_by!(book: book).book
     assert_redirected_to book_url(book, format: :html)
+  end
+
+  test "an administrator creates a book above paid tier limits without credits" do
+    @user.update!(admin: true)
+
+    assert_no_difference([ "BookCreditReservation.count", "TrialBookReservation.count" ]) do
+      assert_enqueued_with(job: GenerateBookJob) do
+        post books_url, params: { book: { name: "Long admin tale", plot: "Adventure", total_pages: 21 } }
+      end
+    end
+
+    book = @user.books.find_by!(name: "Long admin tale")
+    assert_equal 21, book.total_pages
+    assert_redirected_to book_url(book, format: :html)
+  end
+
+  test "approval mode saves a book without spending funding or queueing generation" do
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+
+    assert_difference("Book.count", 1) do
+      assert_no_difference("TrialBookReservation.count") do
+        assert_no_enqueued_jobs only: GenerateBookJob do
+          post books_url, params: { book: { name: "Waiting story", plot: "Adventure", total_pages: 3 } }
+        end
+      end
+    end
+
+    book = @user.books.find_by!(name: "Waiting story")
+    assert_predicate book, :awaiting_parental_approval?
+    assert_redirected_to "/books/#{book.id}/parent_approval"
+
+    get books_url
+    assert_select ".library-book", text: /Waiting story/, count: 0
+    assert_select "a[href='/books/awaiting_approval']", text: /Books awaiting approval/
+  end
+
+  test "awaiting approval library lists only pending books" do
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+    waiting = @user.books.create!(name: "Waiting shelf story", plot: "A child discovers a singing tree.", total_pages: 1)
+    ParentalGenerationGate.authorize(waiting)
+
+    get "/books/awaiting_approval"
+
+    assert_response :success
+    assert_select "h1", text: /Books awaiting approval/
+    assert_select ".library-book", text: /Waiting shelf story/ do
+      assert_select "[data-parent-book-details]",
+        text: /Title:\s*Waiting shelf story.*Plot:\s*A child discovers a singing tree\./m
+    end
+    assert_select ".library-book", text: /#{Regexp.escape(@book.name)}/, count: 0
+  end
+
+  test "a promoted administrator sees a book after its obsolete approval request is released" do
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+    waiting = @user.books.create!(name: "Formerly waiting story", total_pages: 1)
+    request = ParentalGenerationGate.authorize(waiting).request
+    @user.update!(admin: true)
+
+    ParentalGenerationGate.authorize(waiting)
+    get books_url
+
+    assert_equal "released", request.reload.status
+    assert_select ".library-book", text: /Formerly waiting story/
+    assert_select "a[href='#{awaiting_approval_books_path}']", text: "Books awaiting approval (0)"
+  end
+
+  test "approval mode cannot create a pending book without an existing allowance" do
+    @user.update!(tier: "basic")
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+
+    assert_no_difference([ "Book.count", "ParentalGenerationRequest.count" ]) do
+      post books_url, params: { book: { name: "Unfunded request", plot: "Adventure", total_pages: 3 } }
+    end
+
+    assert_response :payment_required
+  end
+
+  test "daily mode blocks a second book while the only slot is active" do
+    subscription = @user.user_subscriptions.create!(status: "pending", product_id: UserSubscription::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid)
+    subscription.activate_period!(stripe_subscription_id: "sub_parent_daily", stripe_invoice_id: "in_parent_daily",
+      stripe_customer_id: "cus_parent_daily", price_id: "price_parent_daily",
+      period_start: Time.current, period_end: 1.month.from_now)
+    @user.create_parent_control!(enabled: true, mode: "daily_limit", daily_book_limit: 1,
+      pin: "4826", pin_confirmation: "4826")
+
+    post books_url, params: { book: { name: "First daily story", plot: "Adventure", total_pages: 3 } }
+
+    assert_no_difference("Book.count") do
+      post books_url, params: { book: { name: "Second daily story", plot: "Adventure", total_pages: 3 } }
+    end
+    assert_response :unprocessable_content
+    assert_select "li", text: /daily book limit/i
+  end
+
+  test "changing a failed approved book creates a new approval request" do
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+    book = @user.books.create!(name: "Failed approved story", plot: "Original", total_pages: 1)
+    request = ParentalGenerationGate.authorize(book).request
+    request.approve!
+    book.update_columns(generation_status: Book.generation_statuses.fetch("failed"))
+
+    assert_no_enqueued_jobs only: GenerateBookJob do
+      patch book_url(book), params: { book: { name: book.name, plot: "A changed adventure", total_pages: 1 } }
+    end
+
+    assert_predicate book.reload, :awaiting_parental_approval?
+    assert_equal "released", request.reload.status
   end
 
   test "create persists book generation preferences" do

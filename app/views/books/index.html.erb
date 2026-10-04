@@ -6,7 +6,11 @@
   <main class="library-main">
     <header class="library-heading">
       <p class="library-eyebrow"><%= t("books.index.eyebrow") %></p>
-      <h1><%= t("books.index.title") %></h1>
+      <div class="library-heading__row">
+        <h1><%= t("books.index.title") %></h1>
+        <%= link_to t("books.index.awaiting_approval", count: @awaiting_books_count),
+          awaiting_approval_books_path, class: "library-heading__action" %>
+      </div>
       <div class="library-rule" aria-hidden="true"><span>✦</span></div>
     </header>
 
