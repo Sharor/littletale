@@ -100,6 +100,21 @@ class Admin::DashboardControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "dashboard localizes automatic switch reasons" do
+    admin = users(:three)
+    admin.update!(admin: true, language: "da")
+    sign_in admin
+    GenerationProviderSetting.delete_all
+    setting = GenerationProviderSetting.current
+    setting.update!(switch_reason: "openai_availability_failures_16_of_20")
+
+    get admin_root_url
+
+    assert_response :success
+    assert_select "[data-provider-switch-reason]", text: /OpenAI havde 16 tilgængelighedsfejl blandt 20 relevante anmodninger/
+    assert_select "[data-provider-switch-reason]", text: /Openai availability failures/, count: 0
+  end
+
   private
 
   def with_env(values)

@@ -149,14 +149,6 @@ class Chatgpt < ApplicationRecord
       })
 
       self.answer = chat_completion.dig("choices", 0, "message", "content")# chat_completion.choices.first.message.content
-
-      # Save all the data, reason for termination/tokens etc
-      # self.termination_reason = ...
-    rescue StandardError => e
-      Rails.logger.error(e)
-      sleep(1) # ?
-      Rails.logger.info("Retrying to create completions for Chatgpt model id: #{self.id}")
-    retry
   end
 
   def jsonify

@@ -102,6 +102,13 @@ da:
       invalid_mode: Vælg en gyldig tilstand for genereringsudbyderen.
       missing_openai: OpenAI er ikke konfigureret. Tilføj OPENAI_ACCESS_TOKEN, før du vælger denne tilstand.
       missing_gemini: Gemini er ikke konfigureret. Tilføj GEMINI_API_KEY, før du vælger denne tilstand.
+      unavailable_openai: OpenAI-loginoplysninger eller API-adgang kunne ikke bekræftes.
+      unavailable_gemini: Gemini-loginoplysninger eller adgang til de konfigurerede modeller kunne ikke bekræftes.
+      switch_reasons:
+        automatic_enabled: Automatisk tilstand blev aktiveret med OpenAI.
+        admin_selected_openai: OpenAI blev valgt af en administrator.
+        admin_selected_gemini: Gemini blev valgt af en administrator.
+        openai_availability_failures: "OpenAI havde %{failures} tilgængelighedsfejl blandt %{total} relevante anmodninger."
       modes:
         openai:
           title: OpenAI
@@ -133,7 +140,7 @@ da:
         description: Godkender via endpointet med modelmetadata uden at generere tokens, tekst eller billeder.
       gemini:
         title: Gemini
-        description: Godkender og kontrollerer adgang til den konfigurerede tekstmodel uden at generere tokens, tekst eller billeder.
+        description: Godkender og kontrollerer adgang til de konfigurerede tekst- og billedmodeller uden at generere tokens, tekst eller billeder.
       messages:
         storage_connected: Forbindelse og adgang til bucket er bekræftet.
         storage_missing: "Mangler %{settings}."

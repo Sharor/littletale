@@ -103,7 +103,7 @@ After that product and policy prerequisite is resolved:
    `bin/rails db:prepare RAILS_ENV=test`, and `bin/rails restart`.
 3. Confirm `/admin` still reports **OpenAI** as the selected and active provider.
    Run the production health checks; OpenAI and Gemini must both report connected.
-   The Gemini check reads model metadata and does not create a generation.
+   The Gemini check reads metadata for both configured models and does not create a generation.
 4. Select **Gemini** and manually exercise representative story text, character
    screening with and without a photo, character generation, wardrobe reference
    generation, and a page illustration. These are real paid requests.

@@ -144,6 +144,26 @@ class ChatgptTest < ActiveSupport::TestCase
     client.verify
   end
 
+  test "structured generation does not retry or change providers after a request failure" do
+    first_error = Faraday::TimeoutError.new("provider unavailable")
+    client = Object.new
+    calls = 0
+    client.define_singleton_method(:chat) do |parameters:|
+      calls += 1
+      raise first_error if calls == 1
+
+      { "choices" => [ { "message" => { "content" => "Unexpected replay" } } ] }
+    end
+
+    @chatgpt.stub :openai_client, client do
+      error = assert_raises(Faraday::TimeoutError) { @chatgpt.generate_v2 }
+      assert_same first_error, error
+    end
+
+    assert_equal 1, calls
+    assert_nil @chatgpt.answer
+  end
+
   test "bundled structured examples are valid JSON" do
     assert JSON.parse(@chatgpt.input)
     assert JSON.parse(@chatgpt.output)

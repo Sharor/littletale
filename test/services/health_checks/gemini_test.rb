@@ -5,9 +5,10 @@ require "test_helper"
 class HealthChecksGeminiTest < ActiveSupport::TestCase
   Response = Data.define(:code)
 
-  test "reports a connected account using a non-generation model metadata endpoint" do
+  test "reports a connected account after checking text and image model metadata endpoints" do
+    requested_uris = []
     transport = lambda do |uri:, headers:, open_timeout:, read_timeout:|
-      assert_equal URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash"), uri
+      requested_uris << uri
       assert_equal "gemini-key", headers.fetch("x-goog-api-key")
       assert_equal 3, open_timeout
       assert_equal 5, read_timeout
@@ -17,6 +18,7 @@ class HealthChecksGeminiTest < ActiveSupport::TestCase
     result = HealthChecks::Gemini.new(
       api_key: "gemini-key",
       model: "gemini-3.8-flash",
+      image_model: "gemini-3.1-flash-image",
       transport: transport,
       wall_clock: -> { Time.zone.parse("2026-10-03 10:00:00") },
       monotonic_clock: sequence_clock(8.0, 8.018)
@@ -27,6 +29,29 @@ class HealthChecksGeminiTest < ActiveSupport::TestCase
     assert_equal "Authentication and model access confirmed.", result.message
     assert_equal "2026-10-03T10:00:00Z", result.checked_at
     assert_equal 18, result.duration_ms
+    assert_equal [
+      URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash"),
+      URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image")
+    ], requested_uris
+  end
+
+  test "fails when the configured image model is unavailable" do
+    requested_models = []
+    transport = lambda do |uri:, **|
+      requested_models << uri.path.split("/").last
+      Response.new(requested_models.length == 1 ? "200" : "404")
+    end
+
+    result = HealthChecks::Gemini.new(
+      api_key: "gemini-key",
+      model: "gemini-3.8-flash",
+      image_model: "gemini-3.1-flash-image",
+      transport: transport
+    ).call
+
+    assert_equal %w[gemini-3.8-flash gemini-3.1-flash-image], requested_models
+    assert_equal "failed", result.status
+    assert_equal "Gemini returned an unexpected response.", result.message
   end
 
   test "the HTTP transport performs one bounded GET without retries" do

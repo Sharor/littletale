@@ -7,6 +7,7 @@ module HealthChecks
   class Gemini < Base
     MODELS_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models"
     DEFAULT_MODEL = "gemini-3.8-flash"
+    DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image"
 
     class HttpTransport
       def initialize(http_factory: ->(host, port) { Net::HTTP.new(host, port) })
@@ -26,10 +27,13 @@ module HealthChecks
     end
 
     def initialize(api_key: ENV["GEMINI_API_KEY"], model: ENV.fetch("GEMINI_TEXT_MODEL", DEFAULT_MODEL),
-      transport: nil, **options)
+      image_model: ENV.fetch("GEMINI_IMAGE_MODEL", DEFAULT_IMAGE_MODEL), transport: nil, **options)
       super(**options)
       @api_key = api_key
-      @model = model.to_s.delete_prefix("models/").presence || DEFAULT_MODEL
+      @models = [
+        model.to_s.delete_prefix("models/").presence || DEFAULT_MODEL,
+        image_model.to_s.delete_prefix("models/").presence || DEFAULT_IMAGE_MODEL
+      ].uniq
       @transport = transport || HttpTransport.new
     end
 
@@ -40,21 +44,27 @@ module HealthChecks
           message: I18n.t("admin.health.messages.gemini_missing"))
       end
 
-      response = @transport.call(
-        uri: URI("#{MODELS_ENDPOINT}/#{CGI.escape(@model)}"),
-        headers: { "x-goog-api-key" => @api_key },
-        open_timeout: 3,
-        read_timeout: 5
-      )
+      @models.each do |model|
+        response = @transport.call(
+          uri: URI("#{MODELS_ENDPOINT}/#{CGI.escape(model)}"),
+          headers: { "x-goog-api-key" => @api_key },
+          open_timeout: 3,
+          read_timeout: 5
+        )
 
-      case response.code.to_i
-      when 200..299
-        result(name: "gemini", status: "connected", message: I18n.t("admin.health.messages.gemini_connected"))
-      when 401, 403
-        result(name: "gemini", status: "failed", message: I18n.t("admin.health.messages.gemini_forbidden"))
-      else
-        result(name: "gemini", status: "failed", message: I18n.t("admin.health.messages.gemini_unexpected"))
+        case response.code.to_i
+        when 200..299
+          next
+        when 401, 403
+          return result(name: "gemini", status: "failed",
+            message: I18n.t("admin.health.messages.gemini_forbidden"))
+        else
+          return result(name: "gemini", status: "failed",
+            message: I18n.t("admin.health.messages.gemini_unexpected"))
+        end
       end
+
+      result(name: "gemini", status: "connected", message: I18n.t("admin.health.messages.gemini_connected"))
     rescue Net::OpenTimeout, Net::ReadTimeout, Timeout::Error
       result(name: "gemini", status: "failed", message: I18n.t("admin.health.messages.gemini_timeout"))
     rescue StandardError

@@ -184,6 +184,13 @@ en:
       invalid_mode: Choose a valid generation provider mode.
       missing_openai: OpenAI is not configured. Add OPENAI_ACCESS_TOKEN before selecting this mode.
       missing_gemini: Gemini is not configured. Add GEMINI_API_KEY before selecting this mode.
+      unavailable_openai: OpenAI credentials or API access could not be verified.
+      unavailable_gemini: Gemini credentials or configured models could not be verified.
+      switch_reasons:
+        automatic_enabled: Automatic mode enabled with OpenAI.
+        admin_selected_openai: OpenAI was selected by an administrator.
+        admin_selected_gemini: Gemini was selected by an administrator.
+        openai_availability_failures: "OpenAI had %{failures} availability failures among %{total} eligible requests."
       modes:
         openai:
           title: OpenAI
@@ -215,7 +222,7 @@ en:
         description: Authenticates through the models metadata endpoint without generating tokens, text, or images.
       gemini:
         title: Gemini
-        description: Authenticates and checks access to the configured text model without generating tokens, text, or images.
+        description: Authenticates and checks access to the configured text and image models without generating tokens, text, or images.
       messages:
         storage_connected: Connection and bucket access confirmed.
         storage_missing: "Missing %{settings}."

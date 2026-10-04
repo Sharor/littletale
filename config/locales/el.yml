@@ -102,6 +102,13 @@ el:
       invalid_mode: Επιλέξτε έγκυρη λειτουργία παρόχου δημιουργίας.
       missing_openai: Το OpenAI δεν έχει ρυθμιστεί. Προσθέστε το OPENAI_ACCESS_TOKEN πριν επιλέξετε αυτή τη λειτουργία.
       missing_gemini: Το Gemini δεν έχει ρυθμιστεί. Προσθέστε το GEMINI_API_KEY πριν επιλέξετε αυτή τη λειτουργία.
+      unavailable_openai: Δεν ήταν δυνατή η επαλήθευση των διαπιστευτηρίων ή της πρόσβασης API του OpenAI.
+      unavailable_gemini: Δεν ήταν δυνατή η επαλήθευση των διαπιστευτηρίων ή της πρόσβασης στα ρυθμισμένα μοντέλα Gemini.
+      switch_reasons:
+        automatic_enabled: Η αυτόματη λειτουργία ενεργοποιήθηκε με το OpenAI.
+        admin_selected_openai: Το OpenAI επιλέχθηκε από διαχειριστή.
+        admin_selected_gemini: Το Gemini επιλέχθηκε από διαχειριστή.
+        openai_availability_failures: "Το OpenAI είχε %{failures} αποτυχίες διαθεσιμότητας σε %{total} κατάλληλα αιτήματα."
       modes:
         openai:
           title: OpenAI
@@ -133,7 +140,7 @@ el:
         description: Πιστοποιείται μέσω του endpoint μεταδεδομένων μοντέλων χωρίς παραγωγή token, κειμένου ή εικόνων.
       gemini:
         title: Gemini
-        description: Πιστοποιείται και ελέγχει την πρόσβαση στο ρυθμισμένο μοντέλο κειμένου χωρίς παραγωγή token, κειμένου ή εικόνων.
+        description: Πιστοποιείται και ελέγχει την πρόσβαση στα ρυθμισμένα μοντέλα κειμένου και εικόνας χωρίς παραγωγή token, κειμένου ή εικόνων.
       messages:
         storage_connected: Η σύνδεση και η πρόσβαση στο bucket επιβεβαιώθηκαν.
         storage_missing: "Λείπουν τα %{settings}."

@@ -41,7 +41,7 @@
       <div class="rounded border bg-black/20 p-4" data-provider-switch-reason>
         <h3 class="text-lg"><%= t("admin.generation_provider.switch_audit") %></h3>
         <% if @generation_provider_setting.switch_reason.present? %>
-          <p class="mt-2"><%= @generation_provider_setting.switch_reason.humanize %></p>
+          <p class="mt-2"><%= generation_provider_switch_reason(@generation_provider_setting.switch_reason) %></p>
           <% if @generation_provider_setting.switched_at %>
             <time class="mt-1 block text-sm text-gray-500" datetime="<%= @generation_provider_setting.switched_at.iso8601 %>">
               <%= t("admin.generation_provider.switched_at", time: l(@generation_provider_setting.switched_at, format: :short)) %>
