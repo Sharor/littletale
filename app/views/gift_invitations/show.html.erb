@@ -1,4 +1,4 @@
-<% content_for :title, "#{@gift.title} | A LittleStories gift" %>
+<% content_for :title, "#{@gift.title} | A MinorTale gift" %>
 <% content_for :body_class, "gift-invitation-page" %>
 <% content_for :head do %>
   <meta name="robots" content="noindex,nofollow">
@@ -6,7 +6,7 @@
 
 <main class="fable-public gift-invitation" aria-labelledby="gift-title">
   <section class="giftcard-preview">
-    <a href="/" class="gift-invitation-home">LittleStories</a>
+    <a href="/" class="gift-invitation-home">MinorTale</a>
     <p class="library-eyebrow"><%= t("book_gifts.invitation.eyebrow") %></p>
     <h1 id="gift-title"><%= t("book_gifts.invitation.title", title: @gift.title) %></h1>
     <%= simple_format(@gift.message) %>

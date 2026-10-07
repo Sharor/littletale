@@ -29,7 +29,7 @@ class StorySamplesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select "a.sample-back-link[href='/#stories']", "Back to sample stories"
     assert_select "html[lang='en']"
-    assert_select "title", "Nora and the Little Lost Star | LittleStories"
+    assert_select "title", "Nora and the Little Lost Star | MinorTale"
     assert_select "meta[name='description'][content*='five-page sample story']"
     assert_select "meta[property='og:title'][content='Nora and the Little Lost Star']"
   end

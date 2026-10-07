@@ -35,7 +35,7 @@ env:
     - MINIO_SECRET_KEY
     - MINIO_BUCKET
     - MINIO_ENDPOINT
-    - HOSTS
+    - APP_HOST
     - METRICS_BEARER_TOKEN
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
@@ -86,7 +86,7 @@ builder:
 #     port: "127.0.0.1:12345:12345"
 #     env:
 #       clear:
-#         RAILS_METRICS_HOST: littletale.com
+#         RAILS_METRICS_HOST: minortale.com
 #         RAILS_METRICS_SCHEME: https
 #       secret:
 #         - METRICS_WRITE_URL

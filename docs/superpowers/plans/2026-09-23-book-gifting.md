@@ -98,13 +98,13 @@ English subject: `You got a gift from <user callname>!`
 
 English body:
 
-> Hello <name>, You have a gift from LittleTale!
+> Hello <name>, You have a gift from MinorTale!
 >
 > <custom message>
 >
 > [Create an account or sign in to open your gift]
 >
-> Hugs from your friends at LittleTale and <user callname>
+> Hugs from your friends at MinorTale and <user callname>
 
 Use configurable app branding, localized templates, escaped user text, and HTML
 and plain-text versions. Keep the gift locale stable across background delivery.

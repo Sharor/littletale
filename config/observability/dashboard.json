@@ -63,17 +63,17 @@
     {
       "datasource": "${DS_LOKI}", "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 }, "id": 8,
       "options": { "dedupStrategy": "none", "enableLogDetails": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
-      "targets": [{ "expr": "{environment=\"production\", service=\"little_stories\"}", "refId": "A" }],
+      "targets": [{ "expr": "{environment=\"production\", service=\"minortale\"}", "refId": "A" }],
       "title": "Application logs", "type": "logs"
     }
   ],
   "refresh": "30s",
   "schemaVersion": 41,
-  "tags": ["little-tale", "production"],
+  "tags": ["minortale", "production"],
   "templating": { "list": [] },
   "time": { "from": "now-6h", "to": "now" },
   "timezone": "browser",
-  "title": "Little Tale Production",
-  "uid": "little-tale-production",
+  "title": "MinorTale Production",
+  "uid": "minortale-production",
   "version": 1
 }

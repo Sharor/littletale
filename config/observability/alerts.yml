@@ -1,5 +1,5 @@
 groups:
-  - name: little-tale-production
+  - name: minortale-production
     interval: 1m
     rules:
       - alert: RailsMetricsMissing

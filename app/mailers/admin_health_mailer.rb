@@ -1,6 +1,4 @@
 class AdminHealthMailer < ApplicationMailer
-  default from: ENV.fetch("RESEND_FROM_EMAIL", "LittleTale <onboarding@resend.dev>")
-
   def test_email
     @admin = params.fetch(:admin)
 

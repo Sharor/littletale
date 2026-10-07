@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class GiftMailer < ApplicationMailer
-  default from: ENV.fetch("RESEND_FROM_EMAIL", "LittleTale <onboarding@resend.dev>")
-
   def invitation
     @gift = params.fetch(:gift)
     @token = params.fetch(:token)

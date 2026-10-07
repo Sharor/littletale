@@ -1,4 +1,6 @@
 services:
+  # These legacy PostgreSQL identifiers intentionally retain their original
+  # names so existing development data remains addressable.
   db:
     image: postgres:15
     profiles: [ "legacy-postgres" ]

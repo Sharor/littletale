@@ -61,6 +61,6 @@ da:
       back: Tilbage til dine gaver
     mailer:
       subject: Du har fået en gave fra %{sender}!
-      greeting: Hej %{name}, du har fået en gave fra LittleTale!
+      greeting: Hej %{name}, du har fået en gave fra MinorTale!
       open_gift: Opret en konto eller log ind for at åbne din gave
-      closing: Kærlig hilsen fra dine venner hos LittleTale og %{sender}
+      closing: Kærlig hilsen fra dine venner hos MinorTale og %{sender}

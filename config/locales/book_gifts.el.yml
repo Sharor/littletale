@@ -61,6 +61,6 @@ el:
       back: Επιστροφή στα δώρα σας
     mailer:
       subject: Ένα δώρο από %{sender} σε περιμένει!
-      greeting: Γεια σου %{name}, έχεις ένα δώρο από το LittleTale!
+      greeting: Γεια σου %{name}, έχεις ένα δώρο από το MinorTale!
       open_gift: Δημιούργησε λογαριασμό ή συνδέσου για να ανοίξεις το δώρο σου
-      closing: Με αγάπη από το LittleTale και από %{sender}
+      closing: Με αγάπη από το MinorTale και από %{sender}

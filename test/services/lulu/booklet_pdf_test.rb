@@ -37,6 +37,8 @@ class Lulu::BookletPdfTest < ActiveSupport::TestCase
     assert_in_delta 8.25 * 72, cover.pages.first.height, 0.01
     refute_includes cover.pages.first.raw_content, "[3.0 3.0] 0.0 d"
     assert_includes interior.pages.map(&:text).join(" "), "Godnat, κόσμε. En lille historie."
+    assert_equal "MinorTale", interior.info[:Creator]
+    assert_equal "MinorTale Lulu sandbox integration", interior.info[:Producer]
     assert_predicate interior.pages.second.xobjects, :any?
     assert_predicate cover.pages.first.xobjects, :any?
   end

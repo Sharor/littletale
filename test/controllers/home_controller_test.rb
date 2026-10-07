@@ -33,7 +33,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "#art-styles", count: 0
     assert_select "[data-trial-terms]", text: /3 trial books.*up to 5 pages.*one month/i
     assert_select "html[lang='en']"
-    assert_select "title", "Personalized stories for children | LittleStories"
+    assert_select "title", "Personalized stories for children | MinorTale"
+    assert_select ".fable-public-brand", text: "MinorTale"
     assert_select "meta[name='description'][content*='Create an illustrated story starring your child']"
     assert_select "meta[property='og:title'][content='Their next adventure starts with them.']"
     assert_select "meta[property='og:image'][content*='story_samples/nora-and-the-little-lost-star/page-1']"

@@ -172,7 +172,7 @@ module Lulu
       render_text(
         document,
         :text_box,
-        "LittleStories",
+        "MinorTale",
         at: [ SAFE_MARGIN, SAFE_MARGIN + 18 ],
         width: fold - (2 * SAFE_MARGIN),
         height: 24,
@@ -209,8 +209,8 @@ module Lulu
     def document_for(size)
       Prawn::Document.new(page_size: size, margin: 0, skip_page_creation: true, info: {
         Title: order.title,
-        Creator: "LittleStories",
-        Producer: "LittleStories Lulu sandbox integration"
+        Creator: "MinorTale",
+        Producer: "MinorTale Lulu sandbox integration"
       }).tap do |document|
         document.font_families.update(
           "Inter" => { normal: font_path("Inter.ttf") },

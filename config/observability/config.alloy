@@ -28,7 +28,7 @@ prometheus.scrape "rails" {
     __address__      = sys.env("RAILS_METRICS_HOST"),
     __scheme__       = sys.env("RAILS_METRICS_SCHEME"),
     __metrics_path__ = "/metrics",
-    instance         = "little-tale-production",
+    instance         = "minortale-production",
     job              = "rails",
   }]
   scrape_interval = "15s"
@@ -96,7 +96,7 @@ discovery.relabel "container_logs" {
 loki.source.docker "containers" {
   host       = "unix:///var/run/docker.sock"
   targets    = discovery.relabel.container_logs.output
-  labels     = { environment = "production", host = "little-tale" }
+  labels     = { environment = "production", host = "minortale" }
   forward_to = [loki.process.redact.receiver]
 }
 

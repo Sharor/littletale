@@ -2,8 +2,8 @@
 # check=error=true
 
 # This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t little_stories .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name little_stories little_stories
+# docker build -t minortale .
+# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name minortale minortale
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 

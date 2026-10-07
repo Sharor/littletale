@@ -6,7 +6,7 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module LittleStories
+module MinorTale
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
@@ -19,6 +19,9 @@ module LittleStories
     config.i18n.available_locales = %i[en da el]
     config.i18n.default_locale = :en
     config.i18n.fallbacks = true
+    config.x.brand.name = "MinorTale"
+    config.x.brand.canonical_host = ENV.fetch("APP_HOST", "minortale.com")
+    config.x.brand.mailer_sender = ENV.fetch("RESEND_FROM_EMAIL", "MinorTale <hello@minortale.com>")
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

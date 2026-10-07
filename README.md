@@ -89,7 +89,7 @@ prompts, uploaded images, story text, or response bodies.
 
 Gemini image generation requires a paid Gemini API project. Before activating
 Gemini in production, resolve Google's Gemini API restriction for applications
-directed toward or likely accessed by people under 18. LittleStories currently
+directed toward or likely accessed by people under 18. MinorTale currently
 permits users aged 13 and older. Deploying this code does not change that audience
 or make Gemini active; the persisted default remains OpenAI.
 
@@ -131,7 +131,7 @@ This repository currently runs Rails 8.0.2.1. Its deployment and database layout
 have been compared with the Rails 8.1.3.1 application generator: Kamal 2 and
 Thruster build the container, while production uses separate SQLite databases for
 the application, Solid Cache, Solid Queue, and Solid Cable. All four files live in
-the persistent `little_stories_storage` volume. Development deliberately uses a
+the persistent `minortale_storage` volume. Development deliberately uses a
 separate Solid Queue database and worker for closer production parity. Existing
 MinIO upload storage remains in use.
 
@@ -169,12 +169,12 @@ bin/kamal app exec --reuse "sqlite3 /rails/storage/production_cable.sqlite3 '.ba
 ```
 
 Cache and Cable data can be recreated, but include them for a complete snapshot.
-Keep timestamped copies outside `little_stories_storage`. Rehearse a restore with a
+Keep timestamped copies outside `minortale_storage`. Rehearse a restore with a
 disposable file before relying on a backup:
 
 ```sh
-sqlite3 storage/development.sqlite3 ".backup '/tmp/little_stories_restore.sqlite3'"
-sqlite3 /tmp/little_stories_restore.sqlite3 'PRAGMA integrity_check;'
+sqlite3 storage/development.sqlite3 ".backup '/tmp/minortale_restore.sqlite3'"
+sqlite3 /tmp/minortale_restore.sqlite3 'PRAGMA integrity_check;'
 ```
 
 For a production restore, stop the app, preserve the current volume, replace each

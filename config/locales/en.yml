@@ -122,10 +122,10 @@ en:
     google: Continue with Google
     microsoft: Continue with Microsoft
     soon: Soon
-    new_user_html: New to LittleStories? Your first three trial books can each include up to five illustrated pages.
+    new_user_html: New to MinorTale? Your first three trial books can each include up to five illustrated pages.
     fantasy: Only your fantasy
     limits: limits what you can do!
-    welcome: Welcome to Little Tales!
+    welcome: Welcome to MinorTale!
     process: We'll take you through the process of making your very own fairytale.
     how: Choose who should be in the story, then give us an outline of what should happen.
     magic: Then our fairies and typewriters take care of the rest!
@@ -148,7 +148,7 @@ en:
     samples:
       eyebrow: Read before you create
       title: Three small worlds, ready to open
-      introduction: These complete five-page stories were made with LittleStories. Turn every page and see how different characters, plots, and illustration styles come together.
+      introduction: These complete five-page stories were made with MinorTale. Turn every page and see how different characters, plots, and illustration styles come together.
       read: Read this story
       age: For age %{age}
       style_note: Cute cartoon, colored pencil, claymation, and many more illustration styles are available when you create your story.
@@ -163,7 +163,7 @@ en:
         description: Choose the characters, language, illustration style, and the idea you want the story to follow.
       read:
         title: Read it together
-        description: LittleStories writes and illustrates the pages, then keeps the finished book in your online library.
+        description: MinorTale writes and illustrates the pages, then keeps the finished book in your online library.
     personal:
       eyebrow: Made around your child
       title: A story that knows who the hero is
@@ -173,7 +173,7 @@ en:
         description: Use their name, appearance, interests, and the people they love.
       guided:
         title: Guided by you
-        description: Set the premise and cast. LittleStories develops them into a complete short adventure.
+        description: Set the premise and cast. MinorTale develops them into a complete short adventure.
       varied:
         title: A different world each time
         description: Pick a visual style and story language that suits tonight’s idea.
@@ -189,8 +189,8 @@ en:
       title: Questions parents ask
       items:
         ai:
-          question: How does LittleStories make the book?
-          answer: LittleStories uses AI to turn your characters and plot into story text and illustrations. You choose the characters, language, and visual style.
+          question: How does MinorTale make the book?
+          answer: MinorTale uses AI to turn your characters and plot into story text and illustrations. You choose the characters, language, and visual style.
         language:
           question: Which languages can I use?
           answer: You can create stories in English, Danish, or Greek.
@@ -205,14 +205,14 @@ en:
           answer: No. Story and illustration generation continue in the background, and the completed book appears in your library.
         reading:
           question: Where do we read the finished story?
-          answer: Every book lives in your LittleStories online library, ready to read page by page.
+          answer: Every book lives in your MinorTale online library, ready to read page by page.
         trial:
           question: When does the trial month begin?
           answer: The one-month reading period begins when your first trial book is complete.
     final:
       eyebrow: A new favorite can start here
       title: Who will they become tonight?
-      description: Bring one child, one idea, and a few details. LittleStories will help you make the book you read together.
+      description: Bring one child, one idea, and a few details. MinorTale will help you make the book you read together.
       action: Create your child’s story
     footer:
       note: Personalized stories for reading together.
@@ -227,7 +227,7 @@ en:
       console: Console
       back: Back to books
     dashboard:
-      eyebrow: Little Fables · Operations
+      eyebrow: MinorTale · Operations
       title: Administration
       introduction: Review character images, resolve generation failures, and inspect background work.
       reviews: Character image reviews
@@ -357,10 +357,10 @@ en:
         sending: Sending…
         submitted: A test email was submitted to %{email}.
         failed: The test email could not be submitted.
-        subject: LittleStories production email check
+        subject: MinorTale production email check
         heading: Production email is connected
-        body_html: This email confirms that LittleStories can submit mail to <strong>%{email}</strong> through the configured provider.
-        body_text: This email confirms that LittleStories can submit mail to %{email} through the configured provider.
+        body_html: This email confirms that MinorTale can submit mail to <strong>%{email}</strong> through the configured provider.
+        body_text: This email confirms that MinorTale can submit mail to %{email} through the configured provider.
         confirmation: Receiving this message confirms end-to-end delivery to your inbox.
     failed_books:
       title: Failed book generations
@@ -495,7 +495,7 @@ en:
     edit:
       title: The plot of your story
     index:
-      eyebrow: Little Fables
+      eyebrow: MinorTale
       title: Current Library
       awaiting_approval: "Books awaiting approval (%{count})"
       create: Make a new book

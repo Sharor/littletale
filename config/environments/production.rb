@@ -1,6 +1,7 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  canonical_host = Rails.application.config.x.brand.canonical_host
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
@@ -19,7 +20,7 @@ Rails.application.configure do
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
-  config.asset_host = "https://#{ENV["HOSTS"]}"
+  config.asset_host = "https://#{canonical_host}"
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
@@ -61,17 +62,8 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   # config/environments/production.rb
-  config.action_controller.default_url_options = { host: ENV["HOSTS"], protocol: "https" }
-  config.action_mailer.default_url_options = { host: ENV["HOSTS"], protocol: "https" }
-
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  config.action_controller.default_url_options = { host: canonical_host, protocol: "https" }
+  config.action_mailer.default_url_options = { host: canonical_host, protocol: "https" }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -84,16 +76,13 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
   config.web_console.permissions = [ "127.0.0.0/8", "10.0.0.0/8", "::1" ]
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
+  config.hosts = [ "minortale.com", "www.minortale.com" ]
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
 
 Rails.application.routes.default_url_options = {
-  host: ENV.fetch("HOSTS", "minortale.com"),
+  host: Rails.application.config.x.brand.canonical_host,
   protocol: "https"
 }

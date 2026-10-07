@@ -21,15 +21,16 @@ class GiftMailerTest < ActionMailer::TestCase
     email = GiftMailer.with(gift: @gift, token: "invitation-token", delivery_attempt_id: "attempt-one").invitation
 
     assert_equal [ "maja@gmail.com" ], email.to
-    assert_equal [ "onboarding@resend.dev" ], email.from
+    assert_equal [ "hello@minortale.com" ], email.from
+    assert_equal [ "MinorTale" ], email[:from].display_names
     assert_equal "Du har fået en gave fra Onkel Alex!", email.subject
     assert_equal({ idempotency_key: "attempt-one" }, email[:options].unparsed_value)
-    assert_match "Hej Maja, du har fået en gave fra LittleTale!", email.html_part.body.to_s
+    assert_match "Hej Maja, du har fået en gave fra MinorTale!", email.html_part.body.to_s
     assert_match "Denne bog er kun til dig.", email.html_part.body.to_s
     assert_no_match %r{<p>\s*<p>}, email.html_part.body.to_s
     invitation_url = Rails.application.routes.url_helpers.gift_invitation_url("invitation-token", host: "example.com")
     assert_match invitation_url, email.html_part.body.to_s
-    assert_match "Kærlig hilsen fra dine venner hos LittleTale og Onkel Alex", email.text_part.body.to_s
+    assert_match "Kærlig hilsen fra dine venner hos MinorTale og Onkel Alex", email.text_part.body.to_s
     assert_match invitation_url, email.text_part.body.to_s
   end
 
@@ -40,8 +41,8 @@ class GiftMailerTest < ActionMailer::TestCase
       delivery_attempt_id: "attempt-two").invitation
 
     assert_equal "Ένα δώρο από Onkel Alex σε περιμένει!", email.subject
-    assert_match "Γεια σου Maja, έχεις ένα δώρο από το LittleTale!", email.html_part.body.to_s
+    assert_match "Γεια σου Maja, έχεις ένα δώρο από το MinorTale!", email.html_part.body.to_s
     assert_match "Αυτό το βιβλίο είναι μόνο για σένα.", email.html_part.body.to_s
-    assert_match "Με αγάπη από το LittleTale και από Onkel Alex", email.text_part.body.to_s
+    assert_match "Με αγάπη από το MinorTale και από Onkel Alex", email.text_part.body.to_s
   end
 end

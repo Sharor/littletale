@@ -2,7 +2,7 @@
 
 ## Intent
 
-LittleStories must keep generating stories and illustrations during a sustained OpenAI outage. An administrator can route generation through OpenAI or Gemini, or enable automatic routing that begins on OpenAI and changes future requests to Gemini when OpenAI is consistently unavailable.
+MinorTale must keep generating stories and illustrations during a sustained OpenAI outage. An administrator can route generation through OpenAI or Gemini, or enable automatic routing that begins on OpenAI and changes future requests to Gemini when OpenAI is consistently unavailable.
 
 Success means every active text, image, and character-screening provider call honors the same global provider choice; the application records enough outcomes to make the automatic decision safely; and existing credit, retry, and uncertain-outcome protections remain intact.
 
@@ -10,7 +10,7 @@ Success means every active text, image, and character-screening provider call ho
 
 Gemini image generation is paid-only. Production therefore uses a paid Gemini API project and a `GEMINI_API_KEY`. The integration uses Google's stateless Interactions API (`store: false`) so it does not opt into server-side conversation storage.
 
-Google's Gemini API terms prohibit API clients directed toward or likely accessed by people under 18. LittleStories currently permits users aged 13 and older. Provider routing can be implemented and tested while OpenAI remains the default, but production activation of Gemini requires the product owner to resolve that eligibility mismatch. This design does not silently change the application's audience, terms, or age controls.
+Google's Gemini API terms prohibit API clients directed toward or likely accessed by people under 18. MinorTale currently permits users aged 13 and older. Provider routing can be implemented and tested while OpenAI remains the default, but production activation of Gemini requires the product owner to resolve that eligibility mismatch. This design does not silently change the application's audience, terms, or age controls.
 
 ## Scope
 

@@ -20,7 +20,7 @@ This pass inspected repository code and current competitor pages. A rendered pho
 | The page contains “2,000+ happy parents,” publication names, and a testimonial without supporting evidence found in the repository. | Request evidence and permission to use them; omit any claim that cannot be substantiated. |
 | The video treatment has no player, and the founder image is a text placeholder. | Replace these with a useful product sample; include a founder section only if the owner supplies a factual story and suitable assets. |
 | New visitors reach a sign-in page headed “Welcome back!” with an unavailable Apple option. | Use wording that welcomes both new and returning parents, and show usable authentication choices. |
-| Public branding says LittleStories/Little Tales while the default document title says Little Fables. | Agree one customer-facing name and apply it to public copy and metadata. |
+| Public branding used several inconsistent product names. | Agree one customer-facing name and apply it to public copy and metadata. |
 | The app supports three trial books, up to five pages each. The one-month reading period starts when the first trial book completes. | Explain quantity, format, access duration, and the paid next step together. Confirm the commercial offer before publication. |
 | Character creation supports a photo or a description; books support art styles and English, Danish, and Greek. | Explain useful choices without making a photo appear mandatory or listing the entire category catalog. |
 | A gift invitation is another public entry point. | Include its logged-out presentation and sign-in handoff in the audit. |
@@ -29,11 +29,11 @@ Repository anchors: `app/views/home/index.html.erb`, `app/views/sessions/new.htm
 
 Current competitor observations, accessed 2026-09-30:
 
-- [Wonderbly](https://www.wonderbly.com/) presents named books, occasions, product imagery, and personalization steps. Apply the specificity of the offer and examples, while describing Little Tales' actual digital format.
+- [Wonderbly](https://www.wonderbly.com/) presents named books, occasions, product imagery, and personalization steps. Apply the specificity of the offer and examples, while describing MinorTale's actual digital format.
 - [Oscar Stories](https://oscarstories.com/) leads with creating bedtime stories for children. This suggests a recognizable parent use case worth testing.
 - [Storybooks](https://www.storybooks.app/) pairs story creation with an accessible story library and parent-oriented messaging. Apply the ability to inspect examples before committing.
 
-These observations describe the sites' positioning. They do not verify their claims or establish their conversion performance. Validate Little Tales' audience language through existing customer feedback and a small parent comprehension review, if participants are available; the owner handles recruitment.
+These observations describe the sites' positioning. They do not verify their claims or establish their conversion performance. Validate MinorTale's audience language through existing customer feedback and a small parent comprehension review, if participants are available; the owner handles recruitment.
 
 ## Scope boundaries
 

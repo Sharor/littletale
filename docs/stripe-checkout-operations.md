@@ -1,6 +1,6 @@
 # Stripe Checkout operations
 
-Little Tales uses Stripe-hosted Checkout for one-time credit purchases and monthly subscriptions.
+MinorTale uses Stripe-hosted Checkout for one-time credit purchases and monthly subscriptions.
 
 - Product `prod_VHc1FYY2QqVlJ0` must have an active one-time default Price. One confirmed purchase grants one book credit, five character-generation credits, and permanent Basic reading access.
 - Product `prod_VInAXXEHxVHfXh` must have an active recurring default Price with a one-month interval. Each paid subscription invoice grants a hidden allowance of 50 books and 150 character generations for that billing period.
@@ -26,7 +26,7 @@ The server uses `stripe.secret` for Checkout and `stripe.webhook_secret` for sig
 Create a public HTTPS webhook endpoint at:
 
 ```text
-POST https://YOUR_HOST/webhooks/stripe
+POST https://minortale.com/webhooks/stripe
 ```
 
 Subscribe only to:

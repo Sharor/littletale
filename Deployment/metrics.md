@@ -23,7 +23,7 @@ the Rails instrumentation.
 7. Put all values in `.kamal/secrets`. Never commit that file or paste its
    values into this guide.
 
-The provisional production hostname is `littletale.com`. Update
+The production hostname is `minortale.com`. Update
 `config/deploy.yml` and `RAILS_METRICS_HOST` if the final hostname differs.
 Alloy scrapes the public HTTPS metrics endpoint, so DNS and the Kamal TLS proxy
 must be working first.
@@ -62,7 +62,7 @@ Prometheus and Loki data sources when prompted.
 Use `config/observability/alerts.yml` as the version-controlled source for the
 Grafana-managed alert rules. Create an email contact point for
 `davchristensen90@gmail.com`, send a test notification, and route the
-`little-tale-production` alert group to it. The initial rules cover missing
+`minortale-production` alert group to it. The initial rules cover missing
 Rails metrics, low host memory or disk, high HTTP error rate or p95 latency,
 jobs with exhausted retries, queue backlog, unavailable queue metrics, and jobs
 running longer than 15 minutes. Ordinary retries do not alert.

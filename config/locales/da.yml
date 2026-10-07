@@ -91,10 +91,10 @@ da:
     google: Fortsæt med Google
     microsoft: Fortsæt med Microsoft
     soon: Kommer snart
-    new_user_html: Ny hos LittleStories? <br>Log blot ind med Google eller Microsoft.
+    new_user_html: Ny hos MinorTale? <br>Log blot ind med Google eller Microsoft.
     fantasy: Kun fantasien
     limits: sætter grænser for, hvad du kan!
-    welcome: Velkommen til Little Tales!
+    welcome: Velkommen til MinorTale!
     process: Vi hjælper dig med at lave dit helt eget eventyr.
     how: Vælg, hvem der skal med i historien, og giv os derefter et oplæg til handlingen.
     magic: Så klarer vores feer og skrivemaskiner resten!
@@ -130,9 +130,9 @@ da:
       author: — Sarah J., stolt mor
     founder_photo: Billede af grundlæggeren
     about:
-      title: Derfor skabte vi LittleStories
+      title: Derfor skabte vi MinorTale
       origin_html: Det begyndte, da jeg ledte efter en bog til min søn, hvor helten lignede ham. Ikke bare lidt, men <em>virkelig</em> lignede ham.
-      mission: Vi opdagede, at AI kan bruges til mere end data — den kan skabe forundring. LittleStories bygger bro mellem et barns fantasi og den fysiske verden, så hver godnathistorie bliver et personligt eventyr.
+      mission: Vi opdagede, at AI kan bruges til mere end data — den kan skabe forundring. MinorTale bygger bro mellem et barns fantasi og den fysiske verden, så hver godnathistorie bliver et personligt eventyr.
       signature: Personliggjort med kærlighed.
   admin:
     navigation:
@@ -145,7 +145,7 @@ da:
       console: Konsol
       back: Tilbage til bøger
     dashboard:
-      eyebrow: Little Fables · Drift
+      eyebrow: MinorTale · Drift
       title: Administration
       introduction: Gennemgå figurbilleder, løs generationsfejl, og undersøg baggrundsarbejde.
       reviews: Gennemgang af figurbilleder
@@ -275,10 +275,10 @@ da:
         sending: Sender…
         submitted: En testmail blev sendt til %{email}.
         failed: Testmailen kunne ikke sendes.
-        subject: LittleStories kontrol af produktionsmail
+        subject: MinorTale kontrol af produktionsmail
         heading: Produktionsmail er forbundet
-        body_html: Denne mail bekræfter, at LittleStories kan sende mail til <strong>%{email}</strong> via den konfigurerede udbyder.
-        body_text: Denne mail bekræfter, at LittleStories kan sende mail til %{email} via den konfigurerede udbyder.
+        body_html: Denne mail bekræfter, at MinorTale kan sende mail til <strong>%{email}</strong> via den konfigurerede udbyder.
+        body_text: Denne mail bekræfter, at MinorTale kan sende mail til %{email} via den konfigurerede udbyder.
         confirmation: Modtagelsen af denne mail bekræfter levering hele vejen til din indbakke.
     failed_books:
       title: Mislykkede boggenereringer

@@ -1,11 +1,11 @@
 <% content_for :html_lang, "en" %>
 <% content_for :body_class, "story-sample-page" %>
-<% content_for :title, "#{@story.title} | LittleStories" %>
+<% content_for :title, "#{@story.title} | MinorTale" %>
 <% content_for :head do %>
-  <meta name="description" content="Read <%= @story.title %>, a five-page sample story from LittleStories.">
+  <meta name="description" content="Read <%= @story.title %>, a five-page sample story from MinorTale.">
   <meta property="og:type" content="article">
   <meta property="og:title" content="<%= @story.title %>">
-  <meta property="og:description" content="Read this complete five-page sample story from LittleStories.">
+  <meta property="og:description" content="Read this complete five-page sample story from MinorTale.">
   <meta property="og:image" content="<%= image_url(@story.pages.first.image) %>">
 <% end %>
 
