@@ -100,6 +100,19 @@ class Parent::GenerationRequestsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "pending", request.reload.status
   end
 
+  test "a parent cannot approve a pending request while its book is soft deleted" do
+    book = @user.books.create!(name: "Deleted pending story", total_pages: 1)
+    request = pending_request(book, "book")
+    book.soft_delete!
+
+    assert_no_enqueued_jobs only: GenerateBookJob do
+      post approve_parent_generation_request_url(request)
+    end
+
+    assert_response :not_found
+    assert_predicate request.reload, :pending?
+  end
+
   private
 
   def pending_request(generatable, kind)

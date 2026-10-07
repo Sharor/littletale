@@ -5,7 +5,6 @@ class Admin::DashboardController < ApplicationController
   def index
     @reviews = CharacterImageAssessment.where(status: "needs_review").count
     @failed_books = Book.failed.count
-    @users = User.includes(:trial_book_reservations, :book_credits, :character_credits).order(:email).reject(&:admin?)
     @generation_provider_setting = GenerationProviderSetting.current
     @generation_provider_window = @generation_provider_setting.eligible_openai_window
     @generation_provider_failures = @generation_provider_window.count do |request|

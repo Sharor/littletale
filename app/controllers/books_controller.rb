@@ -1,12 +1,14 @@
 class BooksController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_book, only: %i[ show edit update destroy ]
+  before_action :set_book, only: %i[ show edit update confirm_delete destroy ]
   before_action :validate_selected_characters, only: %i[ new create update ]
   before_action :enforce_new_book_access, only: :new
 
   # GET /books or /books.json
   def index
-    pending_book_ids = current_user.parental_generation_requests.pending.where(kind: "book").select(:generatable_id)
+    pending_request_book_ids = current_user.parental_generation_requests.pending.where(kind: "book")
+      .select(:generatable_id)
+    pending_book_ids = current_user.books.active.where(id: pending_request_book_ids).select(:id)
     @awaiting_books_count = pending_book_ids.count
     all_books = current_user.books.active.where.not(id: pending_book_ids).order(:id).to_a
     @categories = all_books.flat_map(&:categories).uniq.sort
@@ -104,10 +106,20 @@ class BooksController < ApplicationController
   end
 
   # DELETE /books/1 or /books/1.json
+  def confirm_delete
+    render partial: "delete_confirmation_modal", locals: { book: @book }
+  end
+
   def destroy
-    @book.destroy
+    @book.soft_delete!
 
     respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.remove(@book),
+          turbo_stream.update("modal", "")
+        ]
+      end
       format.html { redirect_to books_url, notice: I18n.t("notices.book.destroyed") }
       format.json { head :no_content }
     end

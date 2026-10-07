@@ -128,33 +128,4 @@
     </div>
   </section>
 
-  <section class="mt-10" aria-labelledby="user-access-heading">
-    <h2 id="user-access-heading" class="text-2xl font-semibold"><%= t("admin.dashboard.user_access") %></h2>
-    <div class="mt-4 overflow-x-auto rounded-xl border border-white/20 bg-black/20">
-      <table class="w-full text-left">
-        <thead class="border-b border-white/20 text-sm uppercase tracking-wide text-gray-300">
-          <tr>
-            <th class="p-4"><%= t("admin.dashboard.user") %></th>
-            <th class="p-4"><%= t("admin.dashboard.status") %></th>
-            <th class="p-4"><%= t("admin.dashboard.books_available") %></th>
-            <th class="p-4"><%= t("admin.dashboard.character_credits") %></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @users.each do |user| %>
-            <tr class="border-b border-white/10 last:border-0" data-user-id="<%= user.id %>">
-              <td class="p-4"><%= user.email %></td>
-              <td class="p-4"><%= user.paid? ? user.tier.capitalize : user.trial_status.humanize %></td>
-              <td class="p-4" data-admin-book-credits="<%= user.available_book_credits if user.paid? %>">
-                <%= user.paid? ? user.available_book_credits : user.trial_books_remaining %>
-              </td>
-              <td class="p-4" data-admin-character-credits="<%= user.available_character_credits if user.paid? %>">
-                <%= user.paid? ? user.available_character_credits : t("admin.dashboard.trial_allowance") %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </section>
 </main>

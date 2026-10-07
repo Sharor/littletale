@@ -32,5 +32,9 @@ class Parent::GenerationRequestsController < Parent::BaseController
 
   def load_generation_request
     @generation_request = parent_control.generation_requests.find(params[:id])
+    if @generation_request.pending? && @generation_request.generatable.is_a?(Book) &&
+        @generation_request.generatable.deleted_at.present?
+      raise ActiveRecord::RecordNotFound
+    end
   end
 end

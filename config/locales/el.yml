@@ -138,6 +138,7 @@ el:
     navigation:
       label: Διαχείριση
       home: Αρχική διαχείρισης
+      users: Πρόσβαση χρηστών
       reviews: Έλεγχοι εικόνων χαρακτήρων
       failed_books: Αποτυχημένα βιβλία
       jobs: Εργασίες παρασκηνίου
@@ -161,6 +162,33 @@ el:
       books_available: Διαθέσιμα βιβλία
       character_credits: Πιστώσεις χαρακτήρων
       trial_allowance: Όριο δοκιμής
+    users:
+      eyebrow: Λογαριασμοί και βιβλιοθήκες
+      title: Πρόσβαση χρηστών
+      introduction: Βρείτε έναν λογαριασμό, ελέγξτε τα βιβλία του και επαναφέρετε διαγραμμένα βιβλία.
+      search_label: Αναζήτηση με email
+      search_placeholder: user@example.com
+      search: Αναζήτηση
+      results: Χρήστες
+      empty: Δεν βρέθηκαν χρήστες με αυτό το email.
+      detail_eyebrow: Βιβλιοθήκη χρήστη
+      back: Επιστροφή στην αναζήτηση χρηστών
+      current_books: Τρέχοντα βιβλία
+      deleted_books: Διαγραμμένα βιβλία
+      no_current_books: Αυτός ο χρήστης δεν έχει τρέχοντα βιβλία.
+      no_deleted_books: Αυτός ο χρήστης δεν έχει διαγραμμένα βιβλία.
+      book: Βιβλίο
+      status: Κατάσταση
+      deleted_at: Διαγράφηκε
+      actions: Ενέργειες
+      restore: Επαναφορά
+      book_restored: Το βιβλίο επαναφέρθηκε.
+      book_statuses:
+        awaiting_review: Αναμονή γονικής έγκρισης
+        pending: Σε αναμονή
+        in_progress: Σε εξέλιξη
+        completed: Ολοκληρωμένο
+        failed: Απέτυχε
     generation_provider:
       eyebrow: Ανθεκτική δημιουργία
       title: Πάροχος δημιουργίας
@@ -405,6 +433,12 @@ el:
       empty: Κανένα βιβλίο δεν περιμένει γονική έγκριση.
       waiting: Αναμονή γονικής έγκρισης
       review: Έλεγχος έγκρισης
+      review_named: "Έλεγχος έγκρισης για το %{name}"
+    delete:
+      title: Διαγραφή βιβλίου;
+      action: Διαγραφή
+      action_named: "Διαγραφή του %{name}"
+      confirm_html: "Είστε βέβαιοι ότι θέλετε να διαγράψετε το %{name}; Ένας διαχειριστής μπορεί να το επαναφέρει αργότερα."
     parent_approval:
       eyebrow: Γονική έγκριση
       title: Ένας γονέας πρέπει να εγκρίνει αυτό το βιβλίο.

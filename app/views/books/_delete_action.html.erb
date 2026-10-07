@@ -1,0 +1,6 @@
+<%= link_to confirm_delete_book_path(book),
+  class: "library-card-action library-card-action--delete",
+  data: { book_action: "delete", tooltip: t("books.delete.action"), turbo_frame: "modal" },
+  aria: { label: t("books.delete.action_named", name: book.name) } do %>
+  <%= render "books/action_icon", icon: "delete", label: t("books.delete.action") %>
+<% end %>

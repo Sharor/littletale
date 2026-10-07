@@ -1,0 +1,16 @@
+<turbo-frame id="modal">
+  <dialog role="dialog" class="fable-ui fable-delete-dialog" aria-labelledby="delete-book-heading"
+    data-controller="character-delete" data-action="cancel->character-delete#close">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="delete-book-heading" class="text-xl font-semibold"><%= t("books.delete.title") %></h3>
+      <button type="button" class="fable-dialog-close" aria-label="<%= t("common.close") %>"
+        data-action="character-delete#close">×</button>
+    </div>
+    <p class="mb-6"><%= t("books.delete.confirm_html", name: tag.strong(book.name)) %></p>
+    <div class="flex justify-end gap-3">
+      <button type="button" class="bg-gray-700" data-action="character-delete#close"><%= t("common.cancel") %></button>
+      <%= button_to t("common.delete"), book_path(book), method: :delete,
+        form: { data: { turbo_frame: "modal" } } %>
+    </div>
+  </dialog>
+</turbo-frame>

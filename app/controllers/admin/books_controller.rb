@@ -4,6 +4,12 @@ class Admin::BooksController < ApplicationController
   skip_before_action :check_tutorial
   before_action :require_admin
 
+  def restore
+    book = Book.deleted.find_by!(id: params[:id], user_id: params[:user_id])
+    book.restore!
+    redirect_to admin_user_path(book.user), notice: I18n.t("admin.users.book_restored"), status: :see_other
+  end
+
   def rerun_generation
     book = Book.find(params[:id])
     attempt = nil

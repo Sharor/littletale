@@ -41,12 +41,14 @@ class Parent::BaseController < ApplicationController
   def load_dashboard
     @parent_control = parent_control.reload
     remove_orphaned_generation_requests!
-    @pending_requests = @parent_control.generation_requests.pending.includes(:generatable).order(:created_at)
+    @pending_requests = @parent_control.generation_requests.pending.includes(:generatable).order(:created_at).reject do |request|
+      request.generatable.is_a?(Book) && request.generatable.deleted_at.present?
+    end
     @recent_requests = @parent_control.generation_requests.where.not(status: "pending")
       .includes(:generatable).order(updated_at: :desc).limit(10)
     @successful_books_today = @parent_control.generation_requests.where(kind: "book", status: "completed",
       completed_at: @parent_control.local_day_range).count
-    active_book_ids = current_user.books.where(generation_status: %i[pending in_progress]).select(:id)
+    active_book_ids = current_user.books.active.where(generation_status: %i[pending in_progress]).select(:id)
     @in_progress_books = @parent_control.generation_requests.where(kind: "book", status: "approved",
       generatable_type: "Book", generatable_id: active_book_ids).count
     if @parent_control.effective_mode == "daily_limit"

@@ -26,6 +26,11 @@ Rails.application.routes.draw do
     resources :characters, only: :index do
       post :restore, on: :member
     end
+    resources :users, only: %i[index show] do
+      resources :books, only: [] do
+        post :restore, on: :member
+      end
+    end
     resources :failed_books, only: :index
     resources :books, only: [] do
       member do
@@ -59,6 +64,7 @@ Rails.application.routes.draw do
   post "webhooks/stripe", to: "stripe_webhooks#create", as: :stripe_webhook
   resources :books do
     get :awaiting_approval, on: :collection
+    get :confirm_delete, on: :member
     resource :parent_approval, only: %i[show create], controller: "book_parent_approvals"
     resources :book_gifts, only: %i[new create] do
       collection do

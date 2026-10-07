@@ -1,0 +1,51 @@
+<main class="mx-auto max-w-6xl space-y-8">
+  <header>
+    <p class="text-sm uppercase tracking-widest text-cyan-300"><%= t("admin.users.detail_eyebrow") %></p>
+    <h1 class="mt-2"><%= @user.email %></h1>
+    <p class="mt-3"><%= link_to t("admin.users.back"), admin_users_path, class: "underline" %></p>
+  </header>
+
+  <section data-current-books aria-labelledby="current-books-heading">
+    <h2 id="current-books-heading" class="text-2xl"><%= t("admin.users.current_books") %></h2>
+    <% if @current_books.empty? %>
+      <p class="fable-panel mt-4"><%= t("admin.users.no_current_books") %></p>
+    <% else %>
+      <div class="mt-4 overflow-x-auto rounded border bg-black/20">
+        <table class="w-full text-left">
+          <thead><tr><th class="p-4"><%= t("admin.users.book") %></th><th class="p-4"><%= t("admin.users.status") %></th></tr></thead>
+          <tbody>
+            <% @current_books.each do |book| %>
+              <tr>
+                <td class="p-4"><%= book.name %></td>
+                <td class="p-4"><%= t("admin.users.book_statuses.#{book.awaiting_parental_approval? ? "awaiting_review" : book.generation_status}") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </section>
+
+  <section data-deleted-books aria-labelledby="deleted-books-heading">
+    <h2 id="deleted-books-heading" class="text-2xl"><%= t("admin.users.deleted_books") %></h2>
+    <% if @deleted_books.empty? %>
+      <p class="fable-panel mt-4"><%= t("admin.users.no_deleted_books") %></p>
+    <% else %>
+      <div class="mt-4 overflow-x-auto rounded border bg-black/20">
+        <table class="w-full text-left">
+          <thead><tr><th class="p-4"><%= t("admin.users.book") %></th><th class="p-4"><%= t("admin.users.status") %></th><th class="p-4"><%= t("admin.users.deleted_at") %></th><th class="p-4"><span class="sr-only"><%= t("admin.users.actions") %></span></th></tr></thead>
+          <tbody>
+            <% @deleted_books.each do |book| %>
+              <tr>
+                <td class="p-4"><%= book.name %></td>
+                <td class="p-4"><%= t("admin.users.book_statuses.#{book.awaiting_parental_approval? ? "awaiting_review" : book.generation_status}") %></td>
+                <td class="p-4"><%= l(book.deleted_at, format: :short) %></td>
+                <td class="p-4"><%= button_to t("admin.users.restore"), restore_admin_user_book_path(@user, book), method: :post %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </section>
+</main>

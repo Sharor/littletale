@@ -26,13 +26,15 @@ class BookGiftingTest < ApplicationSystemTestCase
     Warden.test_reset!
   end
 
-  test "gift action follows Read and the create card grows with the book card" do
+  test "book actions share an outlined icon row and the create card grows with the book card" do
     visit books_url
 
     assert_button "Send as gift"
     assert_equal_card_heights
-    assert_operator element_edge(".library-read", "bottom"), :<,
-      element_edge(".library-gift-action", "top")
+    assert_in_delta element_edge('[data-book-action="read"]', "top"),
+      element_edge('[data-book-action="gift"]', "top"), 1
+    assert_in_delta element_edge('[data-book-action="gift"]', "top"),
+      element_edge('[data-book-action="delete"]', "top"), 1
 
     page.current_window.resize_to(390, 900)
 

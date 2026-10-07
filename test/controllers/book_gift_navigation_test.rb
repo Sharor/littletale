@@ -17,18 +17,20 @@ class BookGiftNavigationTest < ActionDispatch::IntegrationTest
     @token = @gift.invitation_token
   end
 
-  test "library places a gift action below Read and keeps the source book" do
+  test "library places read gift and delete icons in the outlined action strip" do
     sign_in @sender
 
     get books_url
 
     assert_response :success
     assert_select "article.library-book" do
-      assert_select ".library-book-actions" do
-        assert_select "a.library-read[href='#{book_path(@book)}']", text: "Read"
+      assert_select ".library-book-actions[data-book-actions]" do
+        assert_select "a.library-card-action[data-book-action='read'][href='#{book_path(@book)}']", text: "Read"
         assert_select "form.library-gift-form[action='#{prepare_book_book_gifts_path(@book)}']" do
-          assert_select "button.library-gift-action", text: "Send as gift"
+          assert_select "button.library-card-action[data-book-action='gift'][data-tooltip='Send as gift']", text: "Send as gift"
         end
+        assert_select "a.library-card-action[data-book-action='delete'][href='#{confirm_delete_book_path(@book)}']",
+          text: "Delete"
         assert_select "[data-controller='gift-modal']", count: 0
       end
     end

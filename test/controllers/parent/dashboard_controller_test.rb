@@ -82,6 +82,20 @@ class Parent::DashboardControllerTest < ActionDispatch::IntegrationTest
       text: /Title:\s*The moonlit map.*Plot:\s*Two friends follow a silver trail\./m
   end
 
+  test "dashboard hides a pending request while its book is soft deleted" do
+    unlock_parent
+    book = @user.books.create!(name: "Hidden pending story", total_pages: 1)
+    pending = @control.generation_requests.create!(user: @user, generatable: book, kind: "book",
+      policy_mode: "approval_required", request_key: "hidden-pending", status: "pending")
+    book.soft_delete!
+
+    get parent_url
+
+    assert_response :success
+    assert_select "[data-parental-request-id='#{pending.id}']", count: 0
+    assert_predicate pending.reload, :pending?
+  end
+
   test "dashboard removes requests whose generated record was deleted" do
     unlock_parent
     book = @user.books.create!(name: "Deleted story", total_pages: 1)
@@ -106,6 +120,10 @@ class Parent::DashboardControllerTest < ActionDispatch::IntegrationTest
     failed = @user.books.create!(name: "Failed earlier", total_pages: 1, generation_status: :failed)
     @control.generation_requests.create!(user: @user, generatable: failed, kind: "book",
       policy_mode: "approval_required", request_key: "failed", status: "approved")
+    deleted = @user.books.create!(name: "Deleted in progress", total_pages: 1, generation_status: :in_progress)
+    @control.generation_requests.create!(user: @user, generatable: deleted, kind: "book",
+      policy_mode: "daily_limit", request_key: "deleted-in-progress", status: "approved")
+    deleted.soft_delete!
 
     get parent_url
 

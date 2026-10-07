@@ -76,7 +76,7 @@ class ParentalGenerationGate
         return Decision.new(status: :allowed, request: existing)
       end
 
-      active_book_ids = user.books.where(generation_status: %i[pending in_progress]).select(:id)
+      active_book_ids = user.books.active.where(generation_status: %i[pending in_progress]).select(:id)
       in_progress = control.generation_requests.where(kind: "book", status: "approved",
         generatable_type: "Book", generatable_id: active_book_ids).count
       completed_today = control.generation_requests.where(kind: "book", status: "completed",

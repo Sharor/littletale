@@ -1,0 +1,14 @@
+<svg class="library-card-action__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+  stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <% case icon %>
+  <% when "read" %>
+    <path d="M3.5 5.5c2.8-.9 5.7-.4 8.5 1.4v12c-2.8-1.8-5.7-2.3-8.5-1.4z" />
+    <path d="M20.5 5.5c-2.8-.9-5.7-.4-8.5 1.4v12c2.8-1.8 5.7-2.3 8.5-1.4z" />
+  <% when "gift" %>
+    <path d="M4 10h16v10H4zM2.5 7h19v3h-19zM12 7v13" />
+    <path d="M12 7H8.5a2.25 2.25 0 1 1 2.25-2.25C10.75 6 12 7 12 7Zm0 0h3.5a2.25 2.25 0 1 0-2.25-2.25C13.25 6 12 7 12 7Z" />
+  <% when "delete" %>
+    <path d="M4 7h16M9 7V4h6v3M6.5 7l.75 13h9.5l.75-13M10 11v5M14 11v5" />
+  <% end %>
+</svg>
+<span class="sr-only"><%= label %></span>

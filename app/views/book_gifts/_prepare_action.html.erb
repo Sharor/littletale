@@ -1,11 +1,13 @@
 <% if book.giftable? %>
-  <%= button_to label, prepare_book_book_gifts_path(book),
+  <%= button_to local_assigns.fetch(:content, label), prepare_book_book_gifts_path(book),
     method: :post, form_class: form_class, class: button_class,
+    data: local_assigns[:button_data],
     aria: { label: aria_label } %>
 <% else %>
   <div class="gift-modal-trigger" data-controller="gift-modal">
-    <%= button_to label, prepare_book_book_gifts_path(book),
+    <%= button_to local_assigns.fetch(:content, label), prepare_book_book_gifts_path(book),
       method: :post, form_class: form_class, class: button_class,
+      data: local_assigns[:button_data],
       form: { data: { action: "submit->gift-modal#open" } },
       aria: { label: aria_label } %>
     <%= render "book_gifts/funding_dialog", book: book %>

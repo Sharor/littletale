@@ -19,12 +19,8 @@ class Admin::DashboardControllerTest < ActionDispatch::IntegrationTest
     %w[/admin/character_image_assessments /admin/failed_books /jobs /console].each do |path|
       assert_select "a[href='#{path}']"
     end
-    assert_select "h2", "User access"
-    assert_select "tr[data-user-id='#{users(:one).id}']" do
-      assert_select "td", text: users(:one).email
-      assert_select "td", text: /Not started/
-      assert_select "td", text: /3/
-    end
+    assert_select "a[href='#{admin_users_path}']", text: "User access"
+    assert_select "tr[data-user-id]", count: 0
   end
 
   test "dashboard shows Basic book and character credit balances" do
@@ -38,7 +34,7 @@ class Admin::DashboardControllerTest < ActionDispatch::IntegrationTest
     admin.update!(admin: true)
     sign_in admin
 
-    get admin_root_url
+    get admin_users_url
 
     assert_response :success
     assert_select "tr[data-user-id='#{owner.id}']" do

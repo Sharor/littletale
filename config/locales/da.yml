@@ -138,6 +138,7 @@ da:
     navigation:
       label: Administration
       home: Administrationsforside
+      users: Brugeradgang
       reviews: Gennemgang af figurbilleder
       failed_books: Mislykkede bøger
       jobs: Baggrundsjob
@@ -161,6 +162,33 @@ da:
       books_available: Tilgængelige bøger
       character_credits: Figurkreditter
       trial_allowance: Prøvekvote
+    users:
+      eyebrow: Konti og biblioteker
+      title: Brugeradgang
+      introduction: Find en konto, se dens bøger, og gendan slettede bøger.
+      search_label: Søg efter e-mail
+      search_placeholder: bruger@example.com
+      search: Søg
+      results: Brugere
+      empty: Ingen brugere matchede den e-mail.
+      detail_eyebrow: Brugerbibliotek
+      back: Tilbage til brugersøgning
+      current_books: Aktuelle bøger
+      deleted_books: Slettede bøger
+      no_current_books: Denne bruger har ingen aktuelle bøger.
+      no_deleted_books: Denne bruger har ingen slettede bøger.
+      book: Bog
+      status: Status
+      deleted_at: Slettet
+      actions: Handlinger
+      restore: Gendan
+      book_restored: Bogen blev gendannet.
+      book_statuses:
+        awaiting_review: Afventer forældregodkendelse
+        pending: Afventer
+        in_progress: I gang
+        completed: Færdig
+        failed: Mislykket
     generation_provider:
       eyebrow: Robust generering
       title: Genereringsudbyder
@@ -405,6 +433,12 @@ da:
       empty: Ingen bøger afventer forældregodkendelse.
       waiting: Afventer forældregodkendelse
       review: Gennemgå godkendelse
+      review_named: "Gennemgå godkendelse af %{name}"
+    delete:
+      title: Slet bog?
+      action: Slet
+      action_named: "Slet %{name}"
+      confirm_html: "Er du sikker på, at du vil slette %{name}? En administrator kan gendanne den senere."
     parent_approval:
       eyebrow: Forældregodkendelse
       title: En forælder skal godkende denne bog.

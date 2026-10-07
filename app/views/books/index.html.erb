@@ -39,7 +39,7 @@
       <% end %>
 
       <% @books.each do |book| %>
-        <article class="library-book">
+        <article id="<%= dom_id(book) %>" class="library-book">
           <%= link_to book, class: "library-cover" do %>
             <span class="library-ribbon" aria-hidden="true"></span>
             <span class="library-cover-eyebrow" aria-hidden="true"><%= t("books.reader.chronicles") %></span>
@@ -54,16 +54,23 @@
             <h3><%= book.name %></h3>
             <span class="library-cover-flourish" aria-hidden="true">❧</span>
           <% end %>
-          <div class="library-book-actions">
-            <%= link_to t("books.index.read"), book, class: "library-read", aria: { label: t("books.index.read_named", name: book.name) } %>
+          <div class="library-book-actions" data-book-actions>
+            <%= link_to book, class: "library-card-action",
+              data: { book_action: "read", tooltip: t("books.index.read") },
+              aria: { label: t("books.index.read_named", name: book.name) } do %>
+              <%= render "books/action_icon", icon: "read", label: t("books.index.read") %>
+            <% end %>
             <% if book.gift_preparable? %>
               <%= render "book_gifts/prepare_action",
                 book: book,
                 label: t("books.index.send_as_gift"),
                 form_class: "library-gift-form",
-                button_class: "library-gift-action",
+                button_class: "library-card-action",
+                button_data: { book_action: "gift", tooltip: t("books.index.send_as_gift") },
+                content: render("books/action_icon", icon: "gift", label: t("books.index.send_as_gift")),
                 aria_label: t("books.index.send_as_gift_named", name: book.name) %>
             <% end %>
+            <%= render "books/delete_action", book: book %>
           </div>
         </article>
       <% end %>

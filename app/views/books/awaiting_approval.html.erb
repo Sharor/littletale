@@ -20,7 +20,7 @@
     <% else %>
       <div class="library-grid">
         <% @books.each do |book| %>
-          <article class="library-book">
+          <article id="<%= dom_id(book) %>" class="library-book">
             <%= link_to book_parent_approval_path(book), class: "library-cover" do %>
               <span class="library-ribbon" aria-hidden="true"></span>
               <span class="library-cover-eyebrow"><%= t("books.awaiting.waiting") %></span>
@@ -31,8 +31,13 @@
               <span class="library-cover-flourish" aria-hidden="true">❧</span>
             <% end %>
             <%= render "books/parent_approval_details", book: book %>
-            <div class="library-book-actions">
-              <%= link_to t("books.awaiting.review"), book_parent_approval_path(book), class: "library-read" %>
+            <div class="library-book-actions" data-book-actions>
+              <%= link_to book_parent_approval_path(book), class: "library-card-action",
+                data: { book_action: "review", tooltip: t("books.awaiting.review") },
+                aria: { label: t("books.awaiting.review_named", name: book.name) } do %>
+                <%= render "books/action_icon", icon: "read", label: t("books.awaiting.review") %>
+              <% end %>
+              <%= render "books/delete_action", book: book %>
             </div>
           </article>
         <% end %>

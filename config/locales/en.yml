@@ -220,6 +220,7 @@ en:
     navigation:
       label: Administration
       home: Admin home
+      users: User access
       reviews: Character image reviews
       failed_books: Failed books
       jobs: Background jobs
@@ -243,6 +244,33 @@ en:
       books_available: Books available
       character_credits: Character credits
       trial_allowance: Trial allowance
+    users:
+      eyebrow: Accounts and libraries
+      title: User access
+      introduction: Find an account, review its books, and restore books that were deleted.
+      search_label: Search by email
+      search_placeholder: user@example.com
+      search: Search
+      results: Users
+      empty: No users matched that email.
+      detail_eyebrow: User library
+      back: Back to user search
+      current_books: Current books
+      deleted_books: Deleted books
+      no_current_books: This user has no current books.
+      no_deleted_books: This user has no deleted books.
+      book: Book
+      status: Status
+      deleted_at: Deleted
+      actions: Actions
+      restore: Restore
+      book_restored: The book was restored.
+      book_statuses:
+        awaiting_review: Awaiting parent approval
+        pending: Pending
+        in_progress: In progress
+        completed: Completed
+        failed: Failed
     generation_provider:
       eyebrow: Resilient generation
       title: Generation provider
@@ -487,6 +515,12 @@ en:
       empty: No books are waiting for parent approval.
       waiting: Awaiting parent approval
       review: Review approval
+      review_named: "Review approval for %{name}"
+    delete:
+      title: Delete book?
+      action: Delete
+      action_named: "Delete %{name}"
+      confirm_html: "Are you sure you want to delete %{name}? An administrator can restore it later."
     parent_approval:
       eyebrow: Parent approval
       title: A parent needs to approve this book.
@@ -714,7 +748,7 @@ en:
     book:
       created: Book was successfully created.
       writing: Book is being written!
-      destroyed: Book was successfully destroyed.
+      destroyed: Book was deleted.
       trial_limit_create: The trial includes three trial books. Subscribe to create another book.
       trial_expired_create: The trial has expired. Subscribe to create another book.
       trial_limit_continue: The trial includes three trial books. Subscribe to continue.

@@ -62,6 +62,19 @@ class ParentalGenerationGateTest < ActiveSupport::TestCase
     assert_nil second.request
   end
 
+  test "a soft deleted book does not occupy a daily slot" do
+    enable_control(mode: "daily_limit", daily_book_limit: 1)
+    activate_subscription
+    first = ParentalGenerationGate.authorize(@book)
+    @book.soft_delete!
+    another = @user.books.create!(name: "Replacement guarded story", total_pages: 1)
+
+    second = ParentalGenerationGate.authorize(another)
+
+    assert first.allowed?
+    assert second.allowed?
+  end
+
   test "an administrator bypasses a full parental daily allowance" do
     @user.update!(admin: true)
     control = enable_control(mode: "daily_limit", daily_book_limit: 1)

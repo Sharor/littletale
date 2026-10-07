@@ -91,16 +91,82 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_select "main h3", count: 0
   end
 
-  test "deleting a guarded book removes its parent request" do
+  test "deleting a guarded book soft deletes it and preserves its pending parent request" do
     @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
     guarded_book = @user.books.create!(name: "Delete guarded story", total_pages: 1)
-    ParentalGenerationGate.authorize(guarded_book)
+    request = ParentalGenerationGate.authorize(guarded_book).request
 
-    assert_difference([ "Book.count", "ParentalGenerationRequest.count" ], -1) do
+    assert_no_difference([ "Book.count", "ParentalGenerationRequest.count" ]) do
       delete book_url(guarded_book)
     end
 
     assert_redirected_to books_url
+    assert_not_nil guarded_book.reload.deleted_at
+    assert_predicate request.reload, :pending?
+
+    get awaiting_approval_books_url
+    assert_select ".library-book", text: /Delete guarded story/, count: 0
+  end
+
+  test "index awaiting approval count excludes soft-deleted books" do
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+    visible = @user.books.create!(name: "Visible pending story", total_pages: 1)
+    deleted = @user.books.create!(name: "Deleted pending story", total_pages: 1)
+    ParentalGenerationGate.authorize(visible)
+    ParentalGenerationGate.authorize(deleted)
+    deleted.soft_delete!
+
+    get books_url
+
+    assert_response :success
+    assert_select "a[href='#{awaiting_approval_books_path}']", text: "Books awaiting approval (1)"
+  end
+
+  test "current and awaiting approval books use accessible icon action strips" do
+    @book.update_columns(generation_status: Book.generation_statuses.fetch("completed"))
+    @user.create_parent_control!(enabled: true, mode: "approval_required", pin: "4826", pin_confirmation: "4826")
+    waiting = @user.books.create!(name: "Waiting to delete", total_pages: 1)
+    ParentalGenerationGate.authorize(waiting)
+
+    get books_url
+    assert_select "article#book_#{@book.id} [data-book-actions]" do
+      assert_select "a[data-book-action='read'][href='#{book_path(@book)}'][data-tooltip='Read'][aria-label=?]",
+        "Read #{@book.name}"
+      assert_select "button[data-book-action='gift'][data-tooltip='Send as gift'][aria-label=?]",
+        "Send #{@book.name} as a gift"
+      assert_select "a[data-book-action='delete'][href='#{confirm_delete_book_path(@book)}'][data-tooltip='Delete'][data-turbo-frame='modal'][aria-label=?]",
+        "Delete #{@book.name}"
+      assert_select "svg[aria-hidden='true']", minimum: 3
+    end
+
+    get awaiting_approval_books_url
+    assert_select "article#book_#{waiting.id} [data-book-actions]" do
+      assert_select "a[data-book-action='review'][href='#{book_parent_approval_path(waiting)}'][data-tooltip='Review approval']"
+      assert_select "a[data-book-action='delete'][href='#{confirm_delete_book_path(waiting)}'][data-turbo-frame='modal']"
+    end
+  end
+
+  test "delete confirmation renders the shared in-app dialog without a native popup" do
+    get confirm_delete_book_url(@book)
+
+    assert_response :success
+    assert_select "turbo-frame#modal dialog.fable-delete-dialog[data-controller='character-delete']" do
+      assert_select "h3", "Delete book?"
+      assert_select "form[action='#{book_path(@book)}'] input[name='_method'][value='delete']"
+      assert_select "button[data-action='character-delete#close']", text: "Cancel"
+    end
+    assert_select "[data-turbo-confirm]", count: 0
+  end
+
+  test "turbo deletion removes the book card and closes the dialog" do
+    assert_no_difference("Book.count") do
+      delete book_url(@book), as: :turbo_stream
+    end
+
+    assert_response :success
+    assert_not_nil @book.reload.deleted_at
+    assert_select "turbo-stream[action='remove'][target='book_#{@book.id}']"
+    assert_select "turbo-stream[action='update'][target='modal']"
   end
 
   test "library renders accessible navigation for mobile devices in either orientation" do

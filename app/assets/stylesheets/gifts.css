@@ -84,7 +84,7 @@
 .fable-secondary-action { color: var(--fable-wine); background: transparent; }
 .gift-book-action { margin: 1rem; }
 .gift-modal-trigger { min-width: 0; }
-.library-book-actions > .gift-modal-trigger { width: 100%; }
+.library-book-actions > .gift-modal-trigger { display: flex; width: auto; }
 #storybook .gift-modal-trigger { display: flex; justify-content: center; max-width: 100%; }
 
 .gift-purchase-panel {
