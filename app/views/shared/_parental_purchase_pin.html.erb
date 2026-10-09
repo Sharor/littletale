@@ -1,0 +1,6 @@
+<div class="parental-purchase-pin">
+  <%= form.label :parent_pin, t("parent.purchase.pin_label"), for: field_id, class: "fable-form-label" %>
+  <%= form.password_field :parent_pin, inputmode: "numeric", autocomplete: "current-password",
+    minlength: 4, maxlength: 8, required: true, id: field_id %>
+  <p><%= t("parent.purchase.pin_hint") %></p>
+</div>

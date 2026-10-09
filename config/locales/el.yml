@@ -18,6 +18,10 @@ el:
       incorrect: Το PIN είναι λανθασμένο.
       locked: Πάρα πολλές λανθασμένες προσπάθειες. Δοκιμάστε ξανά σε 15 λεπτά ή ανακτήστε το PIN μέσω email.
       locked_again: Οι γονικοί έλεγχοι κλειδώθηκαν.
+    purchase:
+      pin_label: Γονικό PIN
+      pin_hint: Εισαγάγετε το PIN για να εγκρίνετε αυτή την αγορά και να ξεκλειδώσετε τον γονικό πίνακα για 30 λεπτά.
+      pin_required: Εισαγάγετε το γονικό PIN για να συνεχίσετε με αυτή την αγορά.
     dashboard:
       eyebrow: Οικογενειακά όρια
       title: Πίνακας γονέα
@@ -183,6 +187,11 @@ el:
       actions: Ενέργειες
       restore: Επαναφορά
       book_restored: Το βιβλίο επαναφέρθηκε.
+      parent_pin: Πρόσβαση με γονικό PIN
+      parent_pin_locked: "Κλειδωμένο έως %{until}."
+      parent_pin_not_locked: Το γονικό PIN δεν είναι κλειδωμένο.
+      clear_parent_pin_lockout: Άρση κλειδώματος PIN
+      parent_pin_unlocked: Το κλείδωμα του γονικού PIN καταργήθηκε.
       book_statuses:
         awaiting_review: Αναμονή γονικής έγκρισης
         pending: Σε αναμονή

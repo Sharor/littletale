@@ -49,6 +49,10 @@ en:
       incorrect: PIN is incorrect.
       locked: Too many incorrect attempts. Try again in 15 minutes or recover the PIN by email.
       locked_again: Parent controls were locked.
+    purchase:
+      pin_label: Parent PIN
+      pin_hint: Enter the PIN to approve this purchase and unlock the parent dashboard for 30 minutes.
+      pin_required: Enter the parent PIN to continue with this purchase.
     dashboard:
       eyebrow: Family guardrails
       title: Parent dashboard
@@ -265,6 +269,11 @@ en:
       actions: Actions
       restore: Restore
       book_restored: The book was restored.
+      parent_pin: Parent PIN access
+      parent_pin_locked: "Locked until %{until}."
+      parent_pin_not_locked: The parent PIN is not locked.
+      clear_parent_pin_lockout: Clear PIN lockout
+      parent_pin_unlocked: The parent PIN lockout was cleared.
       book_statuses:
         awaiting_review: Awaiting parent approval
         pending: Pending

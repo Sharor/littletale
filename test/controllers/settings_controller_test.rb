@@ -92,6 +92,29 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /50 books and 150 character generations each month/i
   end
 
+  test "settings asks for the parent PIN on purchases while the parent dashboard is locked" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+
+    get settings_url
+
+    assert_response :success
+    assert_select "form[action='#{settings_book_purchase_path}'] input#book-purchase-parent-pin[name='parent_pin'][required]"
+    assert_select "form[action='#{settings_subscription_path}'] input#subscription-parent-pin[name='parent_pin'][required]"
+    pin_ids = css_select("input[name='parent_pin']").map { |input| input["id"] }
+    assert_equal pin_ids.uniq, pin_ids
+  end
+
+  test "settings omits purchase PIN fields while the parent dashboard is unlocked" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    post parent_session_url, params: { pin: "4826" }
+
+    get settings_url
+
+    assert_response :success
+    assert_select "form[action='#{settings_book_purchase_path}'] input[name='parent_pin']", count: 0
+    assert_select "form[action='#{settings_subscription_path}'] input[name='parent_pin']", count: 0
+  end
+
   test "settings lets a user resume a pending subscription Checkout" do
     @user.user_subscriptions.create!(
       status: "pending",
@@ -185,6 +208,19 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
       assert_select "form[action='#{settings_book_purchase_path}']"
       assert_select "form[action='#{settings_subscription_path}']", count: 1
     end
+  end
+
+  test "a locked payment dialog stacks actions and uses unique PIN field IDs" do
+    @user.update!(tier: "basic")
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+
+    get settings_url(payment_required: "book")
+
+    assert_response :success
+    assert_select "[role='dialog'] [data-parental-purchase-actions='stacked']"
+    pin_ids = css_select("input[name='parent_pin']").map { |input| input["id"] }
+    assert_equal 4, pin_ids.size
+    assert_equal pin_ids.uniq, pin_ids
   end
 
   private

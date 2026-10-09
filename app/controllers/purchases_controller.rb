@@ -6,6 +6,8 @@ class PurchasesController < ApplicationController
 
   def create
     @gift_book = selected_gift_book
+    return unless authorize_parental_purchase!(fallback_location: checkout_failure_url)
+
     if @gift_book
       session[:gift_purchase_book_id] = @gift_book.id
     else

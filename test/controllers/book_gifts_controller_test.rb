@@ -102,6 +102,19 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{books_path}']", text: "Back to library"
   end
 
+  test "gift purchase explanation stacks actions around its uniquely labelled parent PIN" do
+    trial_book = @sender.books.create!(name: "Protected gift", total_pages: 1,
+      generation_status: :completed, language: "en")
+    @sender.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+
+    get payment_required_book_book_gifts_url(trial_book)
+
+    assert_response :success
+    assert_select ".gift-form-actions--parental-pin"
+    assert_select "label[for='gift-book-#{trial_book.id}-parent-pin']", text: "Parent PIN"
+    assert_select "input#gift-book-#{trial_book.id}-parent-pin[name='parent_pin'][required]"
+  end
+
   test "gift purchase explanation is unavailable until the book is completed" do
     pending_book = @sender.books.create!(name: "Still writing", total_pages: 1, language: "en")
 

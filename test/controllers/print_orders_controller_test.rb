@@ -325,6 +325,40 @@ class PrintOrdersControllerTest < ActionDispatch::IntegrationTest
     assert_equal order.submission_uuid, order.reload.submission_uuid
   end
 
+  test "enabled parental controls require an unlocked parent session before order submission" do
+    order = submittable_order
+    @admin.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+
+    with_lulu_asset_host do
+      with_lulu_orders_enabled do
+        get "/orders/#{order.id}/options"
+        assert_select "form[action='/orders/#{order.id}/submit'] input[name='parent_pin'][required]"
+
+        assert_no_enqueued_jobs { post "/orders/#{order.id}/submit" }
+      end
+    end
+
+    assert_redirected_to "/orders/#{order.id}/options"
+    assert_equal "Enter the parent PIN to continue with this purchase.", flash[:alert]
+    assert_equal "quoted", order.reload.workflow_state
+  end
+
+  test "an unlocked parent dashboard permits order submission without another PIN" do
+    order = submittable_order
+    @admin.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    post parent_session_url, params: { pin: "4826" }
+
+    with_lulu_asset_host do
+      with_lulu_orders_enabled do
+        assert_enqueued_with(job: SubmitPrintOrderJob) do
+          post "/orders/#{order.id}/submit"
+        end
+      end
+    end
+
+    assert_equal "submitting", order.reload.workflow_state
+  end
+
   test "the print step clearly labels submission as sandbox and shows provider status" do
     order = submittable_order
     with_lulu_asset_host do

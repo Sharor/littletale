@@ -67,6 +67,8 @@
 .giftcard-preview p { color: var(--fable-ink); white-space: pre-wrap; }
 
 .gift-form-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.gift-form-actions--parental-pin { flex-direction: column; align-items: flex-start; }
+.gift-form-actions--parental-pin > form { width: min(100%, 22rem); }
 :is(.fable-primary-action, .fable-secondary-action) {
   display: inline-flex;
   align-items: center;

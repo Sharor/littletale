@@ -13,9 +13,14 @@
     <p><%= t("book_gifts.payment_required.explanation") %></p>
     <p class="gift-purchase-detail"><%= t("book_gifts.payment_required.purchase_includes") %></p>
   </div>
-  <div class="gift-form-actions">
-    <%= button_to t("book_gifts.payment_required.buy"), settings_book_purchase_path,
-      method: :post, params: { gift_book_id: book.id }, class: "fable-primary-action" %>
+  <% purchase_pin_required = parental_purchase_pin_required? %>
+  <div class="gift-form-actions <%= "gift-form-actions--parental-pin" if purchase_pin_required %>">
+    <%= form_with url: settings_book_purchase_path, method: :post do |form| %>
+      <%= form.hidden_field :gift_book_id, value: book.id %>
+      <%= render "shared/parental_purchase_pin", form: form,
+        field_id: "gift-book-#{book.id}-parent-pin" if purchase_pin_required %>
+      <%= form.button t("book_gifts.payment_required.buy"), type: :submit, class: "fable-primary-action" %>
+    <% end %>
     <% if modal %>
       <button type="button" class="fable-secondary-action" data-action="gift-modal#close">
         <%= t("book_gifts.modal.cancel") %>

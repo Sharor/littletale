@@ -27,6 +27,7 @@ Rails.application.routes.draw do
       post :restore, on: :member
     end
     resources :users, only: %i[index show] do
+      post :unlock_parent_pin, on: :member
       resources :books, only: [] do
         post :restore, on: :member
       end

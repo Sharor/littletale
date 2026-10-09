@@ -18,6 +18,10 @@ es:
       incorrect: El PIN es incorrecto.
       locked: Demasiados intentos incorrectos. Inténtalo de nuevo en 15 minutos o recupera el PIN por correo electrónico.
       locked_again: Los controles parentales se han bloqueado.
+    purchase:
+      pin_label: PIN parental
+      pin_hint: Introduce el PIN para aprobar esta compra y desbloquear el panel parental durante 30 minutos.
+      pin_required: Introduce el PIN parental para continuar con esta compra.
     dashboard:
       eyebrow: Límites familiares
       title: Panel parental
@@ -183,6 +187,11 @@ es:
       actions: Acciones
       restore: Restaurar
       book_restored: El libro se ha restaurado.
+      parent_pin: Acceso con PIN parental
+      parent_pin_locked: "Bloqueado hasta %{until}."
+      parent_pin_not_locked: El PIN parental no está bloqueado.
+      clear_parent_pin_lockout: Quitar bloqueo del PIN
+      parent_pin_unlocked: Se quitó el bloqueo del PIN parental.
       book_statuses:
         awaiting_review: En espera de aprobación parental
         pending: Pendiente

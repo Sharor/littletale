@@ -45,6 +45,34 @@ class SubscriptionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_url
   end
 
+  test "enabled parental controls require authorization before subscription Checkout" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    checkout_called = false
+
+    Payments::SubscriptionCheckout.stub :call, ->(**) { checkout_called = true } do
+      post settings_subscription_url
+    end
+
+    assert_redirected_to settings_url
+    assert_equal "Enter the parent PIN to continue with this purchase.", flash[:alert]
+    assert_not checkout_called
+  end
+
+  test "an unlocked parent dashboard permits subscription Checkout" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    post parent_session_url, params: { pin: "4826" }
+    subscription = @user.user_subscriptions.create!(status: "pending",
+      product_id: UserSubscription::PRODUCT_ID, idempotency_key: SecureRandom.uuid, livemode: false)
+    result = Payments::SubscriptionCheckout::Result.new(
+      subscription: subscription, url: "https://checkout.stripe.test/subscribe")
+
+    Payments::SubscriptionCheckout.stub(:call, result) do
+      post settings_subscription_url
+    end
+
+    assert_redirected_to "https://checkout.stripe.test/subscribe"
+  end
+
   test "an existing subscription redirects back to settings" do
     Payments::SubscriptionCheckout.stub :call,
       ->(**) { raise Payments::SubscriptionCheckout::AlreadySubscribed, "already subscribed" } do

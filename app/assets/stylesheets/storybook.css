@@ -158,6 +158,17 @@
   font: 700 clamp(1.2rem, 2vw, 1.45rem)/1.2 var(--fable-font-display);
 }
 .fable-ui .fable-form-label.text-red-400 { color: #912e30; }
+.parental-purchase-pin {
+  width: min(100%, 22rem);
+  margin: 0 0 1rem;
+  text-align: left;
+}
+.parental-purchase-pin p {
+  margin: .5rem 0 0;
+  color: var(--fable-muted);
+  font: .9rem/1.45 var(--fable-font-body);
+}
+.parental-purchase-pin input { width: 100%; }
 .fable-ui .fable-form-legend {
   margin-bottom: .5rem;
   color: var(--fable-wine);

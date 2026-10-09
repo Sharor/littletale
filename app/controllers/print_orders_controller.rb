@@ -95,6 +95,8 @@ class PrintOrdersController < ApplicationController
   end
 
   def submit
+    return unless authorize_parental_purchase!(fallback_location: options_print_order_path(@order))
+
     if @order.enqueue_submission!
       redirect_to options_print_order_path(@order), notice: I18n.t("print_orders.notices.submitting")
     else

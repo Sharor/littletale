@@ -189,8 +189,11 @@
           <p class="fable-notice" role="alert"><%= @order.failure_message %></p>
         <% elsif @order.submittable? %>
           <p><%= t("print_orders.options.sandbox_warning") %></p>
-          <%= button_to t("print_orders.options.place_order"), submit_print_order_path(@order), method: :post,
-            class: "print-orders-primary" %>
+          <%= form_with url: submit_print_order_path(@order), method: :post do |form| %>
+            <%= render "shared/parental_purchase_pin", form: form,
+              field_id: "print-order-#{@order.id}-parent-pin" if parental_purchase_pin_required? %>
+            <%= form.button t("print_orders.options.place_order"), type: :submit, class: "print-orders-primary" %>
+          <% end %>
         <% end %>
       </section>
     <% end %>

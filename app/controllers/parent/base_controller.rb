@@ -1,18 +1,12 @@
 # frozen_string_literal: true
 
 class Parent::BaseController < ApplicationController
-  PARENT_SESSION_DURATION = 30.minutes
-
   before_action :authenticate_user!
   before_action :require_enabled_parent_control!
   before_action :require_parent_authorization!
   skip_before_action :check_tutorial
 
   private
-
-  def parent_control
-    @parent_control ||= current_user.parent_control
-  end
 
   def require_enabled_parent_control!
     redirect_to profile_url, alert: I18n.t("parent.not_enabled") unless parent_control&.enabled?
@@ -22,20 +16,6 @@ class Parent::BaseController < ApplicationController
     return if parent_authorized?
 
     redirect_to new_parent_session_url
-  end
-
-  def parent_authorized?
-    data = session[:parent_access]
-    return false unless data && data["user_id"] == current_user.id
-    return false unless ActiveSupport::SecurityUtils.secure_compare(data["pin_key"].to_s, parent_control.session_key)
-
-    authenticated_at = Time.zone.at(data["authenticated_at"].to_i)
-    authenticated_at >= PARENT_SESSION_DURATION.ago
-  end
-
-  def authorize_parent_session!
-    session[:parent_access] = { user_id: current_user.id, authenticated_at: Time.current.to_i,
-      pin_key: parent_control.session_key }
   end
 
   def load_dashboard

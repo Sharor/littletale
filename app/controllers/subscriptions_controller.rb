@@ -5,6 +5,8 @@ class SubscriptionsController < ApplicationController
   skip_before_action :check_tutorial
 
   def create
+    return unless authorize_parental_purchase!(fallback_location: settings_url)
+
     checkout = Payments::SubscriptionCheckout.call(
       user: current_user,
       success_url: settings_url(subscription: "success"),

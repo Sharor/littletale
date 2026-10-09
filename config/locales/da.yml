@@ -18,6 +18,10 @@ da:
       incorrect: PIN-koden er forkert.
       locked: For mange forkerte forsøg. Prøv igen om 15 minutter, eller gendan PIN-koden via e-mail.
       locked_again: Forældrekontrollen blev låst.
+    purchase:
+      pin_label: Forældre-PIN
+      pin_hint: Indtast PIN-koden for at godkende købet og låse forældrepanelet op i 30 minutter.
+      pin_required: Indtast forældre-PIN-koden for at fortsætte med købet.
     dashboard:
       eyebrow: Familiens rammer
       title: Forældredashboard
@@ -183,6 +187,11 @@ da:
       actions: Handlinger
       restore: Gendan
       book_restored: Bogen blev gendannet.
+      parent_pin: Adgang med forældre-PIN
+      parent_pin_locked: "Låst indtil %{until}."
+      parent_pin_not_locked: Forældre-PIN-koden er ikke låst.
+      clear_parent_pin_lockout: Fjern PIN-låsning
+      parent_pin_unlocked: Låsningen af forældre-PIN-koden blev fjernet.
       book_statuses:
         awaiting_review: Afventer forældregodkendelse
         pending: Afventer

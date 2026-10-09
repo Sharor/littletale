@@ -122,4 +122,36 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     post restore_admin_user_book_url(owner, deleted_elsewhere)
     assert_response :not_found
   end
+
+  test "admin can see and clear a user's parent PIN lockout" do
+    owner = users(:one)
+    control = owner.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826",
+      failed_pin_attempts: ParentControl::MAX_PIN_ATTEMPTS, locked_until: 10.minutes.from_now)
+    sign_in @admin
+
+    get admin_user_url(owner)
+
+    assert_response :success
+    assert_select "[data-parent-pin-status='locked']", text: /locked/i
+    assert_select "form[action='#{unlock_parent_pin_admin_user_path(owner)}'] button", text: "Clear PIN lockout"
+
+    post unlock_parent_pin_admin_user_url(owner)
+
+    assert_redirected_to admin_user_url(owner)
+    control.reload
+    assert_equal 0, control.failed_pin_attempts
+    assert_nil control.locked_until
+  end
+
+  test "ordinary users cannot clear a parent PIN lockout" do
+    owner = users(:one)
+    control = owner.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826",
+      failed_pin_attempts: ParentControl::MAX_PIN_ATTEMPTS, locked_until: 10.minutes.from_now)
+    sign_in users(:two)
+
+    post unlock_parent_pin_admin_user_url(owner)
+
+    assert_response :forbidden
+    assert_predicate control.reload, :pin_locked?
+  end
 end

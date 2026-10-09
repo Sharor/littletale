@@ -92,6 +92,91 @@ class PurchasesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_url
   end
 
+  test "enabled parental controls require a PIN before Checkout" do
+    control = @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    checkout_called = false
+
+    Payments::Checkout.stub :call, ->(**) { checkout_called = true } do
+      post settings_book_purchase_url
+    end
+
+    assert_redirected_to settings_url
+    assert_equal "Enter the parent PIN to continue with this purchase.", flash[:alert]
+    assert_not checkout_called
+    assert_equal 0, control.reload.failed_pin_attempts
+  end
+
+  test "a correct purchase PIN unlocks subsequent purchases" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    purchase = @user.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    result = Payments::Checkout::Result.new(purchase: purchase, url: "https://checkout.stripe.test/pay")
+    checkout_count = 0
+
+    Payments::Checkout.stub :call, ->(**) { checkout_count += 1; result } do
+      post settings_book_purchase_url, params: { parent_pin: "4826" }
+      assert_redirected_to "https://checkout.stripe.test/pay"
+
+      post settings_book_purchase_url
+      assert_redirected_to "https://checkout.stripe.test/pay"
+    end
+
+    assert_equal 2, checkout_count
+  end
+
+  test "an unlocked parent dashboard permits Checkout without another PIN" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    post parent_session_url, params: { pin: "4826" }
+    purchase = @user.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
+      idempotency_key: SecureRandom.uuid, livemode: false)
+    result = Payments::Checkout::Result.new(purchase: purchase, url: "https://checkout.stripe.test/pay")
+
+    Payments::Checkout.stub(:call, result) do
+      post settings_book_purchase_url
+    end
+
+    assert_redirected_to "https://checkout.stripe.test/pay"
+  end
+
+  test "an incorrect purchase PIN counts an attempt and blocks Checkout" do
+    control = @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    checkout_called = false
+
+    Payments::Checkout.stub :call, ->(**) { checkout_called = true } do
+      post settings_book_purchase_url, params: { parent_pin: "1111" }
+    end
+
+    assert_redirected_to settings_url
+    assert_equal "PIN is incorrect.", flash[:alert]
+    assert_not checkout_called
+    assert_equal 1, control.reload.failed_pin_attempts
+  end
+
+  test "a locked purchase PIN blocks Checkout and reports the lockout" do
+    control = @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826",
+      failed_pin_attempts: ParentControl::MAX_PIN_ATTEMPTS, locked_until: 10.minutes.from_now)
+    checkout_called = false
+
+    Payments::Checkout.stub :call, ->(**) { checkout_called = true } do
+      post settings_book_purchase_url, params: { parent_pin: "4826" }
+    end
+
+    assert_redirected_to settings_url
+    assert_equal "Too many incorrect attempts. Try again in 15 minutes or recover the PIN by email.", flash[:alert]
+    assert_not checkout_called
+    assert_predicate control.reload, :pin_locked?
+  end
+
+  test "a gift purchase that needs a PIN returns to the selected book" do
+    @user.create_parent_control!(enabled: true, pin: "4826", pin_confirmation: "4826")
+    book = @user.books.create!(name: "Protected gift", total_pages: 1,
+      generation_status: :completed, language: "en")
+
+    post settings_book_purchase_url, params: { gift_book_id: book.id }
+
+    assert_redirected_to payment_required_book_book_gifts_url(book)
+  end
+
   test "success only fulfills a Checkout session owned by the signed-in user" do
     purchase = @user.book_purchases.create!(status: "pending", product_id: BookPurchase::PRODUCT_ID,
       price_id: "price_test", stripe_checkout_session_id: "cs_owned", idempotency_key: SecureRandom.uuid,
