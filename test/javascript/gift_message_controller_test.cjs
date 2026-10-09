@@ -13,7 +13,8 @@ function controllerInstance(message = "English default") {
   const messages = {
     en: "English default",
     da: "Dansk standard",
-    el: "Ελληνικό προεπιλεγμένο μήνυμα"
+    el: "Ελληνικό προεπιλεγμένο μήνυμα",
+    es: "Mensaje predeterminado en español"
   }
   for (const locale of Object.keys(controller.constructor.values)) {
     controller[`${locale}Value`] = messages[locale]
@@ -43,6 +44,16 @@ test("changing language replaces an untouched default message with Greek", () =>
 
   assert.equal(controller.messageTarget.value, "Ελληνικό προεπιλεγμένο μήνυμα")
   assert.equal(controller.previewTarget.textContent, "Ελληνικό προεπιλεγμένο μήνυμα")
+})
+
+test("changing language replaces an untouched default message with Spanish", () => {
+  const controller = controllerInstance()
+  controller.languageTarget.value = "es"
+
+  controller.changeLanguage()
+
+  assert.equal(controller.messageTarget.value, "Mensaje predeterminado en español")
+  assert.equal(controller.previewTarget.textContent, "Mensaje predeterminado en español")
 })
 
 test("changing language preserves a customized message", () => {

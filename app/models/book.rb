@@ -46,8 +46,10 @@ class Book < ApplicationRecord
   validates :language, inclusion: { in: User::SUPPORTED_LANGUAGES.keys }
   validates :reader_age, numericality: { only_integer: true, in: 0..120 }, allow_nil: true
   validates :art_style, inclusion: { in: BookArtStyle.keys }
+  validates :book_font, inclusion: { in: BookFont.keys }
   validate :total_pages_within_tier_limit
   validate :art_style_is_immutable, on: :update
+  validate :book_font_is_immutable, on: :update
   validate :categories_are_known
 
   TIER_LIMITS = {
@@ -69,6 +71,10 @@ class Book < ApplicationRecord
 
   def art_style_prompt
     art_style_definition.prompt
+  end
+
+  def book_font_definition
+    BookFont.fetch(book_font)
   end
 
   def giftable?
@@ -361,6 +367,10 @@ class Book < ApplicationRecord
 
   def art_style_is_immutable
     errors.add(:art_style, "cannot be changed after the book is created") if will_save_change_to_art_style?
+  end
+
+  def book_font_is_immutable
+    errors.add(:book_font, "cannot be changed after the book is created") if will_save_change_to_book_font?
   end
 
   def apply_generation_preferences

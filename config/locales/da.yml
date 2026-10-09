@@ -458,6 +458,31 @@ da:
     form:
       language: Historiens sprog
       reader_age: Tiltænkt læsers alder (valgfrit)
+      wizard:
+        eyebrow: Lav en bog
+        introduction: Vælg læseoplevelsen og bogens udtryk, og fortæl så hvilken historie du ønsker.
+        steps_label: Trin til oprettelse af bog
+        steps:
+          reader: Læser
+          art_style: Tegnestil
+          font: Skrifttype
+          story: Historie
+          review: Gennemse
+        reader_hint: Vælg bogens sprog, læsealder og længde.
+        story_hint: Giv bogen en titel, og beskriv eventyret.
+        review_hint: Tjek alle valg, før historien og illustrationerne bliver lavet.
+        characters: Figurer
+        no_characters: Ingen figurer valgt
+        previous: Forrige
+        next: Næste
+        start_over: Start forfra
+        saved: Dine fremskridt er gemt i denne browser.
+        other_tab: Dette udkast blev ændret i en anden fane.
+        fix_errors: Gennemgå oplysningerne, før bogen bliver lavet.
+      font:
+        title: Vælg en skrifttype
+        hint: Denne skrifttype bruges til historieteksten i hele bogen.
+        sample: Der var engang et helt nyt eventyr…
       art_style:
         title: Vælg en tegnestil
         hint: Dette udtryk bruges i alle bogens illustrationer. Vælg et eksempel for at se det større.

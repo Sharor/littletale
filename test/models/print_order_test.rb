@@ -21,6 +21,7 @@ class PrintOrderTest < ActiveSupport::TestCase
   end
 
   test "starting an order retains the selected completed book" do
+    @book.update_column(:book_font, "eb_garamond")
     order = nil
     assert defined?(PrintOrder), "expected the physical-order model to exist"
 
@@ -28,6 +29,7 @@ class PrintOrderTest < ActiveSupport::TestCase
 
     assert_equal "The retained adventure", order.title
     assert_equal "en", order.language
+    assert_equal "eb_garamond", order.book_font
     assert_equal [ "Once upon a snapshot." ], order.print_order_pages.pluck(:text)
     assert_predicate order.print_order_pages.first.image, :attached?
   end

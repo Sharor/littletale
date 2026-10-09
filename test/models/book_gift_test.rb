@@ -86,9 +86,11 @@ class BookGiftTest < ActiveSupport::TestCase
   end
 
   test "issuing a gift snapshots the finished book and returns a raw token once" do
+    @book.update_column(:book_font, "inter")
     gift = BookGift.issue!(source_book: @book, sender: @sender, attributes: valid_attributes)
 
     assert_equal "The Paid Adventure", gift.title
+    assert_equal "inter", gift.book_font
     assert_equal [ "Once upon a paid-for time." ], gift.gift_pages.order(:position).pluck(:text)
     assert_not_nil gift.invitation_token
     assert_not_equal gift.invitation_token, gift.token_digest

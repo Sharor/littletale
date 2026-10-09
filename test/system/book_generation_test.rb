@@ -12,6 +12,46 @@ class BookGenerationTest < ApplicationSystemTestCase
 
   teardown { Warden.test_reset! }
 
+  test "the book wizard keeps its step and unfinished story after a refresh" do
+    visit new_book_url
+    page.execute_script("localStorage.clear()")
+    refresh
+
+    assert_selector "[data-step='reader']:not([hidden])"
+    select "English", from: "book_language"
+    fill_in "book_reader_age", with: "7"
+    fill_in "book_total_pages", with: "3"
+    click_button "Story"
+    fill_in "book_name", with: "The moonlit map"
+    fill_in "book_plot", with: "Two friends follow a silver trail through the forest."
+    click_button "Font"
+    find("label[for='book_book_font_inter']").click
+
+    saved_draft = JSON.parse(page.evaluate_script("localStorage.getItem('little-stories:book-wizard:#{users(:one).id}:v1')"))
+    assert_equal [ "inter" ], saved_draft.dig("fields", "book[book_font]")
+
+    refresh
+
+    assert_selector "[data-step='font']:not([hidden])"
+    assert_field "book_book_font_inter", checked: true, visible: :all
+    assert_field "book_name", with: "The moonlit map", visible: :all
+    assert_field "book_plot", with: "Two friends follow a silver trail through the forest.", visible: :all
+
+    refresh
+    assert_selector "[data-step='font']:not([hidden])"
+    assert_field "book_name", with: "The moonlit map", visible: :all
+    assert_field "book_plot", with: "Two friends follow a silver trail through the forest.", visible: :all
+
+    [ 375, 1440 ].each do |width|
+      page.current_window.resize_to(width, 1000)
+      assert_selector ".book-wizard-nav"
+      assert_selector "[data-step='font']:not([hidden])"
+      page.save_screenshot(Rails.root.join("tmp/screenshots/book-wizard-font-#{width}.png"))
+    end
+  ensure
+    page.execute_script("localStorage.clear()") if page.current_url
+  end
+
   test "the castle stays visible until the illustrated book is ready" do
     book = users(:one).books.create!(name: "Castle adventure", total_pages: 1)
 

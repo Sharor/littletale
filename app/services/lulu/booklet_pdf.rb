@@ -112,7 +112,7 @@ module Lulu
           position: :center
         )
         document.move_down 16
-        select_font(document, "Inter")
+        select_font(document, order.book_font_definition.pdf_family)
         document.fill_color "302820"
         render_text(document, :text, page.text, size: 11, leading: 4, align: :left)
       end

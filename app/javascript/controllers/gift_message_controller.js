@@ -2,10 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["language", "message", "preview"]
-  static values = { en: String, da: String, el: String }
+  static values = { en: String, da: String, el: String, es: String }
 
   connect() {
-    this.customized = ![this.enValue, this.daValue, this.elValue].includes(this.messageTarget.value)
+    this.customized = ![this.enValue, this.daValue, this.elValue, this.esValue].includes(this.messageTarget.value)
   }
 
   changeLanguage() {

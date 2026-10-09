@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_04_122000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_08_120000) do
   create_table "action_logs", force: :cascade do |t|
     t.string "trackable_type", null: false
     t.integer "trackable_id", null: false
@@ -107,6 +107,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_04_122000) do
     t.string "issuance_key", null: false
     t.text "invitation_token_ciphertext", null: false
     t.string "delivery_attempt_id"
+    t.string "book_font", default: "eb_garamond", null: false
     t.index ["issuance_key"], name: "index_book_gifts_on_issuance_key", unique: true
     t.index ["recipient_id", "claimed_at"], name: "index_book_gifts_on_recipient_id_and_claimed_at"
     t.index ["recipient_id"], name: "index_book_gifts_on_recipient_id"
@@ -190,6 +191,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_04_122000) do
     t.json "categories", default: [], null: false
     t.datetime "categorization_enqueued_at"
     t.datetime "deleted_at"
+    t.string "book_font", default: "eb_garamond", null: false
     t.index ["deleted_at"], name: "index_books_on_deleted_at"
     t.index ["user_id"], name: "index_books_on_user_id"
   end
@@ -505,6 +507,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_04_122000) do
     t.integer "checkout_revision", default: 1, null: false
     t.datetime "submission_attempted_at"
     t.json "submission_attempts", default: [], null: false
+    t.string "book_font", default: "inter", null: false
     t.index ["lulu_print_job_id"], name: "index_print_orders_on_lulu_print_job_id", unique: true
     t.index ["source_book_id"], name: "index_print_orders_on_source_book_id"
     t.index ["submission_uuid"], name: "index_print_orders_on_submission_uuid", unique: true

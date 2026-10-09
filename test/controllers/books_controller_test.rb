@@ -223,6 +223,36 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "new presents the generation form as five ordered wizard steps" do
+    get new_book_url
+
+    assert_response :success
+    assert_select "form[data-controller~='book-wizard'][data-book-wizard-allowed-character-ids-value][data-book-wizard-character-names-value]" do
+      assert_select "nav[aria-label='Book creation steps'] button[data-book-wizard-target='stepButton']", 5
+      assert_select "[data-book-wizard-target='step'][data-step='reader']", 1
+      assert_select "[data-book-wizard-target='step'][data-step='art-style']", 1
+      assert_select "[data-book-wizard-target='step'][data-step='font']", 1
+      assert_select "[data-book-wizard-target='step'][data-step='story']", 1
+      assert_select "[data-book-wizard-target='step'][data-step='review']", 1
+      assert_select "[data-book-wizard-target='characterReview']", 1
+    end
+
+    assert_equal %w[reader art-style font story review],
+      css_select("[data-book-wizard-target='step']").map { |step| step["data-step"] }
+  end
+
+  test "new presents each book font with EB Garamond selected" do
+    get new_book_url
+
+    assert_response :success
+    assert_select "fieldset[aria-labelledby='book-font-heading']" do
+      assert_select "input[type='radio'][name='book[book_font]']", count: 2
+      assert_select "input[type='radio'][name='book[book_font]'][value='eb_garamond'][checked]", count: 1
+      assert_select "label", text: /EB Garamond/
+      assert_select "label", text: /Inter/
+    end
+  end
+
   test "create clamps pages to the tier limit and queues generation" do
     assert_difference("Book.count", 1) do
       assert_enqueued_with(job: GenerateBookJob) do
@@ -358,6 +388,24 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
       art_style: "comic_book" } }
 
     assert_equal "comic_book", @user.books.find_by!(name: "Ink adventure").art_style
+  end
+
+  test "create persists the selected book font" do
+    post books_url, params: { book: { name: "Clean type adventure", plot: "A city rescue", total_pages: 3,
+      book_font: "inter" } }
+
+    assert_equal "inter", @user.books.find_by!(name: "Clean type adventure").book_font
+  end
+
+  test "create rejects an unknown book font and renders the wizard safely" do
+    assert_no_difference("Book.count") do
+      post books_url, params: { book: { name: "Invalid font", plot: "A city rescue", total_pages: 3,
+        book_font: "unknown_font" } }
+    end
+
+    assert_response :unprocessable_content
+    assert_select "form[data-controller~='book-wizard']"
+    assert_select "input[type='radio'][value='eb_garamond'][checked]"
   end
 
   test "create rejects an unknown art style and renders the form safely" do

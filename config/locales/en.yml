@@ -193,7 +193,7 @@ en:
           answer: MinorTale uses AI to turn your characters and plot into story text and illustrations. You choose the characters, language, and visual style.
         language:
           question: Which languages can I use?
-          answer: You can create stories in English, Danish, or Greek.
+          answer: You can create stories in English, Danish, Greek, or Spanish.
         photo:
           question: Do I need a photo?
           answer: No. You can upload a photo or create the character from a written description.
@@ -540,6 +540,31 @@ en:
     form:
       language: Story language
       reader_age: Intended reader age (optional)
+      wizard:
+        eyebrow: Create a book
+        introduction: Shape the reading experience, choose its look, then tell us the story you want to make.
+        steps_label: Book creation steps
+        steps:
+          reader: Reader
+          art_style: Art style
+          font: Font
+          story: Story
+          review: Review
+        reader_hint: Choose the language, reading age, and length of the book.
+        story_hint: Give your book a title and describe the adventure.
+        review_hint: Check every choice before the story and illustrations are generated.
+        characters: Characters
+        no_characters: No characters selected
+        previous: Previous
+        next: Next
+        start_over: Start over
+        saved: Progress saved in this browser.
+        other_tab: This draft was changed in another tab.
+        fix_errors: Please review the highlighted details before generating your book.
+      font:
+        title: Choose a font
+        hint: This typeface will be used for the story text throughout your book.
+        sample: Once upon a time, a new adventure began…
       art_style:
         title: Choose an art style
         hint: This look will guide every illustration in your book. Select a sample to see it larger.

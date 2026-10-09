@@ -19,3 +19,10 @@ el:
       empty: Δεν υπάρχουν διαγραμμένοι χαρακτήρες.
       restore: Επαναφορά χαρακτήρα
       restored: Ο χαρακτήρας επαναφέρθηκε.
+es:
+  admin:
+    characters:
+      title: Personajes eliminados
+      empty: No hay personajes eliminados.
+      restore: Restaurar personaje
+      restored: El personaje se ha restaurado.

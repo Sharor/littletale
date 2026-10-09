@@ -1,122 +1,208 @@
 <div class="fable-layout">
   <%= render "layouts/sidebar" %>
 
-  <main class="fable-main fable-ui">
-    <h1 class="text-2xl font-bold mb-4"><%= t("books.new.title") %></h1>
+  <main class="fable-main fable-ui fable-book-wizard-page">
+    <header class="book-wizard-heading">
+      <p class="book-wizard-eyebrow"><%= t("books.form.wizard.eyebrow") %></p>
+      <h1><%= t("books.new.title") %></h1>
+      <p><%= t("books.form.wizard.introduction") %></p>
+    </header>
 
-    <%= form_with model: @book, class: "fable-panel fable-book-form space-y-4" do |f| %>
+    <% error_fields = @book.errors.attribute_names %>
+    <% initial_step = if (error_fields & %i[language reader_age total_pages]).any?
+      0
+    elsif error_fields.include?(:art_style)
+      1
+    elsif error_fields.include?(:book_font)
+      2
+    elsif (error_fields & %i[name plot]).any?
+      3
+    elsif @book.errors.any?
+      4
+    else
+      0
+    end %>
+    <% wizard_steps = %w[reader art_style font story review] %>
+
+    <%= form_with model: @book,
+      class: "fable-panel fable-book-form book-wizard",
+      html: { novalidate: true },
+      data: {
+        controller: "book-wizard",
+        action: "input->book-wizard#save change->book-wizard#save submit->book-wizard#submit turbo:submit-end->book-wizard#submissionEnded",
+        "book-wizard-user-key-value": current_user.id,
+        "book-wizard-initial-step-value": initial_step,
+        "book-wizard-errors-value": @book.errors.any?,
+        "book-wizard-explicit-characters-value": params.key?(:character_ids),
+        "book-wizard-allowed-character-ids-value": @ready_character_ids.to_json,
+        "book-wizard-character-names-value": @ready_character_names.to_json,
+        "book-wizard-no-characters-text-value": t("books.form.wizard.no_characters"),
+        "book-wizard-new-url-value": new_book_path,
+        "book-wizard-saved-text-value": t("books.form.wizard.saved"),
+        "book-wizard-other-tab-text-value": t("books.form.wizard.other_tab")
+      } do |f| %>
       <% if @book.errors.any? %>
-        <div role="alert" class="rounded border border-red-300/40 bg-red-950/40 p-3 text-red-100">
+        <div role="alert" class="book-wizard-errors">
+          <p><%= t("books.form.wizard.fix_errors") %></p>
           <ul>
-            <% @book.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
+            <% @book.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
           </ul>
         </div>
       <% end %>
 
-      <div>
-        <%= f.label :name, class: "fable-form-label block" %>
-        <%= f.text_field :name, class: "bg-gray-800 text-white rounded p-2 w-full" %>
-      </div>
+      <nav class="book-wizard-nav" data-book-wizard-target="nav" aria-label="<%= t("books.form.wizard.steps_label") %>">
+        <ol>
+          <% wizard_steps.each_with_index do |step, index| %>
+            <li>
+              <button type="button" data-book-wizard-target="stepButton" data-step-index="<%= index %>"
+                data-action="book-wizard#goTo" aria-controls="book-wizard-<%= step.dasherize %>">
+                <span><%= index + 1 %></span><%= t("books.form.wizard.steps.#{step}") %>
+              </button>
+            </li>
+          <% end %>
+        </ol>
+      </nav>
 
-      <div>
-        <%= f.label :plot, class: "fable-form-label block" %>
-        <%= f.text_area :plot, class: "bg-gray-800 text-white rounded p-2 w-full", rows: 5 %>
-      </div>
+      <p class="book-wizard-save-status" data-book-wizard-target="status" aria-live="polite"></p>
 
-      <div>
-        <%= f.label :language, t("books.form.language"), class: "fable-form-label block" %>
-        <%= f.select :language, User::SUPPORTED_LANGUAGES.map { |code, name| [name, code] }, {},
-          class: "bg-gray-800 text-white rounded p-2 w-full" %>
-      </div>
+      <section id="book-wizard-reader" class="book-wizard-step" data-step="reader"
+        data-book-wizard-target="step" aria-labelledby="book-wizard-reader-heading">
+        <div class="book-wizard-step-heading"><span>01</span><div>
+          <h2 id="book-wizard-reader-heading"><%= t("books.form.wizard.steps.reader") %></h2>
+          <p><%= t("books.form.wizard.reader_hint") %></p>
+        </div></div>
+        <div class="book-wizard-field-grid">
+          <div>
+            <%= f.label :language, t("books.form.language"), class: "fable-form-label block" %>
+            <%= f.select :language, User::SUPPORTED_LANGUAGES.map { |code, name| [name, code] }, {}, class: "book-wizard-input", required: true %>
+          </div>
+          <div>
+            <%= f.label :reader_age, t("books.form.reader_age"), class: "fable-form-label block" %>
+            <%= f.number_field :reader_age, min: 0, max: 120, class: "book-wizard-input" %>
+          </div>
+        </div>
+        <% limit = @book.tier_limit %>
+        <div class="book-wizard-length">
+          <%= f.label :total_pages, t("books.form.length"), class: "fable-form-label block" %>
+          <div class="book-wizard-length-row">
+            <%= f.number_field :total_pages, max: limit, min: 1, required: true, class: "book-wizard-input book-wizard-page-count" %>
+            <% if limit %><span><%= t("books.form.maximum") %>: <strong><%= t("books.form.pages", count: limit) %></strong>
+              (<%= t("books.form.tier", tier: current_user.tier.to_s.capitalize) %>)</span><% end %>
+          </div>
+          <% if limit && current_user.tier != "premium" %>
+            <p class="book-wizard-upgrade"><%= t("books.form.want_more") %> <a href="/pricing"><%= t("books.form.upgrade") %></a></p>
+          <% end %>
+        </div>
+      </section>
 
-      <div>
-        <%= f.label :reader_age, t("books.form.reader_age"), class: "fable-form-label block" %>
-        <%= f.number_field :reader_age, min: 0, max: 120,
-          class: "bg-gray-800 text-white rounded p-2 w-full" %>
-      </div>
-
-      <% selected_style = BookArtStyle.find(@book.art_style) || BookArtStyle.default %>
-      <section class="art-style-section" data-controller="art-style-picker">
-        <h2 id="book-art-style-heading" class="fable-form-label"><%= t("books.form.art_style.title") %></h2>
-        <fieldset class="art-style-picker" aria-labelledby="book-art-style-heading">
-          <legend class="sr-only"><%= t("books.form.art_style.title") %></legend>
-          <p class="art-style-picker-intro"><%= t("books.form.art_style.hint") %></p>
-
-          <div class="art-style-picker-layout">
-            <figure class="art-style-featured">
-              <div class="art-style-featured-frame">
-                <%= image_tag selected_style.preview,
-                  alt: t("books.form.art_style.preview_alt", style: selected_style.name),
-                  data: { art_style_picker_target: "preview" } %>
+      <section id="book-wizard-art-style" class="book-wizard-step" data-step="art-style"
+        data-book-wizard-target="step" data-controller="art-style-picker" aria-labelledby="book-art-style-heading">
+        <div class="book-wizard-step-heading"><span>02</span><div>
+          <h2 id="book-art-style-heading" class="fable-form-label"><%= t("books.form.art_style.title") %></h2>
+          <p><%= t("books.form.art_style.hint") %></p>
+        </div></div>
+        <% selected_style = BookArtStyle.find(@book.art_style) || BookArtStyle.default %>
+        <div class="art-style-section">
+          <fieldset class="art-style-picker" aria-labelledby="book-art-style-heading">
+            <legend class="sr-only"><%= t("books.form.art_style.title") %></legend>
+            <div class="art-style-picker-layout">
+              <figure class="art-style-featured">
+                <div class="art-style-featured-frame"><%= image_tag selected_style.preview,
+                  alt: t("books.form.art_style.preview_alt", style: selected_style.name), data: { art_style_picker_target: "preview" } %></div>
+                <figcaption><span><%= t("books.form.art_style.selected") %></span>
+                  <strong data-art-style-picker-target="name" aria-live="polite"><%= selected_style.name %></strong></figcaption>
+              </figure>
+              <div class="art-style-options">
+                <% BookArtStyle.all.each do |style| %>
+                  <div class="art-style-option">
+                    <%= f.radio_button :art_style, style.key, class: "art-style-option-input",
+                      checked: style.key == selected_style.key, required: true,
+                      data: { action: "change->art-style-picker#select", preview: image_path(style.preview),
+                        name: style.name, review_label: style.name,
+                        alt: t("books.form.art_style.preview_alt", style: style.name) } %>
+                    <%= f.label :art_style, value: style.key, class: "art-style-option-card" do %>
+                      <span class="art-style-option-image"><%= image_tag style.preview, alt: "", loading: "lazy", decoding: "async" %></span>
+                      <span class="art-style-option-name"><%= style.name %></span>
+                      <span class="art-style-option-check" aria-hidden="true">✓</span>
+                    <% end %>
+                  </div>
+                <% end %>
               </div>
-              <figcaption>
-                <span><%= t("books.form.art_style.selected") %></span>
-                <strong data-art-style-picker-target="name" aria-live="polite"><%= selected_style.name %></strong>
-              </figcaption>
-            </figure>
+            </div>
+          </fieldset>
+        </div>
+      </section>
 
-            <div class="art-style-options">
-              <% BookArtStyle.all.each do |style| %>
-                <div class="art-style-option">
-                  <%= f.radio_button :art_style, style.key,
-                    class: "art-style-option-input",
-                    checked: style.key == selected_style.key,
-                    data: {
-                      action: "change->art-style-picker#select",
-                      preview: image_path(style.preview),
-                      name: style.name,
-                      alt: t("books.form.art_style.preview_alt", style: style.name)
-                    } %>
-                  <%= f.label :art_style, value: style.key, class: "art-style-option-card" do %>
-                    <span class="art-style-option-image">
-                      <%= image_tag style.preview, alt: "", loading: "lazy", decoding: "async" %>
-                    </span>
-                    <span class="art-style-option-name"><%= style.name %></span>
-                    <span class="art-style-option-check" aria-hidden="true">✓</span>
-                  <% end %>
-                </div>
+      <section id="book-wizard-font" class="book-wizard-step" data-step="font"
+        data-book-wizard-target="step" aria-labelledby="book-font-heading">
+        <div class="book-wizard-step-heading"><span>03</span><div>
+          <h2 id="book-font-heading"><%= t("books.form.font.title") %></h2>
+          <p><%= t("books.form.font.hint") %></p>
+        </div></div>
+        <% selected_font = BookFont.find(@book.book_font) || BookFont.default %>
+        <fieldset class="book-font-picker" aria-labelledby="book-font-heading">
+          <legend class="sr-only"><%= t("books.form.font.title") %></legend>
+          <% BookFont.all.each do |font| %>
+            <div class="book-font-option">
+              <%= f.radio_button :book_font, font.key, class: "book-font-option-input",
+                checked: font.key == selected_font.key, required: true, data: { review_label: font.name } %>
+              <%= f.label :book_font, value: font.key, class: "book-font-option-card #{font.css_class}" do %>
+                <span class="book-font-option-name"><%= font.name %></span>
+                <span class="book-font-option-sample"><%= t("books.form.font.sample") %></span>
+                <span class="book-font-option-check" aria-hidden="true">✓</span>
               <% end %>
             </div>
-          </div>
+          <% end %>
         </fieldset>
       </section>
 
-   <% limit = @book.tier_limit %> 
+      <section id="book-wizard-story" class="book-wizard-step" data-step="story"
+        data-book-wizard-target="step" aria-labelledby="book-wizard-story-heading">
+        <div class="book-wizard-step-heading"><span>04</span><div>
+          <h2 id="book-wizard-story-heading"><%= t("books.form.wizard.steps.story") %></h2>
+          <p><%= t("books.form.wizard.story_hint") %></p>
+        </div></div>
+        <div class="book-wizard-story-fields">
+          <div><%= f.label :name, class: "fable-form-label block" %>
+            <%= f.text_field :name, class: "book-wizard-input", required: true, autocomplete: "off" %></div>
+          <div><%= f.label :plot, class: "fable-form-label block" %>
+            <%= f.text_area :plot, class: "book-wizard-input", rows: 7 %></div>
+        </div>
+      </section>
 
-  <div class="space-y-2">
-    <%= f.label :total_pages, t("books.form.length"), class: "fable-form-label block" %>
-    
-    <div class="flex flex-wrap items-center gap-4">
-      <%= f.number_field :total_pages, 
-          max: limit, 
-          min: 1, 
-          class: "w-24 bg-gray-900 border-gray-700 rounded text-center focus:ring-yellow-500",
-          data: { action: "change->form#updateLimitHint" } %>
-      
-      <% if limit %>
-        <span class="text-sm text-gray-400">
-          <%= t("books.form.maximum") %>: <strong class="text-yellow-500"><%= t("books.form.pages", count: limit) %></strong>
-          (<%= t("books.form.tier", tier: current_user.tier.capitalize) %>)
-        </span>
-      <% end %>
-    </div>
-
-    <% if limit && current_user.tier != "premium" %>
-      <p class="text-xs italic text-blue-400">
-        <%= t("books.form.want_more") %> <a href="/pricing" class="underline"><%= t("books.form.upgrade") %></a>
-      </p>
-    <% end %>
-  </div>
+      <section id="book-wizard-review" class="book-wizard-step" data-step="review"
+        data-book-wizard-target="step" aria-labelledby="book-wizard-review-heading">
+        <div class="book-wizard-step-heading"><span>05</span><div>
+          <h2 id="book-wizard-review-heading"><%= t("books.form.wizard.steps.review") %></h2>
+          <p><%= t("books.form.wizard.review_hint") %></p>
+        </div></div>
+        <dl class="book-wizard-review">
+          <% { "language" => t("books.form.language"), "reader_age" => t("books.form.reader_age"),
+            "total_pages" => t("books.form.length"), "art_style" => t("books.form.art_style.title"),
+            "book_font" => t("books.form.font.title"), "name" => Book.human_attribute_name(:name),
+            "plot" => Book.human_attribute_name(:plot) }.each do |field, label| %>
+            <div><dt><%= label %></dt><dd data-book-wizard-target="review" data-review-field="<%= field %>"></dd></div>
+          <% end %>
+          <div><dt><%= t("books.form.wizard.characters") %></dt>
+            <dd data-book-wizard-target="characterReview"><%= @book.characters.map(&:name).to_sentence.presence || t("books.form.wizard.no_characters") %></dd></div>
+        </dl>
+      </section>
 
       <% @book.character_ids.each do |id| %>
-        <%= f.hidden_field :character_ids, multiple: true, value: id %>
+        <%= f.hidden_field :character_ids, multiple: true, value: id,
+          data: { book_character_id: true, review_label: @ready_character_names[id.to_s] } %>
       <% end %>
 
-      <div>
-        <%= f.submit t("books.form.create"), class: "bg-blue-600 px-4 py-2 rounded cursor-pointer" %>
-      </div>
+      <footer class="book-wizard-actions">
+        <button type="button" class="book-wizard-reset" data-action="book-wizard#reset"><%= t("books.form.wizard.start_over") %></button>
+        <div>
+          <button type="button" class="book-wizard-secondary" hidden data-book-wizard-target="previous"
+            data-action="book-wizard#previous"><%= t("books.form.wizard.previous") %></button>
+          <button type="button" class="book-wizard-primary" hidden data-book-wizard-target="next"
+            data-action="book-wizard#next"><%= t("books.form.wizard.next") %></button>
+          <%= f.submit t("books.form.create"), class: "book-wizard-primary", data: { book_wizard_target: "submit" } %>
+        </div>
+      </footer>
     <% end %>
   </main>
 </div>

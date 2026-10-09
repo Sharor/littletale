@@ -14,7 +14,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       assert_select "#how-it-works .landing-step", count: 3
       assert_select "#questions details", minimum: 6
       assert_select "#questions", text: /uses AI to turn your characters and plot into story text and illustrations/
-      assert_select "#questions", text: /English, Danish, or Greek/
+      assert_select "#questions", text: /English, Danish, Greek, or Spanish/
     end
     assert_select "nav.fable-public-nav[aria-label='Main navigation']", count: 1 do
       assert_select "a[href='#stories']", "Sample stories"

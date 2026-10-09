@@ -44,4 +44,15 @@ class Admin::CharactersControllerTest < ActionDispatch::IntegrationTest
     get characters_path
     assert_select "#character_#{character.id}"
   end
+
+  test "an admin can manage deleted characters in Spanish" do
+    admin = users(:three)
+    admin.update!(admin: true, language: "es")
+    sign_in admin
+
+    get admin_characters_url
+
+    assert_response :success
+    assert_select "h1", "Personajes eliminados"
+  end
 end

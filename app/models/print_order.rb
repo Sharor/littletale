@@ -19,6 +19,7 @@ class PrintOrder < ApplicationRecord
   validates :step, numericality: { only_integer: true, in: 1..3 }
   validates :content_revision, numericality: { only_integer: true, greater_than: 0 }
   validates :pod_package_id, inclusion: { in: [ POD_PACKAGE_ID ] }
+  validates :book_font, inclusion: { in: BookFont.keys }
   with_options on: :delivery do
     validates :recipient_name, :street1, :city, :postcode, :country_code, :recipient_email, :phone_number,
       presence: true
@@ -36,6 +37,7 @@ class PrintOrder < ApplicationRecord
         source_book: book,
         title: book.name,
         language: book.language,
+        book_font: book.book_font,
         pod_package_id: POD_PACKAGE_ID
       )
       pages.each_with_index do |page, index|
@@ -60,6 +62,10 @@ class PrintOrder < ApplicationRecord
 
   def gift_preparable?
     false
+  end
+
+  def book_font_definition
+    BookFont.fetch(book_font)
   end
 
   def self.eligible_book?(user:, book:)

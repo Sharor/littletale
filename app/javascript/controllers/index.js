@@ -10,6 +10,7 @@ import GiftMessageController from "./gift_message_controller"
 import GiftModalController from "./gift_modal_controller"
 import ParentRestrictionController from "./parent_restriction_controller"
 import ConfirmationDialogController from "./confirmation_dialog_controller"
+import BookWizardController from "./book_wizard_controller"
 
 
 application.register("image-upload", ImageUploadController)
@@ -19,6 +20,7 @@ application.register("gift-message", GiftMessageController)
 application.register("gift-modal", GiftModalController)
 application.register("parent-restriction", ParentRestrictionController)
 application.register("confirmation-dialog", ConfirmationDialogController)
+application.register("book-wizard", BookWizardController)
 
 import CharacterDeleteController from "./character_delete_controller"
 application.register("character-delete", CharacterDeleteController)

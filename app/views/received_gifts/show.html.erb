@@ -2,8 +2,8 @@
   <%= render "layouts/sidebar" %>
 
   <main class="fable-reader-main">
-    <div class="book-container">
-      <div id="storybook">
+    <div class="book-container <%= @gift.book_font_definition.css_class %>">
+      <div id="storybook" data-book-font="<%= @gift.book_font %>">
         <div class="page page-cover page-cover-top" data-density="hard">
           <div class="page-content">
             <p class="library-eyebrow"><%= t("book_gifts.invitation.from", sender: @gift.sender_callname) %></p>

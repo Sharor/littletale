@@ -1,7 +1,8 @@
 <% reader_back_path = local_assigns.fetch(:reader_back_path, books_path) %>
 <% reader_back_label = local_assigns.fetch(:reader_back_label, t("books.reader.back_to_library")) %>
-<div class="book-container">
-  <div id="storybook">
+<% selected_font = book.respond_to?(:book_font_definition) ? book.book_font_definition : BookFont.default %>
+<div class="book-container <%= selected_font.css_class %>">
+  <div id="storybook" data-book-font="<%= selected_font.key %>">
     <div class="page page-cover page-cover-top" data-density="hard">
     <div class="bookmark-ribbon"></div>
     <div class="page-content"> 

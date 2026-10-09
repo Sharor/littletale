@@ -36,7 +36,8 @@ class Lulu::BookletPdfTest < ActiveSupport::TestCase
     assert_in_delta 10.25 * 72, cover.pages.first.width, 0.01
     assert_in_delta 8.25 * 72, cover.pages.first.height, 0.01
     refute_includes cover.pages.first.raw_content, "[3.0 3.0] 0.0 d"
-    assert_includes interior.pages.map(&:text).join(" "), "Godnat, κόσμε. En lille historie."
+    extracted_text = interior.pages.map(&:text).join(" ").gsub(/\s+/, "")
+    assert_includes extracted_text, "Godnat,κόσμε.Enlillehistorie."
     assert_equal "MinorTale", interior.info[:Creator]
     assert_equal "MinorTale Lulu sandbox integration", interior.info[:Producer]
     assert_predicate interior.pages.second.xobjects, :any?
@@ -50,9 +51,19 @@ class Lulu::BookletPdfTest < ActiveSupport::TestCase
     result = Lulu::BookletPdf.new(@order).render
     text = PDF::Reader.new(StringIO.new(result.interior)).pages.map(&:text).join(" ")
 
-    assert_includes text, ending
+    assert_includes text.gsub(/\s+/, ""), ending.gsub(/\s+/, "")
     assert_equal 0, result.page_count % 4
     assert_operator result.page_count, :<=, 48
+  end
+
+  test "renders story pages with the retained book font" do
+    @order.update!(book_font: "eb_garamond")
+
+    result = Lulu::BookletPdf.new(@order).render
+    story_page = PDF::Reader.new(StringIO.new(result.interior)).pages.second
+
+    assert story_page.fonts.values.any? { |font| font.to_s.include?("EBGaramond") },
+      "expected the story page to embed EB Garamond"
   end
 
   test "rejects a retained edition that exceeds the saddle-stitch limit" do

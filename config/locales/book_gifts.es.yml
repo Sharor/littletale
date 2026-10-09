@@ -1,0 +1,67 @@
+es:
+  navigation:
+    gifts: Regalos
+  book_gifts:
+    created: Tu regalo está listo para compartir.
+    trial_converted: Este libro ya está pagado y listo para regalar. Se ha devuelto tu plaza de libro de prueba.
+    confirm_trial_credit: Esto utilizará un crédito de libro y devolverá tu plaza de libro de prueba. ¿Continuar?
+    credit_confirmation:
+      eyebrow: Libro de prueba
+      title: ¿Usar un crédito de libro?
+      explanation: Esto utilizará un crédito de libro y devolverá tu plaza de libro de prueba.
+      confirm: Usar crédito y continuar
+    modal:
+      cancel: Cancelar
+      close: Cerrar
+    payment_required:
+      eyebrow: Se necesita un libro de pago
+      title: Compra el libro «%{title}» para enviarlo como regalo
+      explanation: Los libros de prueba deben pagarse antes de poder compartirlos. El libro original seguirá en tu biblioteca y se devolverá cualquier plaza de libro de prueba reservada.
+      purchase_includes: La compra incluye un crédito de libro y cinco generaciones de personajes.
+      buy: Comprar el libro
+      back: Volver a la biblioteca
+    claimed: El libro se ha añadido a tus regalos.
+    delivery_retried: El correo del regalo se ha vuelto a poner en cola.
+    delivery_failed: El correo del regalo no pudo ponerse en cola.
+    retry_delivery: Intentar enviar el correo de nuevo
+    delivery_status:
+      not_sent: El enlace privado está listo para compartir.
+      queued: El correo del regalo está en cola.
+      sent: Resend ha aceptado el correo del regalo para entregarlo.
+      failed: "La entrega del correo falló: %{error}"
+    default_message: He creado esta aventura especialmente para ti. ¡Espero que te encante!
+    new:
+      eyebrow: Una historia para atesorar
+      title: Regalar %{title}
+      introduction: Escribe una pequeña tarjeta y elige si quieres enviarla ahora o copiar el enlace privado.
+      recipient_name: Nombre del destinatario
+      recipient_email: Dirección de Gmail del destinatario
+      gmail_hint: Por ahora, solo Gmail. Introduce la dirección exacta que usa para su cuenta de Google.
+      sender_callname: Tu nombre
+      language: Idioma del regalo
+      message: Mensaje de la tarjeta
+      preview: Vista previa de la tarjeta
+      send: Enviar correo del regalo
+      link: Crear enlace para compartir
+    invitation:
+      eyebrow: Un regalo para ti
+      title: Has recibido %{title}
+      from: De %{sender}
+      sign_in: Inicia sesión con la cuenta de Google invitada para abrir tu regalo
+      sign_in_explanation: Esta historia privada se creó para ti. Usa la cuenta de Google invitada para que MinorTale pueda colocarla de forma segura en tus regalos.
+      claim: Añadir este libro a mis regalos
+      switch_account: Iniciar sesión con otra cuenta de Google
+      wrong_account: Inicia sesión con la cuenta de Gmail invitada para abrir este regalo.
+      unverified: Cierra sesión e inicia sesión de nuevo con Google para verificar el correo invitado.
+      share_label: Enlace privado del regalo
+    received:
+      eyebrow: Pequeños regalos
+      title: Regalos que has recibido
+      empty: Todavía no se ha regalado ningún libro a esta cuenta.
+      read: Leer
+      back: Volver a tus regalos
+    mailer:
+      subject: ¡Has recibido un regalo de %{sender}!
+      greeting: Hola, %{name}. ¡Tienes un regalo de MinorTale!
+      open_gift: Crea una cuenta o inicia sesión para abrir tu regalo
+      closing: Un abrazo de tus amigos de MinorTale y de %{sender}

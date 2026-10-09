@@ -86,6 +86,38 @@ class BookTest < ActiveSupport::TestCase
     assert_equal "comic_book", book.reload.art_style
   end
 
+  test "new books default to EB Garamond" do
+    book = Book.new(user: users(:one), name: "New tale", total_pages: 1)
+
+    assert_equal "eb_garamond", book.book_font
+    assert_predicate book, :valid?
+  end
+
+  test "rejects unknown book fonts" do
+    book = Book.new(user: users(:one), name: "New tale", total_pages: 1, book_font: "made_up_font")
+
+    assert_not book.valid?
+    assert_includes book.errors[:book_font], "is not included in the list"
+  end
+
+  test "keeps the chosen book font fixed after creation" do
+    book = Book.create!(user: users(:one), name: "New tale", total_pages: 1, book_font: "inter")
+
+    assert_not book.update(book_font: "eb_garamond")
+    assert_includes book.errors[:book_font], "cannot be changed after the book is created"
+    assert_equal "inter", book.reload.book_font
+  end
+
+  test "the reader marks story pages with the chosen book font" do
+    book = Book.create!(user: users(:one), name: "Typeset tale", total_pages: 1, book_font: "inter")
+
+    html = ApplicationController.render(partial: "books/render_book", locals: { book: book })
+    fragment = Nokogiri::HTML.fragment(html)
+
+    assert fragment.at_css(".book-container.book-font-inter")
+    assert_equal "inter", fragment.at_css("#storybook")["data-book-font"]
+  end
+
   test "broadcasts book status in the owner's language" do
     book = books(:one)
     book.user.update!(language: "da")

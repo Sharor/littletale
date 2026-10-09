@@ -1,0 +1,171 @@
+es:
+  navigation:
+    orders: Pedidos
+  print_orders:
+    index:
+      eyebrow: Entorno de pruebas de Lulu
+      title: Pedidos de libros
+      introduction: Convierte una de tus historias terminadas en un recuerdo impreso.
+      empty: Inicia un pedido eligiendo uno de tus libros terminados.
+      new: Iniciar pedido de libro
+      resume: Reanudar pedido
+      view: Ver pedido
+    steps:
+      label: Pasos del pedido
+      book: Elegir libro
+      delivery: Entrega
+      print: Impresión y revisión
+    new:
+      eyebrow: Paso 1 de 3
+      title: Elige tu libro
+      introduction: Elige una historia terminada y completamente ilustrada. Guardaremos esta edición antes de continuar.
+      pages:
+        one: 1 página de historia
+        other: "%{count} páginas de historia"
+      choose: Guardar libro seleccionado
+      empty: No hay libros terminados y completamente ilustrados disponibles para imprimir.
+    show:
+      eyebrow: Edición seleccionada
+      introduction: Lee la edición guardada antes de continuar para comprobar que es la historia correcta.
+      pages:
+        one: 1 página de historia guardada
+        other: "%{count} páginas de historia guardadas"
+      read: Leer libro guardado
+      continue: Continuar a la entrega
+    address:
+      eyebrow: Paso 2 de 3
+      title: Dirección de entrega
+      introduction: Introduce la dirección que Lulu debe usar para este pedido de prueba.
+      fields:
+        recipient_name: Nombre del destinatario
+        street1: Dirección, línea 1
+        street2: Dirección, línea 2 (opcional)
+        city: Ciudad
+        postcode: Código postal
+        country_code: Código de país
+        state_code: Estado o región
+        recipient_email: Correo electrónico del destinatario
+        phone_number: Número de teléfono
+      state_help: Usa un código de país de dos letras. El estado o la región son obligatorios para Estados Unidos, Canadá y Australia.
+      back: Volver al libro
+      continue: Continuar a las opciones de impresión
+    options:
+      eyebrow: Paso 3 de 3 · Entorno de pruebas de Lulu
+      title: Elige el formato de impresión
+      introduction: Revisa la historia guardada, la dirección de entrega y el formato de folleto compatible.
+      read: Leer libro guardado
+      delivery: Dirección de entrega
+      edit_address: Editar dirección
+      only_format: Formato disponible
+      format_title: Folleto en color prémium
+      size: Tamaño
+      inches: pulgadas
+      quality: Calidad
+      premium_color: Color prémium
+      binding: Encuadernación
+      saddle_stitch: Grapado a caballete
+      paper: Papel
+      uncoated_white: Blanco sin estucar de 60 lb
+      finish: Acabado de la cubierta
+      glossy: Brillante
+      preview_title: Vista previa de impresión
+      preview_help: Genera los PDF para revisar cada página impresa antes de solicitar un presupuesto.
+      prepare: Generar vista previa de impresión
+      page_count:
+        one: 1 página interior
+        other: "%{count} páginas interiores"
+      blank_page_count:
+        one: 1 página en blanco necesaria para la encuadernación
+        other: "%{count} páginas en blanco necesarias para la encuadernación"
+      preview_interior: Vista previa del PDF interior
+      preview_cover: Vista previa del PDF de cubierta
+      shipping_title: Validación y entrega de Lulu
+      asset_host_missing: Configura un host público HTTPS para los recursos antes de que Lulu pueda validar estos PDF.
+      validation_help: Solicita al entorno de pruebas de Lulu que valide ambos PDF y devuelva las opciones de entrega para esta dirección.
+      validate: Validar archivos y buscar entrega
+      validating: Lulu está validando los archivos de impresión. Esta página mostrará las opciones de entrega cuando termine la validación.
+      shipping_legend: Método de entrega
+      business_days: "%{min}–%{max} días laborables"
+      request_quote: Calcular precio exacto
+      quoting: Lulu está calculando el precio, los impuestos y el coste de entrega.
+      printing: Impresión del libro
+      fulfillment: Preparación
+      provider_fee: "%{fee}"
+      shipping_cost: Entrega
+      discount: Descuento
+      tax: Impuestos
+      total: Total
+      sandbox_label: Pedido del entorno de pruebas de Lulu
+      order_title: Realizar y seguir el pedido
+      sandbox_warning: Esto crea un pedido sin pagar en el entorno de pruebas de Lulu. Revisa los PDF, la dirección, el método de entrega y el total antes de continuar.
+      place_order: Realizar pedido de prueba
+      submitting: Se está creando el pedido de prueba. No vuelvas a enviarlo.
+      lulu_job_id: "Trabajo de Lulu n.º %{id}"
+      refresh_status: Actualizar estado de Lulu
+      retry_submission: Revisar y reintentar
+    shipping_levels:
+      mail: Correo
+      priority_mail: Correo prioritario
+      ground_hd: Entrega terrestre a domicilio
+      ground_bus: Entrega terrestre a empresas
+      ground: Terrestre
+      expedited: Urgente
+      express: Exprés
+    reader:
+      back: Volver al pedido
+    status:
+      draft: Borrador
+      preparing: Preparando archivos
+      prepared: Archivos listos
+      failed: Requiere atención
+      validating: Validando archivos
+      selecting_shipping: Elegir entrega
+      quoting: Calculando precio
+      quoted: Presupuesto listo
+      submitting: Creando pedido de prueba
+      submitted: Enviado
+      submission_uncertain: Comprobando envío
+      submission_needs_review: Requiere revisión manual
+      submission_failed: El envío falló
+      quote_changed: El presupuesto cambió
+    provider_statuses:
+      created: Lulu está validando el pedido
+      unpaid: En espera del pago de prueba
+      payment_in_progress: Pago de prueba en curso
+      production_ready: Listo para producción
+      production_delayed: Producción retrasada
+      in_production: En producción
+      rejected: Rechazado por Lulu
+      error: Lulu ha informado de un error
+      shipped: Enviado
+      canceled: Cancelado
+    notices:
+      preparing: Se está preparando tu vista previa de impresión.
+      validating: Ha comenzado la validación en el entorno de pruebas de Lulu.
+      quoting: El entorno de pruebas de Lulu está calculando el precio exacto.
+      submitting: Se está creando el pedido en el entorno de pruebas de Lulu.
+      refreshing_status: La actualización del estado de Lulu se ha puesto en cola.
+      retry_submission: El intento rechazado se conserva. Vuelve a validar y solicita un presupuesto nuevo antes de confirmar otra vez.
+    errors:
+      ineligible_book: Elige uno de tus libros terminados y completamente ilustrados.
+      complete_address: Completa la dirección de entrega antes de elegir las opciones de impresión.
+      preparation_queue: La vista previa de impresión no pudo ponerse en cola. Inténtalo de nuevo.
+      preparation_failed: La vista previa de impresión no pudo generarse a partir del libro guardado. Comprueba sus imágenes e inténtalo de nuevo.
+      asset_host: Configura un host público HTTPS para los recursos antes de solicitar la validación de Lulu.
+      validation_queue: La validación de Lulu no pudo ponerse en cola. Inténtalo de nuevo.
+      quote_queue: La solicitud de precio no pudo ponerse en cola. Inténtalo de nuevo.
+      shipping_option: Elige uno de los métodos de entrega disponibles.
+      validation_timeout: Lulu no terminó de validar los archivos a tiempo. Inténtalo de nuevo.
+      validation_rejected: "Lulu rechazó los archivos de impresión: %{message}"
+      no_shipping_options: Lulu no devolvió ningún método de entrega para esta dirección.
+      cover_dimensions: Lulu devolvió dimensiones de cubierta que no coinciden con este folleto.
+      provider: "El entorno de pruebas de Lulu no pudo completar la solicitud: %{message}"
+      submission_queue: El pedido de prueba no pudo ponerse en cola. Inténtalo de nuevo.
+      not_submittable: Vuelve a validar los archivos y solicita un presupuesto actualizado antes de realizar el pedido.
+      submission_uncertain: Puede que Lulu haya recibido este pedido. La aplicación está comprobando la referencia exacta y no volverá a enviarlo automáticamente.
+      submission_not_confirmed: Lulu no pudo confirmar si recibió este pedido. Revísalo en el portal de pruebas antes de realizar otra acción.
+      quote_changed: Lulu devolvió un total diferente. Revisa el presupuesto actualizado y confirma el pedido de nuevo.
+      submission_locked: Este pedido es de solo lectura porque el envío ya ha comenzado.
+      retry_submission: Solo se puede reintentar un envío rechazado y confirmado.
+      status_refresh: "No se pudo actualizar el estado de Lulu: %{message}"
+      status_queue: La actualización del estado de Lulu no pudo ponerse en cola. Inténtalo de nuevo.

@@ -1,0 +1,863 @@
+es:
+  navigation:
+    brand: Biblioteca
+    home: Inicio
+    settings: Configuración
+    administration: Administración
+    subscription: Prueba y suscripción
+    profile: Perfil de usuario
+    parent_dashboard: Panel parental
+  parent:
+    not_enabled: El modo restringido para padres no está activado.
+    session:
+      eyebrow: Solo para padres
+      title: Desbloquear controles parentales
+      explanation: Introduce el PIN parental para revisar solicitudes o cambiar las reglas de generación.
+      pin: PIN parental
+      unlock: Desbloquear panel
+      incorrect: El PIN es incorrecto.
+      locked: Demasiados intentos incorrectos. Inténtalo de nuevo en 15 minutos o recupera el PIN por correo electrónico.
+      locked_again: Los controles parentales se han bloqueado.
+    dashboard:
+      eyebrow: Límites familiares
+      title: Panel parental
+      introduction: Decide cómo se inician las historias nuevas sin cambiar los créditos, los controles de seguridad ni los reintentos técnicos.
+      lock: Bloquear controles parentales
+      today: Actividad de generación de hoy
+      successful_today: Libros terminados hoy
+      in_progress: Libros en curso
+      awaiting_approval: En espera de aprobación
+      remaining_today: Libros disponibles hoy
+    control:
+      eyebrow: Reglas de generación
+      title: Elige cómo se permite crear
+      mode: Modo de restricción
+      approval_title: Aprobar cada generación
+      approval_description: Un padre o una madre aprueba cada libro y personaje nuevos. Los reintentos reutilizan la aprobación original.
+      daily_title: Libros terminados al día
+      daily_description: Indica cuántos libros pueden terminarse cada día. Los personajes usan los créditos existentes. Requiere una suscripción activa.
+      daily_limit: Libros terminados al día
+      time_zone: Zona horaria del reinicio diario
+      time_zone_hint: El recuento de libros terminados se reinicia a medianoche en esta zona horaria.
+      save: Guardar reglas
+      updated: Se han actualizado las reglas de generación parental.
+      subscription_required: Se necesita una suscripción activa para establecer un límite diario de libros.
+      subscription_fallback: La suscripción ya no está activa, así que los libros y personajes nuevos requieren aprobación parental.
+    requests:
+      eyebrow: Sala de espera
+      title: Solicitudes pendientes de revisión
+      empty: No hay generaciones pendientes de aprobación.
+      book: Libro
+      character: Personaje
+      book_title: Título
+      book_plot: Trama
+      no_plot: No se ha proporcionado ninguna trama.
+      approve: Aprobar
+      decline: Rechazar
+      approve_declined_title: ¿Aprobar el libro rechazado?
+      approve_declined_confirmation: ¿Seguro? Ya rechazaste este libro y esto hará que se cree inmediatamente.
+      cancel: Cancelar
+      approved: La generación se ha aprobado y puesto en cola.
+      declined: La generación se ha rechazado.
+      stale: Esta solicitud ha cambiado y ya no se puede aprobar.
+      allowance_required: La cuenta necesita un crédito de generación disponible antes de iniciar esta solicitud.
+      queue_failed: La generación se aprobó, pero no pudo ponerse en cola. Su crédito se liberó cuando fue posible.
+    pin_reset:
+      eyebrow: Recuperación del PIN
+      title: Recuperar el PIN parental
+      explanation: Enviaremos un enlace seguro de restablecimiento a %{email}.
+      send: Enviar enlace por correo
+      sent: Las instrucciones para recuperar el PIN se enviaron a la dirección de correo registrada.
+      forgot: ¿Has olvidado el PIN o quieres cambiarlo?
+      choose_title: Elige un nuevo PIN parental
+      new_pin: Nuevo PIN parental
+      confirm_pin: Confirmar nuevo PIN parental
+      update: Actualizar PIN
+      updated: Tu PIN parental se ha actualizado.
+      invalid: Este enlace de recuperación no es válido o ha caducado.
+      request_another: Solicitar otro correo
+    history:
+      eyebrow: Actividad reciente
+      title: Decisiones recientes
+      empty: Todavía no se ha registrado ninguna decisión parental.
+      status:
+        approved: Aprobado
+        declined: Rechazado
+        released: Liberado
+        completed: Terminado
+  authentication:
+    welcome_back: ¡Te damos la bienvenida de nuevo!
+    next_adventure: ¿Todo listo para la próxima aventura?
+    google: Continuar con Google
+    microsoft: Continuar con Microsoft
+    soon: Próximamente
+    new_user_html: ¿Es tu primera vez en MinorTale? <br>Inicia sesión con Google o Microsoft.
+    fantasy: Solo tu imaginación
+    limits: pone límites a lo que puedes hacer.
+    welcome: ¡Te damos la bienvenida a MinorTale!
+    process: Te guiaremos para crear tu propio cuento.
+    how: Elige quién aparecerá en la historia y dinos qué debería suceder.
+    magic: Después, nuestras hadas y máquinas de escribir harán el resto.
+    get_started: Inicia sesión abajo para empezar.
+    login_google: Iniciar sesión con Google
+    login_microsoft: Iniciar sesión con Microsoft
+  landing:
+    navigation: Navegación principal
+    process: Cómo funciona
+    our_story: Nuestra historia
+    get_started: Empezar
+    title_html: Convierte a tu hijo en <span>el héroe de un cuento.</span>
+    introduction: Sube una foto, elige una aventura y observa cómo tu hijo se convierte en protagonista de su propio libro ilustrado.
+    create: Crear tu historia
+    parents: Únete a más de 2000 familias felices
+    photo_alt: Foto de un niño pequeño
+    cartoon_alt: El niño como personaje de dibujos animados
+    magic_title: Así sucede la magia
+    steps:
+      upload:
+        title: Foto y trama
+        description: Añade fotos y describe la aventura de tus sueños.
+      illustration:
+        title: Ilustración con IA
+        description: Nuestra tecnología convierte rostros en personajes de dibujos animados reconocibles.
+      storybook:
+        title: Un cuento al instante
+        description: Un libro precioso en alta resolución, listo para ti.
+    watch: Ver la transformación
+    trusted: Mencionado por / Recomendado por
+    testimonial:
+      quote: '“Mi hija no creyó que fuera ella hasta que vio su peluche favorito en el dibujo. ¡Ha leído el libro cada noche durante un mes!”'
+      author: — Sarah J., madre orgullosa
+    founder_photo: Foto del fundador
+    about:
+      title: Por qué creamos MinorTale
+      origin_html: Todo empezó cuando buscaba un libro para mi hijo cuyo héroe se pareciera a él. No solo un poco, sino que se pareciera <em>de verdad</em>.
+      mission: "Descubrimos que la IA puede servir para algo más que los datos: puede despertar asombro. MinorTale conecta la imaginación infantil con el mundo físico para convertir cada cuento en una aventura personal."
+      signature: Personalizado con cariño.
+  admin:
+    navigation:
+      label: Administración
+      home: Inicio de administración
+      users: Acceso de usuarios
+      reviews: Revisión de imágenes de personajes
+      failed_books: Libros fallidos
+      jobs: Tareas en segundo plano
+      console: Consola
+      back: Volver a los libros
+    dashboard:
+      eyebrow: MinorTale · Operaciones
+      title: Administración
+      introduction: Revisa imágenes de personajes, resuelve fallos de generación e investiga tareas en segundo plano.
+      reviews: Revisión de imágenes de personajes
+      reviews_description: "%{count} pendientes de revisión. Investiga las solicitudes y vuelve a intentar la generación de personajes."
+      failures: Generaciones de libros fallidas
+      failures_description: "%{count} libros fallaron. Revisa los errores y vuelve a intentar las imágenes o historias."
+      jobs: Tareas en segundo plano
+      jobs_description: Investiga las tareas pendientes, en curso o fallidas.
+      console: Consola de Rails
+      console_description: Abre la consola de desarrollo para realizar una investigación técnica.
+      user_access: Acceso de usuarios
+      user: Usuario
+      status: Estado
+      books_available: Libros disponibles
+      character_credits: Créditos de personajes
+      trial_allowance: Cupo de prueba
+    users:
+      eyebrow: Cuentas y bibliotecas
+      title: Acceso de usuarios
+      introduction: Busca una cuenta, consulta sus libros y restaura libros eliminados.
+      search_label: Buscar por correo electrónico
+      search_placeholder: usuario@example.com
+      search: Buscar
+      results: Usuarios
+      empty: Ningún usuario coincide con ese correo electrónico.
+      detail_eyebrow: Biblioteca del usuario
+      back: Volver a la búsqueda de usuarios
+      current_books: Libros actuales
+      deleted_books: Libros eliminados
+      no_current_books: Este usuario no tiene libros actuales.
+      no_deleted_books: Este usuario no tiene libros eliminados.
+      book: Libro
+      status: Estado
+      deleted_at: Eliminado
+      actions: Acciones
+      restore: Restaurar
+      book_restored: El libro se ha restaurado.
+      book_statuses:
+        awaiting_review: En espera de aprobación parental
+        pending: Pendiente
+        in_progress: En curso
+        completed: Terminado
+        failed: Fallido
+    generation_provider:
+      eyebrow: Generación resistente
+      title: Proveedor de generación
+      introduction: Elige el proveedor para futuras solicitudes de historias e imágenes. El modo automático empieza con OpenAI y cambia las solicitudes futuras a Gemini después de 16 fallos de disponibilidad entre las últimas 20 solicitudes relevantes a OpenAI.
+      selected_mode: Modo seleccionado
+      active_provider: Proveedor activo
+      window: Ventana de fallos automática
+      window_summary: "%{failures} fallos entre %{observations} de %{size} solicitudes relevantes a OpenAI"
+      switch_audit: Última decisión de enrutamiento
+      never_switched: No se ha registrado ningún cambio de proveedor.
+      switched_at: "Registrado %{time}"
+      credentials: Credenciales
+      configured: Configurado
+      missing: Falta
+      save: Guardar modo de proveedor
+      saving: Guardando…
+      updated: "El proveedor de generación ha cambiado a %{mode}."
+      invalid_mode: Elige un modo de proveedor de generación válido.
+      missing_openai: OpenAI no está configurado. Añade OPENAI_ACCESS_TOKEN antes de seleccionar este modo.
+      missing_gemini: Gemini no está configurado. Añade GEMINI_API_KEY antes de seleccionar este modo.
+      unavailable_openai: No se pudieron verificar las credenciales de OpenAI o el acceso a la API.
+      unavailable_gemini: No se pudieron verificar las credenciales de Gemini o el acceso a los modelos configurados.
+      switch_reasons:
+        automatic_enabled: Se activó el modo automático con OpenAI.
+        admin_selected_openai: Un administrador seleccionó OpenAI.
+        admin_selected_gemini: Un administrador seleccionó Gemini.
+        openai_availability_failures: "OpenAI tuvo %{failures} fallos de disponibilidad entre %{total} solicitudes relevantes."
+      modes:
+        openai:
+          title: OpenAI
+          description: Enviar las futuras solicitudes de generación a OpenAI.
+        gemini:
+          title: Gemini
+          description: Enviar las futuras solicitudes de generación a Gemini.
+        automatic:
+          title: Automático
+          description: Empezar con OpenAI y cambiar las solicitudes futuras a Gemini cuando se alcance el límite de fallos.
+    health:
+      eyebrow: Conexiones en directo
+      title: Estado de producción
+      introduction: Ejecuta comprobaciones directas desde este proceso web. No ponen tareas en cola ni crean generaciones con los proveedores.
+      run_checks: Comprobar conexiones
+      running: Comprobando…
+      not_checked_description: Ejecuta las comprobaciones para probar la configuración de producción actual.
+      checked: "Comprobado %{time} · %{duration} ms"
+      statuses:
+        not_checked: Sin comprobar
+        connected: Conectado
+        not_configured: Sin configurar
+        failed: Fallido
+      object_storage:
+        title: Almacenamiento de objetos (compatible con S3)
+        description: Prueba el acceso autenticado al bucket configurado sin leer ni escribir objetos.
+      openai:
+        title: OpenAI
+        description: Autentica mediante el endpoint de metadatos de modelos sin generar tokens, texto ni imágenes.
+      gemini:
+        title: Gemini
+        description: Autentica y comprueba el acceso a los modelos de texto e imagen configurados sin generar tokens, texto ni imágenes.
+      messages:
+        storage_connected: Se han confirmado la conexión y el acceso al bucket.
+        storage_missing: "Falta %{settings}."
+        storage_timeout: La solicitud al almacenamiento de objetos agotó el tiempo de espera.
+        storage_unreachable: No se pudo acceder al almacenamiento de objetos.
+        storage_forbidden: Las credenciales configuradas no tienen acceso al bucket del almacenamiento de objetos.
+        storage_rejected: El almacenamiento de objetos rechazó la solicitud.
+        storage_failed: La comprobación del almacenamiento de objetos falló.
+        openai_connected: Se han confirmado la autenticación y el acceso a la API.
+        openai_missing: Falta OPENAI_ACCESS_TOKEN.
+        openai_forbidden: OpenAI rechazó las credenciales configuradas.
+        openai_unexpected: OpenAI devolvió una respuesta inesperada.
+        openai_timeout: La solicitud a OpenAI agotó el tiempo de espera.
+        openai_unreachable: No se pudo acceder a OpenAI.
+        gemini_connected: Se han confirmado la autenticación y el acceso a los modelos.
+        gemini_missing: Falta GEMINI_API_KEY.
+        gemini_forbidden: Gemini rechazó las credenciales configuradas.
+        gemini_unexpected: Gemini devolvió una respuesta inesperada.
+        gemini_timeout: La solicitud a Gemini agotó el tiempo de espera.
+        gemini_unreachable: No se pudo acceder a Gemini.
+      email:
+        title: Entrega de correo electrónico
+        description: Envía un correo de prueba real directamente a tu cuenta de administrador en %{email}. Utiliza el proveedor de correo configurado.
+        send: Enviar correo de prueba
+        sending: Enviando…
+        submitted: Se ha enviado un correo de prueba a %{email}.
+        failed: No se pudo enviar el correo de prueba.
+        subject: Comprobación del correo de producción de MinorTale
+        heading: El correo de producción está conectado
+        body_html: Este correo confirma que MinorTale puede enviar mensajes a <strong>%{email}</strong> mediante el proveedor configurado.
+        body_text: Este correo confirma que MinorTale puede enviar mensajes a %{email} mediante el proveedor configurado.
+        confirmation: Recibir este correo confirma la entrega completa hasta tu bandeja de entrada.
+    failed_books:
+      title: Generaciones de libros fallidas
+      owner: Propietario
+      failed: Falló
+      account: Cuenta en el momento del fallo
+      paid_reserved_retry: Crédito de pago reservado · Se está reintentando una ilustración, por lo que el crédito no puede liberarse.
+      trial_reserved_retry: Plaza de prueba reservada · Se está reintentando una ilustración, por lo que la plaza no puede liberarse.
+      paid_reserved: "Crédito de pago reservado · %{count} créditos de libros disponibles"
+      trial_reserved: "Plaza de prueba reservada · %{count} libros disponibles"
+      release_credit: Liberar crédito de libro
+      release_slot: Liberar plaza de prueba
+      slot_released: Plaza de prueba liberada
+      page_unavailable: "Página %{page} · Ilustración no disponible"
+      attempt_history: Historial de intentos de ilustración
+      none: No hay generaciones de libros fallidas.
+    reviews:
+      title: Revisión de imágenes de personajes
+      status: Estado
+      needs_review: Requiere revisión
+      rejected: Rechazado
+      approved: Aprobado
+      unavailable: Comprobación no disponible
+      owner_id: ID del propietario
+      filter: Filtrar
+      assessment: "Evaluación n.º %{id}"
+      provider_rejected: Rechazado por el proveedor
+      photo_request: Solicitud con foto
+      description_request: Solicitud con descripción
+      none: Ninguna evaluación coincide con los filtros.
+    assessment:
+      back: Volver a la revisión de imágenes de personajes
+      title: "Evaluación de imagen de personaje n.º %{id}"
+      submitted: Material enviado
+      source_alt: "Imagen de origen para la evaluación %{id}"
+      no_photo: Solicitud con descripción; no se envió ninguna imagen de origen.
+      prompt: Instrucción de generación exacta
+      model: Modelo de generación
+      policy: Versión de la política
+      internal_reason: Motivo interno
+      public_reason: Motivo público
+      none: Ninguno
+      metadata: Metadatos de comprobación
+      retry_screening: Reintentar comprobación
+      resolve: Resolver revisión
+      approve: Aprobar
+      internal_note: Nota interna
+      approve_image: Aprobar imagen
+      reject: Rechazar
+      reject_image: Rechazar imagen
+      requests: Solicitudes y resultados de generación
+      request: Solicitud
+      character: Personaje
+      outcome: Resultado de la comprobación
+      generation: Generación
+      actions: Acciones
+      evidence: Historial de intentos y pruebas
+      time: Hora
+      source: Origen
+      reviewer: Revisor
+      not_reserved: No reservado
+      credit_reserved: Crédito de personaje reservado
+      release_credit: Liberar crédito de personaje
+      funding: Financiación
+      current: Evaluación actual
+      confirm_charge: Entiendo que la solicitud anterior podría haberse cobrado y que esto inicia una nueva solicitud de pago.
+      regenerate: Volver a generar imagen
+      retry_generation: Reintentar generación
+      no_requests: Ninguna solicitud hace referencia a esta evaluación.
+      history: Historial de decisiones
+      shared: Evaluación compartida
+      no_decisions: No se ha registrado ninguna decisión.
+      deleted_character: "Personaje eliminado n.º %{id}"
+    notices:
+      screening_available: La comprobación vuelve a estar disponible.
+      screening_requested: Se ha solicitado una nueva comprobación.
+      screening_failed: La comprobación no pudo ponerse en cola. Se liberó el crédito de personaje.
+      no_character_credits: El usuario no tiene créditos de personajes disponibles.
+      generation_queued: La generación del personaje se ha puesto en cola.
+      generation_failed: La generación no se puso en cola. Actualiza la página y comprueba el estado y la confirmación de la solicitud.
+      character_credit_released: Se ha liberado el crédito de personaje.
+      character_credit_active: El crédito no puede liberarse mientras la comprobación o generación esté activa.
+      character_credit_unavailable: La solicitud no tiene ningún crédito de personaje que se pueda liberar.
+      image_approved: La imagen del personaje se ha aprobado.
+      already_resolved: La evaluación ya se ha resuelto.
+      reason_required: Indica un motivo público antes de rechazar la imagen.
+      image_rejected: La imagen del personaje se ha rechazado.
+      book_not_failed: El libro ya no está en estado fallido.
+      book_restarted: La generación del libro se ha reiniciado.
+      no_trial_slots: El usuario no tiene plazas de libros de prueba disponibles. Libera primero otra plaza de un libro fallido.
+      user_trial_expired: El periodo de prueba del usuario ha caducado.
+      no_book_credits: El usuario no tiene créditos de libros disponibles.
+      generation_credit_released: Se ha liberado el crédito de generación reservado.
+      slot_retrying: La plaza no puede liberarse mientras se reintenta una ilustración.
+      no_releasable_credit: El libro no tiene ningún crédito de generación que se pueda liberar.
+      illustration_queued: La ilustración se volverá a generar con una instrucción revisada.
+  profile:
+    eyebrow: Preferencias de lectura
+    title: Perfil de usuario
+    introduction: Elige el idioma de la aplicación y de los libros nuevos. También puedes indicar la edad prevista del lector.
+    updated: Tu perfil se ha actualizado.
+    continue: Continuar
+    save: Guardar configuración
+    language:
+      label: Idioma
+      hint: Este idioma se usa en la aplicación y en los libros nuevos.
+      choose: Elige un idioma
+    reader_age:
+      label: Edad prevista del lector (opcional)
+      hint: Nos ayuda a elegir palabras y frases adecuadas.
+    parent_control:
+      eyebrow: Controles parentales
+      title: Modo restringido para padres
+      explanation: Establece un número diario de libros o exige aprobación antes de generar cada libro o personaje. Los reintentos no requieren otra aprobación. Los límites diarios necesitan una suscripción activa y los personajes siguen usando los créditos de personajes de la cuenta.
+      toggle: Activar o desactivar el modo restringido para padres
+      "on": Activado
+      "off": Desactivado
+      new_pin: PIN parental
+      confirm_pin: Confirmar PIN parental
+      current_pin: PIN parental actual
+      setup_hint: Elige entre 4 y 8 dígitos. El PIN puede recuperarse mediante la dirección de correo registrada en la cuenta.
+      change_hint: Al cambiar el interruptor, se abrirá una confirmación segura mediante PIN.
+      dialog_title: Confirmar configuración parental
+      dialog_explanation: Introduce el PIN parental para activar o desactivar el modo restringido. Al confirmar también se guardarán los cambios del perfil.
+      confirm_change: Confirmar cambio
+      pin_incorrect: El PIN es incorrecto.
+      open_dashboard: Abrir panel parental
+      forgot_pin: Cambiar o recuperar el PIN
+  books:
+    new:
+      title: Libro nuevo
+    edit:
+      title: La trama de tu historia
+    index:
+      eyebrow: Pequeñas fábulas
+      title: Tu biblioteca actual
+      awaiting_approval: "Libros en espera de aprobación (%{count})"
+      create: Crear un libro nuevo
+      credit_required: Compra un crédito de libro en Configuración para crear un libro nuevo.
+      read: Leer
+      read_named: "Leer %{name}"
+      send_as_gift: Enviar como regalo
+      send_as_gift_named: "Enviar %{name} como regalo"
+      category_heading: Explorar libros
+      category_label: Categoría
+      all_categories: Todas las categorías
+      filter_category: Mostrar
+    awaiting:
+      eyebrow: Aprobación parental
+      title: Libros en espera de aprobación
+      current_library: Biblioteca actual
+      empty: No hay libros en espera de aprobación parental.
+      waiting: En espera de aprobación parental
+      review: Revisar aprobación
+      review_named: "Revisar aprobación de %{name}"
+    delete:
+      title: ¿Eliminar libro?
+      action: Eliminar
+      action_named: "Eliminar %{name}"
+      confirm_html: "¿Seguro que quieres eliminar %{name}? Un administrador podrá restaurarlo más adelante."
+    parent_approval:
+      eyebrow: Aprobación parental
+      title: Un padre o una madre debe aprobar este libro.
+      explanation: Introduce el PIN parental para aprobar “%{book}” e iniciar la generación.
+      pin: PIN parental
+      approve: Aprobar como padre o madre
+      back: Volver a los libros pendientes de aprobación
+    reader:
+      chronicles: Las crónicas de
+      illustration_unavailable: Ilustración no disponible
+      the_end: FIN
+      back_to_library: Volver a la biblioteca
+      gift_copy: Regalar una copia de este libro
+      instructions: Haz clic en una página para pasarla. Haz clic en el lado izquierdo para retroceder y en el derecho para avanzar.
+      previous: Anterior
+      next: Siguiente
+    form:
+      language: Idioma de la historia
+      reader_age: Edad prevista del lector (opcional)
+      wizard:
+        eyebrow: Crear un libro
+        introduction: Elige la experiencia de lectura y el aspecto del libro, y luego cuéntanos tu historia.
+        steps_label: Pasos para crear el libro
+        steps:
+          reader: Lector
+          art_style: Estilo artístico
+          font: Tipografía
+          story: Historia
+          review: Revisión
+        reader_hint: Elige el idioma, la edad de lectura y la extensión del libro.
+        story_hint: Ponle un título al libro y describe la aventura.
+        review_hint: Revisa todas las opciones antes de generar la historia y las ilustraciones.
+        characters: Personajes
+        no_characters: No hay personajes seleccionados
+        previous: Anterior
+        next: Siguiente
+        start_over: Empezar de nuevo
+        saved: El progreso se guardó en este navegador.
+        other_tab: Este borrador cambió en otra pestaña.
+        fix_errors: Revisa los datos antes de generar el libro.
+      font:
+        title: Elige una tipografía
+        hint: Esta tipografía se usará para el texto de la historia en todo el libro.
+        sample: Érase una vez una nueva aventura…
+      art_style:
+        title: Elige un estilo de ilustración
+        hint: Este estilo se usará en todas las ilustraciones del libro. Elige un ejemplo para verlo más grande.
+        selected: Tu libro usará el estilo
+        preview_alt: "Vista previa del estilo %{style}"
+      length: Longitud de la historia
+      maximum: Máx.
+      pages:
+        one: 1 página
+        other: "%{count} páginas"
+      tier: "Nivel %{tier}"
+      want_more: ¿Quieres más?
+      upgrade: ¡Mejora tu plan y consigue hasta 20 páginas!
+      create: Crear libro
+    status:
+      parent_approval: Este libro espera la aprobación de un padre o una madre.
+      getting_ready: Estamos preparando tu libro…
+      starts_shortly: La generación comenzará en breve. La página se actualizará automáticamente.
+      preparing: Estamos preparando la historia y el vestuario de los personajes…
+      review_characters: Revisar imágenes de personajes
+      incomplete: Este libro está incompleto. La generación se detuvo antes de que todas las ilustraciones estuvieran listas.
+      image_declined: El proveedor de imágenes rechazó una ilustración.
+      available_pages: Puedes leer abajo la parte disponible de la historia. Las ilustraciones que faltan están marcadas.
+      written: ✨ El libro está escrito. ¡Solo falta un momento! ✨
+      progress: "Creando tu libro: %{progress}%"
+      writing: ¡Estamos escribiendo tu libro!
+      preparing_new: Estamos preparando tu nuevo libro
+      make: Crear libro
+    illustration:
+      regenerate: Volver a generar ilustración
+      retrying: Se está volviendo a generar la ilustración.
+      outdated: Esta página ya no está actualizada.
+      attempts: "%{used} de %{total} intentos utilizados"
+  characters:
+    index:
+      eyebrow: Los personajes de tu libro
+      title: Personajes
+      introduction: Elige los personajes que participarán en tu próxima aventura.
+      new: Personaje nuevo
+      existing: Personajes existentes
+      book_credit_required: Compra un crédito de libro en Configuración para crear un libro nuevo.
+      character_credit_required: Compra un crédito de libro en Configuración para añadir más personajes.
+      make_book_with_characters: Crear un libro con estos personajes
+      make_book_without_characters: Crear un libro sin personajes
+      select_named: "Seleccionar %{name}"
+      edit_named: "Editar %{name}"
+      delete_named: "Eliminar %{name}"
+    form:
+      edit_title: Editar personaje
+      new_title: Crear personaje nuevo
+      name: Nombre del personaje (obligatorio)
+      name_placeholder: Nombre (por ejemplo, Elara)
+      roles_optional: Roles o rasgos del personaje (opcional)
+      select_all: Selecciona todos los que correspondan.
+      photo_tab: Subir foto
+      description_tab: Describir personaje
+      upload_title: Sube una imagen del personaje
+      upload_hint: Sube una imagen para la generación.
+      choose_photo: Elegir imagen
+      no_file: Ningún archivo seleccionado.
+      preview_here: Tu imagen aparecerá aquí.
+      appearance: Aspecto del personaje
+      appearance_hint: Describe el personaje para poder crear su imagen.
+      detailed_description: Aspecto o rasgos (descripción detallada)
+      description_placeholder: Describe el aspecto distintivo, la personalidad y la motivación principal del personaje.
+      roles_all: Roles o rasgos (selecciona todos los que correspondan)
+      age: Edad
+      gender: Género
+      ethnicity: Etnia o aspecto
+      hair_style: Peinado
+      hair_color: Color de pelo
+      eye_color: Color de ojos
+      select: -- Seleccionar --
+      generating_preview: Generando vista previa…
+      preview_failed: No se pudo cargar la vista previa.
+      preview_alt: Vista previa de la imagen del personaje
+      preview_error: No se pudo cargar la imagen.
+      image_failed: "Error: no se pudo generar la imagen."
+      photo_error: "Error al subir la imagen: %{error}"
+    roles:
+      title: Roles y rasgos — opcional
+      hint: Da más personalidad a las historias. Elige los rasgos que quieras y, como máximo, un rol familiar y uno narrativo. También puedes dejarlo todo en blanco.
+    role_groups:
+      family: Familia
+      appearance: Aspecto
+      story: Historia
+    select:
+      title: Seleccionar personajes
+    delete:
+      title: Confirmar eliminación
+      confirm_html: "¿Seguro que quieres eliminar a %{name}?"
+    show:
+      edit: Editar este personaje
+      back: Volver a los personajes
+      destroy: Eliminar este personaje
+      no_image: Sin imagen
+    options:
+      white: Blanco
+      black: Negro
+      asian: Asiático
+      latino: Latino
+      indigenous: Indígena
+      long: Largo
+      loose: Suelto
+      short: Corto
+      bald: Calvo
+      ponytail: Cola de caballo
+      braids: Trenzas
+      brown: Castaño
+      blond: Rubio
+      red: Rojo
+      blue: Azul
+      green: Verde
+      grey: Gris
+      boy: Niño
+      girl: Niña
+      man: Hombre
+      woman: Mujer
+      father: Padre
+      mother: Madre
+      big_sibling: Hermano mayor
+      middle_sibling: Hermano mediano
+      younger_sibling: Hermano menor
+      tattoos: Tatuajes
+      piercings: Piercings
+      freckles: Pecas
+      hero: Héroe
+      villain: Villano
+      supporting: Secundario
+  illustrations:
+    parent_approval: En espera de aprobación parental para este personaje.
+    rejected: "La imagen de tu personaje se rechazó: %{reason}"
+    edit: Editar o sustituir imagen
+    needs_review: La imagen de tu personaje espera la revisión de un administrador.
+    unavailable: La comprobación de imágenes no está disponible temporalmente. Tu imagen todavía no se ha revisado.
+    checking: Comprobando la imagen de tu personaje…
+    outcome_unknown: No se pudo confirmar la generación. Nos detuvimos para evitar otro cobro.
+    failed: No se pudo terminar la imagen de tu personaje. Un administrador puede investigar el fallo.
+    generating: Generando tu personaje…
+    allowance_reached: Tu imagen se ha aprobado, pero has utilizado todo tu cupo de generación.
+    waiting: Esperando para empezar…
+  settings:
+    eyebrow: Acceso a la cuenta
+    title: Prueba y suscripción
+    access:
+      title: Tu acceso
+      administrator: Administrador
+      administrator_hint: Las cuentas de administrador no están sujetas a los límites de prueba.
+      subscription_active: Suscripción mensual activa
+      subscription_ends: La suscripción termina
+      month_ends: El mes actual termina
+      basic: Acceso básico
+      no_expiry: Tu acceso de lectura no caduca.
+      book_credits:
+        one: 1 crédito de libro
+        other: "%{count} créditos de libros"
+      character_credits:
+        one: 1 crédito de personaje
+        other: "%{count} créditos de personajes"
+      available: disponibles
+      allowance_hint: Tu cupo mensual se usa automáticamente. Aquí solo se muestran los créditos guardados y comprados.
+      manage: Gestionar suscripción
+    trial:
+      status: Estado de la prueba
+      not_started: No iniciada
+      active: Activa
+      expired: Caducada
+      books_available:
+        one: 1 libro disponible
+        other: "%{count} libros disponibles"
+      of_three: de 3 libros de prueba.
+      started: Empezó
+      ended: El acceso terminó
+      ends: El acceso termina
+      starts_with_book: Tu periodo de lectura de un mes comienza cuando se termina tu primer libro.
+    payment:
+      eyebrow: Opciones de pago
+      title: Compra tu próximo libro
+      purchase_includes: Cada compra incluye un crédito de libro y cinco generaciones de personajes.
+      buy: Comprar un crédito de libro
+      resume: Reanudar compra de suscripción
+      subscription_includes: Una suscripción incluye 50 libros y 150 generaciones de personajes al mes.
+      subscribe: Suscribirse mensualmente
+      history: Historial de compras
+    modal:
+      eyebrow: Te esperan más historias
+      expired: Tu periodo de prueba ha terminado
+      character_required: Se necesita un crédito de personaje
+      no_books: No te quedan créditos de libros
+      book_required: Se necesita un crédito de libro
+      explanation: Una compra incluye un crédito de libro y cinco generaciones de personajes. Suscríbete mensualmente para recibir 50 libros y 150 generaciones de personajes.
+      continue: Continuar a personajes
+      back: Volver a la biblioteca
+  common:
+    back: Volver
+    save: Guardar
+    close: Cerrar
+    cancel: Cancelar
+    delete: Eliminar
+  notices:
+    trial_ended: Tu periodo de prueba ha terminado. Suscríbete para continuar.
+    parental_generation:
+      book_pending: Este libro espera la aprobación de un padre o una madre.
+      character_pending: Este personaje espera la aprobación de un padre o una madre.
+      daily_limit: Se ha alcanzado el límite diario de libros. Inténtalo de nuevo después del próximo reinicio.
+    book:
+      created: El libro se ha creado.
+      writing: ¡El libro se está escribiendo!
+      destroyed: El libro se ha eliminado.
+      trial_limit_create: La prueba incluye tres libros. Suscríbete para crear un libro nuevo.
+      trial_expired_create: El periodo de prueba ha caducado. Suscríbete para crear un libro nuevo.
+      trial_limit_continue: La prueba incluye tres libros. Suscríbete para continuar.
+      credit_required: Necesitas un crédito de libro para crear un libro nuevo.
+    characters:
+      own_ready_only: Selecciona únicamente imágenes de tus personajes que estén listas.
+      not_ready: Una o más imágenes de personajes no están listas. Elige personajes listos o espera a que terminen la revisión y la generación.
+      added:
+        one: ¡Se ha añadido 1 personaje al libro!
+        other: "¡Se han añadido %{count} personajes al libro!"
+      credit_required: Necesitas un crédito de personaje para volver a generar este personaje.
+      updated: El personaje se ha actualizado.
+      destroyed: El personaje se ha eliminado.
+    illustration:
+      queued: La ilustración se volverá a generar.
+      unavailable: La ilustración no se puede volver a generar o ya hay un reintento en curso.
+      trial_slots: Las tres plazas para libros de prueba están reservadas.
+      credit_required: Necesitas un crédito de libro para volver a generar esta ilustración.
+    payment:
+      unavailable: El pago no está disponible temporalmente. Inténtalo de nuevo.
+      received: Se ha recibido el pago. Tu crédito de libro está listo.
+      processing: Tu pago todavía se está procesando. Los créditos aparecerán cuando Stripe confirme el pago.
+    subscription:
+      active: Tu suscripción ya está activa.
+      unavailable: Las suscripciones no están disponibles temporalmente. Inténtalo de nuevo.
+      management_unavailable: La gestión de suscripciones no está disponible temporalmente. Inténtalo de nuevo.
+  generation_failures:
+    character_image_not_ready: Una o más imágenes de los personajes seleccionados no están listas. Elige personajes listos antes de iniciar este libro.
+    wardrobe_preparation_failed: No pudimos preparar el vestuario de los personajes. No se creó ninguna ilustración de página.
+    wardrobe_image_failed: No pudimos terminar el vestuario de un personaje. La generación de páginas se ha detenido.
+    wardrobe_image_rejected: El servicio de imágenes rechazó la solicitud de vestuario.
+    wardrobe_provider_quota: La generación de libros no está disponible porque se ha alcanzado el límite de créditos o uso del proveedor de IA. Ponte en contacto con soporte.
+    wardrobe_provider_rate_limit: El servicio de IA está recibiendo demasiadas solicitudes. No se pudo terminar el libro; inténtalo de nuevo más tarde.
+    page_image_generation_failed: No se pudo crear una ilustración.
+    book_enqueue_failed: La generación del libro no pudo ponerse en cola.
+    openai_image_moderation_blocked: El proveedor de imágenes rechazó una ilustración.
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: no puede estar en blanco
+      required: debe existir
+      taken: ya está en uso
+      inclusion: no está incluido en la lista
+      in: debe estar entre 0 y 120
+      not_a_number: no es un número
+      not_an_integer: debe ser un número entero
+      form_invalid:
+        one: "1 error impidió guardar el libro:"
+        other: "%{count} errores impidieron guardar el libro:"
+  tutorial:
+    next: Siguiente
+    back: Volver
+    done: Listo
+    welcome: ¡Te damos la bienvenida! Empecemos con tu primer libro.
+    create_book: Escribe el nombre del libro. Será su título.
+    create_book_finish: Cuando te guste, continúa para añadir personajes al libro.
+    create_character: Toda buena historia necesita héroes y villanos. Crea el primer personaje de la historia…
+    reuse_character: …o reutiliza un personaje de una historia anterior.
+    character_generation: Cuando se cree el personaje, aparecerá aquí y se ilustrará en un momento.<br/><br/>También puedes volver a generar la imagen si no te gusta.
+    ready: Cuando te gusten los personajes del libro, haz clic aquí y describe la trama.<br/><br/>Después escribiremos e ilustraremos el libro por ti.
+    character_creation: Crear un personaje es fácil. Elige un nombre y un aspecto.
+    character_looks: Por ejemplo, edad, género, pelo y ojos…
+    character_attributes: …y algunos rasgos que hagan más preciso su aspecto.
+    character_ready: Cuando te guste el personaje, lo ilustraremos. Puedes volver a generar la imagen si no te convence.
+    character_select: Elegir personajes existentes es más fácil que volver a crearlos.<br><br>Haz clic en los personajes que quieras añadir. Haz clic otra vez para quitarlos.
+    character_select_ready: Haz clic aquí para guardar los personajes seleccionados.
+    book_plot: Ahora solo tienes que decirnos de qué debería tratar la historia.
+    book_ready: Haz clic aquí cuando quieras que escribamos e ilustremos tu libro.
+  helpers:
+    submit:
+      chatgpt:
+        create: ¡Crear tu historia!
+      character:
+        create: Crear
+        update: Volver a generar
+        new: Nuevo
+        existing: Existente
+        add: Crear un libro con estos personajes
+    label:
+      story:
+        name: Nombre de la historia
+      chatgpt:
+        prompt: ¿De qué debería tratar la historia? Todos tus personajes aparecerán en ella.
+        audience: ¿Qué edad tiene la persona para quien es la historia?
+    placeholder:
+      story:
+        name: Escribe el nombre de la historia
+  getting_started:
+    drama: ¡Toda buena historia necesita héroes y villanos!
+    create: Crea el primer personaje de la historia o reutiliza uno de una historia anterior.
+    cover:
+      title: Una portada emocionante hace que el libro resulte atractivo.
+      explanation: Describe la portada y elige los personajes que aparecerán.
+      continue: Continuar sin imagen
+  book:
+    pick_image: Elegir una imagen
+  illustration:
+    loading: ¡Generando tu personaje!
+    error: Algo ha salido mal.
+    regenerate: Volver a generar el personaje.
+    click: Haz clic aquí, edítalo y vuelve a generarlo.
+  views:
+    character:
+      index: Todos tus personajes
+  activerecord:
+    errors:
+      models:
+        book:
+          attributes:
+            total_pages:
+              tier_limit: "no puede superar %{limit} páginas en el nivel %{tier}"
+    attributes:
+      book:
+        name: Título
+        plot: Trama
+        total_pages: Número de páginas
+        user_prompt: Describe la historia
+        create: Continuar
+        update: ¡Crear el libro!
+        language: Idioma
+        reader_age: Edad prevista del lector
+      character:
+        index: Personajes
+        name: Nombre
+        age: Edad
+        gender: Género
+        ethnicity: Etnia
+        hair_color: Color de pelo
+        hair_style: Peinado
+        eye_color: Color de ojos
+        photo: Foto
+        roles: Roles
+        role: Rasgos del personaje
+        upload_guidance: Sube una imagen que muestre cómo quieres que sea tu personaje. Puede ser una persona real, un animal u otra imagen que elijas. Para obtener el mejor resultado, sube un solo personaje cada vez y evita fotos familiares o imágenes con varias personas o animales.
+        upload_disclaimer: Las imágenes ilegales, sexuales o inapropiadas no producirán ningún resultado y no se tolerarán. No subas este tipo de contenido intencionadamente; las infracciones reiteradas provocarán el cierre de tu cuenta.
+        placeholder:
+          name: Elige un nombre para tu personaje
+          age: Edad
+          role: Por ejemplo, “Héroe”, “Padre”, “Villano”
+      tutorial:
+        terms: Terms of Use
+        eula: End User License Agreement
+        tutorial: Introducción
+        continue: Continuar
+        accept: Accept
+        decline: Decline
+      user:
+        language: Idioma
+        reader_age: Edad prevista del lector
+  date:
+    formats:
+      long: "%e de %B de %Y"
+    month_names:
+      -
+      - enero
+      - febrero
+      - marzo
+      - abril
+      - mayo
+      - junio
+      - julio
+      - agosto
+      - septiembre
+      - octubre
+      - noviembre
+      - diciembre
+  time:
+    formats:
+      long: "%e de %B de %Y, %H:%M"

@@ -36,6 +36,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
       assert_select "select[name='user[language]'] option[value='en']", "English"
       assert_select "select[name='user[language]'] option[value='da']", "Dansk"
       assert_select "select[name='user[language]'] option[value='el']", "Ελληνικά"
+      assert_select "select[name='user[language]'] option[value='es']", "Español"
       assert_select "input[name='user[reader_age]'][type='number']"
       assert_select "input[name='user[parent_restricted_mode]'][type='hidden'][value='0']"
       assert_select "section.parent-restricted-setting--disabled[data-controller='parent-restriction']"

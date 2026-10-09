@@ -16,7 +16,7 @@ module MinorTale
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
     config.web_console.development_only = false
-    config.i18n.available_locales = %i[en da el]
+    config.i18n.available_locales = %i[en da el es]
     config.i18n.default_locale = :en
     config.i18n.fallbacks = true
     config.x.brand.name = "MinorTale"

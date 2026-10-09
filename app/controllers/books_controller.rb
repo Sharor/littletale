@@ -2,6 +2,7 @@ class BooksController < ApplicationController
   before_action :authenticate_user!
   before_action :set_book, only: %i[ show edit update confirm_delete destroy ]
   before_action :validate_selected_characters, only: %i[ new create update ]
+  before_action :set_ready_character_ids, only: %i[ new create ]
   before_action :enforce_new_book_access, only: :new
 
   # GET /books or /books.json
@@ -126,6 +127,12 @@ class BooksController < ApplicationController
   end
 
   private
+    def set_ready_character_ids
+      ready_characters = current_user.characters.active.select(&:image_ready_for_book?)
+      @ready_character_ids = ready_characters.map { |character| character.id.to_s }
+      @ready_character_names = ready_characters.to_h { |character| [ character.id.to_s, character.name ] }
+    end
+
     def validate_selected_characters
       ids = params[:character_ids] || params.dig(:book, :character_ids)
       selected = if ids
@@ -148,7 +155,8 @@ class BooksController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def book_params
-      params.require(:book).permit(:name, :plot, :total_pages, :language, :reader_age, :art_style, character_ids: [])
+      params.require(:book).permit(:name, :plot, :total_pages, :language, :reader_age, :art_style, :book_font,
+        character_ids: [])
     end
 
     def save_with_generation_funding

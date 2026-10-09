@@ -34,6 +34,18 @@ class LocalizationTest < ActionDispatch::IntegrationTest
     assert_select "aside section[aria-label='Ρυθμίσεις']", text: /Προφίλ χρήστη/
   end
 
+  test "the Spanish preference localizes the library and shared navigation" do
+    @user.update!(language: "es")
+
+    get books_url
+
+    assert_response :success
+    assert_select "main h1", "Tu biblioteca actual"
+    assert_select "main", text: /Crear un libro nuevo/
+    assert_select "aside", text: /Inicio/
+    assert_select "aside section[aria-label='Configuración']", text: /Perfil de usuario/
+  end
+
   test "the Danish preference localizes characters and account settings" do
     get characters_url
     assert_response :success
@@ -46,7 +58,7 @@ class LocalizationTest < ActionDispatch::IntegrationTest
   end
 
   test "legal terms stay in English for localized users" do
-    %w[da el].each do |language|
+    %w[da el es].each do |language|
       @user.update!(language: language)
       get terms_url
 

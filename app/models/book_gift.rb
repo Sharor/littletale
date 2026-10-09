@@ -19,6 +19,7 @@ class BookGift < ApplicationRecord
   validates :issuance_key, uniqueness: true
   validates :language, inclusion: { in: User::SUPPORTED_LANGUAGES.keys }
   validates :delivery_status, inclusion: { in: %w[not_sent queued sent failed] }
+  validates :book_font, inclusion: { in: BookFont.keys }
   validate :recipient_email_is_gmail
 
   def self.issue!(source_book:, sender:, attributes:)
@@ -38,6 +39,7 @@ class BookGift < ApplicationRecord
           issuance_key: issuance_key,
           source_book: source_book,
           sender: sender,
+          book_font: source_book.book_font,
           title: source_book.name,
           token_digest: digest_token(raw_token),
           invitation_token_ciphertext: encrypt_token(raw_token)
@@ -61,6 +63,10 @@ class BookGift < ApplicationRecord
 
   def issued_now?
     @issued_now == true
+  end
+
+  def book_font_definition
+    BookFont.fetch(book_font)
   end
 
   def reload(...)

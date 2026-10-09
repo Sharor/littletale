@@ -116,6 +116,7 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "form[action='#{book_book_gifts_path(@book)}']" do
       assert_select "[data-gift-message-el-value]", count: 1
+      assert_select "[data-gift-message-es-value]", count: 1
       assert_select "input[name='book_gift[recipient_name]'][required]"
       assert_select "input[name='book_gift[recipient_email]'][type='email'][required]"
       assert_select "input[name='book_gift[recipient_email]'][pattern]", count: 0
@@ -124,6 +125,7 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
       assert_select "textarea[name='book_gift[message]'][required]", text: /adventure/i
       assert_select "select[name='book_gift[language]'] option[value='en'][selected]"
       assert_select "select[name='book_gift[language]'] option[value='el']", "Ελληνικά"
+      assert_select "select[name='book_gift[language]'] option[value='es']", "Español"
       assert_select "button[name='delivery'][value='email']"
       assert_select "button[name='delivery'][value='link']"
     end
@@ -321,6 +323,19 @@ class BookGiftsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".story-body", "Once upon a paid-for time."
     assert_select "a[href^='#{new_book_book_gift_path(@book)}']", count: 0
+  end
+
+  test "a claimed gift reader uses its retained book font" do
+    gift, = issue_gift
+    gift.update_column(:book_font, "inter")
+    recipient = verified_recipient
+    gift.claim!(recipient)
+    sign_in recipient
+
+    get received_gift_url(gift)
+
+    assert_response :success
+    assert_select ".book-container.book-font-inter #storybook[data-book-font='inter']"
   end
 
   private

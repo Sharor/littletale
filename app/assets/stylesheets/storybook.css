@@ -339,6 +339,120 @@
 .fable-ui #book_plot { min-height: 7rem; }
 .fable-ui .fable-dialog-shell input.submit { margin: 0; }
 
+.fable-book-wizard-page { min-width: 0; }
+.book-wizard-heading { max-width: 52rem; }
+.book-wizard-heading > p:last-child { max-width: 44rem; margin-top: .75rem; color: var(--fable-muted); }
+.book-wizard-eyebrow {
+  margin: 0 0 .35rem;
+  color: var(--fable-wine);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.book-wizard { display: grid; gap: 1.5rem; max-width: 76rem; padding: 0; overflow: hidden; }
+.book-wizard-errors { margin: 1.5rem 1.5rem 0; padding: 1rem 1.25rem; border: 1px solid #b45b51; border-left: 5px solid #912e30; background: #f3d8ce; }
+.book-wizard-errors p { margin: 0; font-weight: 800; }
+.book-wizard-errors ul { margin: .5rem 0 0 1.25rem; list-style: disc; }
+.book-wizard-nav { overflow-x: auto; border-bottom: 1px solid var(--fable-line); background: #ead7af66; scrollbar-width: thin; }
+.book-wizard-nav ol { display: grid; grid-template-columns: repeat(5, minmax(8.5rem, 1fr)); min-width: 43rem; margin: 0; padding: 0; list-style: none; }
+.fable-ui .book-wizard-nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  width: 100%;
+  min-height: 4.25rem;
+  padding: .75rem;
+  border: 0;
+  border-right: 1px solid #b6976355;
+  color: var(--fable-muted);
+  background: transparent;
+  font: 700 .9rem/1.15 var(--fable-font-display);
+  cursor: pointer;
+}
+.fable-ui .book-wizard-nav button span { display: grid; place-items: center; width: 1.65rem; height: 1.65rem; flex: 0 0 auto; border: 1px solid #9f7e4f; border-radius: 50%; font: 700 .72rem/1 var(--fable-font-body); }
+.fable-ui .book-wizard-nav button[aria-current="step"] { color: #fff8e8; background: var(--fable-wine); }
+.fable-ui .book-wizard-nav button[aria-current="step"] span { border-color: #f0dcb4; background: #fff8e81f; }
+.fable-ui .book-wizard-nav button:focus-visible { position: relative; z-index: 1; outline: 3px solid var(--fable-wine); outline-offset: -3px; }
+.book-wizard-save-status { min-height: 1.5rem; margin: -.75rem clamp(1.25rem, 4vw, 3rem) -1rem; color: var(--fable-muted); font-size: .8rem; text-align: right; }
+.book-wizard-step { min-width: 0; padding: .25rem clamp(1.25rem, 4vw, 3rem) 1rem; }
+.book-wizard-step-heading { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; align-items: start; margin-bottom: 1.75rem; }
+.book-wizard-step-heading > span { color: var(--fable-wine); font: 400 clamp(2rem, 5vw, 3.4rem)/.9 var(--fable-font-display); opacity: .38; }
+.book-wizard-step-heading h2 { margin: 0; font-size: clamp(1.65rem, 3vw, 2.25rem); line-height: 1.1; }
+.book-wizard-step-heading p { max-width: 55ch; margin: .4rem 0 0; color: var(--fable-muted); }
+.book-wizard-field-grid { display: grid; gap: 1.25rem; }
+.book-wizard-input {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: .4rem;
+  padding: .7rem .85rem;
+  border: 1px solid #9f7e4f;
+  border-radius: 3px;
+  color: var(--fable-ink);
+  background: #fffaf0cc;
+  font-family: var(--fable-font-body);
+}
+textarea.book-wizard-input { min-height: 10rem; resize: vertical; }
+.book-wizard-input:focus { outline: 3px solid #742d3840; border-color: var(--fable-wine); }
+.book-wizard-length { margin-top: 1.5rem; }
+.book-wizard-length-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.book-wizard-page-count { width: 7rem; text-align: center; }
+.book-wizard-length-row > span, .book-wizard-upgrade { color: var(--fable-muted); font-size: .9rem; }
+.book-wizard-length-row strong, .book-wizard-upgrade a { color: var(--fable-wine); }
+.book-wizard-story-fields { display: grid; gap: 1.4rem; }
+
+@font-face {
+  font-family: "Book EB Garamond";
+  src: url("print/EBGaramond.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Book Inter";
+  src: url("print/Inter.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+.book-font-picker { display: grid; gap: 1rem; padding: 0; border: 0; }
+.book-font-option { position: relative; min-width: 0; }
+.book-font-option-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.book-font-option-card {
+  position: relative;
+  display: grid;
+  gap: .8rem;
+  min-height: 10rem;
+  padding: 1.25rem 3rem 1.25rem 1.25rem;
+  border: 1px solid #9f7e4f;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #fffaf0, #ead7af99);
+  box-shadow: 0 8px 20px #4d382712;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.book-font-option-name { color: var(--fable-wine); font: 700 .75rem/1 var(--fable-font-body); letter-spacing: .12em; text-transform: uppercase; }
+.book-font-option-sample { align-self: center; color: var(--fable-ink); font-size: clamp(1.35rem, 3vw, 1.8rem); line-height: 1.25; }
+.book-font-eb-garamond .book-font-option-sample { font-family: "Book EB Garamond", Georgia, serif; }
+.book-font-inter .book-font-option-sample { font-family: "Book Inter", Arial, sans-serif; }
+.book-font-option-check { position: absolute; top: 1rem; right: 1rem; display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 1px solid #9f7e4f; border-radius: 50%; color: transparent; background: #fff8e8; }
+.book-font-option-input:checked + .book-font-option-card { border-color: var(--fable-wine); box-shadow: 0 0 0 2px var(--fable-wine), 0 10px 25px #4d38271f; }
+.book-font-option-input:checked + .book-font-option-card .book-font-option-check { color: #fff8e8; background: var(--fable-wine); }
+.book-font-option-input:focus-visible + .book-font-option-card { outline: 3px solid var(--fable-wine); outline-offset: 3px; }
+
+.book-wizard-review { display: grid; gap: 0; margin: 0; border: 1px solid #b6976380; background: #fffaf080; }
+.book-wizard-review > div { display: grid; grid-template-columns: minmax(8rem, .45fr) minmax(0, 1fr); gap: 1rem; padding: .85rem 1rem; border-bottom: 1px solid #b697634d; }
+.book-wizard-review > div:last-child { border-bottom: 0; }
+.book-wizard-review dt { color: var(--fable-wine); font-family: var(--fable-font-display); font-weight: 700; }
+.book-wizard-review dd { min-width: 0; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.book-wizard-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem clamp(1.25rem, 4vw, 3rem); border-top: 1px solid var(--fable-line); background: #ead7af55; }
+.book-wizard-actions > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; margin-left: auto; }
+.book-wizard-primary, .book-wizard-secondary, .book-wizard-reset { min-height: 44px; padding: .7rem 1.15rem; border-radius: 3px; font-family: var(--fable-font-body); font-weight: 750; cursor: pointer; }
+.fable-ui .book-wizard-primary { border: 1px solid var(--fable-wine); color: #fff8e8; background: var(--fable-wine); }
+.fable-ui .book-wizard-secondary { border: 1px solid #9f7e4f; color: var(--fable-ink); background: #fffaf0; }
+.fable-ui .book-wizard-reset { border: 0; color: var(--fable-wine); background: transparent; text-decoration: underline; text-underline-offset: .2em; }
+
 .art-style-picker {
   container-type: inline-size;
   min-width: 0;
@@ -431,9 +545,10 @@
   .fable-ui :is(button, input[type="submit"]):not(:disabled):hover { filter: brightness(1.1); }
   .site-settings a:hover { color: var(--fable-gold); background: #e2c27512; }
   .art-style-option-card:hover { transform: translateY(-2px); border-color: #765a36; box-shadow: 0 7px 18px #4d38271c; }
+  .book-font-option-card:hover { transform: translateY(-2px); border-color: var(--fable-wine); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .art-style-option-card { transition: none; }
+  .art-style-option-card, .book-font-option-card { transition: none; }
 }
 @media (max-width: 479px) {
   .fable-character-add-card [class~="aspect-[3/3]"] { min-height: 10rem; aspect-ratio: auto; }
@@ -447,6 +562,7 @@
   .fable-main { padding: 2.5rem 2rem 4rem; }
   .fable-character-grid, .fable-selection-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
   .fable-character-overview-header { grid-template-columns: minmax(0, 1fr) minmax(14rem, 22rem); }
+  .book-wizard-field-grid, .book-font-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @container (min-width: 48rem) {
   .art-style-picker-layout { grid-template-columns: minmax(14rem, .68fr) minmax(30rem, 1.65fr); gap: clamp(1.25rem, 2.5vw, 2rem); }
